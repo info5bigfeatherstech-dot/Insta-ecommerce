@@ -1,26 +1,93 @@
 @import "tailwindcss";
 
 :root {
-  --background: #ffffff;
-  --foreground: #171717;
+  --background: #F8FAFC;
+  --foreground: #1E293B;
+  
+  --card: #FFFFFF;
+  --card-foreground: #1E293B;
+  
+  --popover: #FFFFFF;
+  --popover-foreground: #1E293B;
+  
+  --primary: #635BDB;
+  --primary-foreground: #FFFFFF;
+  --primary-light: #EEF2FF;
+  --primary-hover: #5349C9;
+  
+  --secondary: #F1F5F9;
+  --secondary-foreground: #1E293B;
+  
+  --muted: #F8FAFC;
+  --muted-foreground: #64748B;
+  
+  --accent: #EEF2FF;
+  --accent-foreground: #635BDB;
+  
+  --destructive: #EF4444;
+  --destructive-foreground: #FFFFFF;
+  --destructive-light: #FEF2F2;
+  
+  --success: #10B981;
+  --success-foreground: #FFFFFF;
+  --success-light: #ECFDF5;
+  
+  --warning: #F59E0B;
+  --warning-foreground: #FFFFFF;
+  --warning-light: #FFFBEB;
+  
+  --border: #E2E8F0;
+  --input: #E2E8F0;
+  --ring: #635BDB;
+  
+  --radius: 0.75rem; /* 12px */
+  --sidebar-bg: #FFFFFF;
+  --sidebar-border: #E2E8F0;
+  --sidebar-width: 250px;
+  --sidebar-collapsed-width: 68px;
+
+  /* Table density */
+  --table-py: 0.75rem;
+  --table-px: 1rem;
+  --table-font-size: 0.875rem;
 }
 
-@theme inline {
-  --color-background: var(--background);
-  --color-foreground: var(--foreground);
-  --font-sans: var(--font-geist-sans);
-  --font-mono: var(--font-geist-mono);
+[data-density="compact"] {
+  --table-py: 0.45rem;
+  --table-px: 0.75rem;
+  --table-font-size: 0.8125rem;
 }
 
-@media (prefers-color-scheme: dark) {
-  :root {
-    --background: #0a0a0a;
-    --foreground: #ededed;
-  }
+[data-density="comfortable"] {
+  --table-py: 1rem;
+  --table-px: 1.25rem;
+  --table-font-size: 0.9375rem;
 }
 
 body {
-  background: var(--background);
+  background-color: var(--background);
   color: var(--foreground);
-  font-family: Arial, Helvetica, sans-serif;
+  font-family: var(--font-manrope), -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+  -webkit-font-smoothing: antialiased;
+}
+
+/* Custom scrollbar for data tables and panels */
+::-webkit-scrollbar {
+  width: 6px;
+  height: 6px;
+}
+::-webkit-scrollbar-track {
+  background: transparent;
+}
+::-webkit-scrollbar-thumb {
+  background: #CBD5E1;
+  border-radius: 9999px;
+}
+::-webkit-scrollbar-thumb:hover {
+  background: #94A3B8;
+}
+
+/* Transitions */
+.sidebar-transition {
+  transition: width 0.2s cubic-bezier(0.4, 0, 0.2, 1), transform 0.2s cubic-bezier(0.4, 0, 0.2, 1);
 }

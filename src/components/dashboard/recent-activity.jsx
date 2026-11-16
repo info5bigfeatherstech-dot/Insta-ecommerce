@@ -1,0 +1,71 @@
+import * as React from "react";
+import Link from "next/link";
+import { formatRelativeTime, generateSVGPlaceholder } from "@/lib/utils";
+import { Card, CardHeader, CardTitle, CardDescription, CardContent } from "@/components/ui/card";
+import { Avatar, AvatarFallback } from "@/components/ui/avatar";
+import { Zap, ShoppingBag, MousePointerClick, MessageSquare, ArrowRight } from "lucide-react";
+
+export function RecentActivity({ activities = [] }) {
+  const getIcon = (type) => {
+    switch (type) {
+      case "purchase":
+        return <ShoppingBag className="h-3.5 w-3.5 text-emerald-600" />;
+      case "dm_trigger":
+        return <Zap className="h-3.5 w-3.5 text-[#635BDB]" />;
+      case "link_click":
+        return <MousePointerClick className="h-3.5 w-3.5 text-blue-600" />;
+      default:
+        return <MessageSquare className="h-3.5 w-3.5 text-amber-600" />;
+    }
+  };
+
+  return (
+    <Card>
+      <CardHeader className="flex flex-row items-center justify-between pb-3">
+        <div>
+          <CardTitle>Recent Customer Activity</CardTitle>
+          <CardDescription>Live Instagram DM touchpoints & orders</CardDescription>
+        </div>
+        <Link
+          href="/inbox"
+          className="text-xs font-semibold text-[#635BDB] hover:underline flex items-center gap-1"
+        >
+          <span>View Inbox</span>
+          <ArrowRight className="h-3.5 w-3.5" />
+        </Link>
+      </CardHeader>
+      <CardContent className="divide-y divide-[#E2E8F0] p-5 pt-0">
+        {activities.map((item) => (
+          <div key={item.id} className="py-3 first:pt-0 last:pb-0 flex items-start gap-3">
+            <div className="flex h-7 w-7 items-center justify-center rounded-full bg-[#F1F5F9] shrink-0 mt-0.5">
+              {getIcon(item.type)}
+            </div>
+
+            <div className="flex-1 min-w-0">
+              <div className="flex items-center justify-between gap-1">
+                <Link
+                  href={`/customers/${item.customer.id}`}
+                  className="text-xs font-semibold text-[#1E293B] hover:text-[#635BDB] truncate"
+                >
+                  {item.customer.name}
+                  <span className="text-[#64748B] font-normal ml-1">
+                    ({item.customer.username})
+                  </span>
+                </Link>
+                <span className="text-[10px] text-[#94A3B8] shrink-0">
+                  {formatRelativeTime(item.timestamp)}
+                </span>
+              </div>
+              <p className="text-xs text-[#64748B] truncate mt-0.5">{item.activity}</p>
+              {item.product && (
+                <span className="inline-block text-[10px] bg-[#EEF2FF] text-[#635BDB] px-1.5 py-0.2 rounded mt-1 font-medium">
+                  {item.product.name}
+                </span>
+              )}
+            </div>
+          </div>
+        ))}
+      </CardContent>
+    </Card>
+  );
+}
