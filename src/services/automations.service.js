@@ -147,12 +147,19 @@ export const automationsService = {
 
     db.state.automations[index] = updated;
 
-    // Synchronize Reel link if changed
-    if (data.reelId) {
-      const rIdx = db.state.reels.findIndex((r) => r.id === data.reelId);
+    // Synchronize Reel link and settings if linked
+    const targetReelId = updated.reelId;
+    if (targetReelId) {
+      const rIdx = db.state.reels.findIndex((r) => r.id === targetReelId);
       if (rIdx !== -1) {
         db.state.reels[rIdx].automationId = id;
         db.state.reels[rIdx].status = updated.status;
+        if (updated.triggerKeywords && updated.triggerKeywords.length > 0) {
+          db.state.reels[rIdx].triggerKeywords = updated.triggerKeywords;
+        } else if (updated.triggerKeyword) {
+          db.state.reels[rIdx].triggerKeywords = [updated.triggerKeyword];
+        }
+        if (updated.messageTemplate) db.state.reels[rIdx].messageTemplate = updated.messageTemplate;
       }
     }
 
@@ -173,6 +180,14 @@ export const automationsService = {
     const newStatus = db.state.automations[index].status === "active" ? "inactive" : "active";
     db.state.automations[index].status = newStatus;
     db.state.automations[index].lastUpdated = new Date().toISOString();
+
+    const auto = db.state.automations[index];
+    if (auto.reelId) {
+      const rIdx = db.state.reels.findIndex((r) => r.id === auto.reelId);
+      if (rIdx !== -1) {
+        db.state.reels[rIdx].status = newStatus;
+      }
+    }
 
     db.persist();
 

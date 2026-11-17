@@ -1,12 +1,15 @@
 "use client";
 
 import * as React from "react";
+import Link from "next/link";
+import { useRouter } from "next/navigation";
 import {
   useProducts,
   useCreateProduct,
   useUpdateProduct,
   useDeleteProduct,
 } from "@/hooks/use-products";
+import { useListFilterStore } from "@/store/list-filter-store";
 import { PageHeader } from "@/components/shared/page-header";
 import { DataTable } from "@/components/shared/data-table";
 import { FilterDropdown } from "@/components/shared/filter-dropdown";
@@ -17,48 +20,26 @@ import { formatINR, formatNumber, generateSVGPlaceholder } from "@/lib/utils";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
 import {
-  Sheet,
-  SheetContent,
-  SheetHeader,
-  SheetTitle,
-  SheetDescription,
-  SheetFooter,
-} from "@/components/ui/sheet";
-import {
-  DropdownMenu,
-  DropdownMenuContent,
-  DropdownMenuItem,
-  DropdownMenuSeparator,
-  DropdownMenuTrigger,
-} from "@/components/ui/dropdown-menu";
-import {
   Plus,
   LayoutGrid,
   List,
-  MoreVertical,
   Edit2,
   Trash2,
   Eye,
-  ExternalLink,
-  MessageSquare,
-  MousePointerClick,
-  ShoppingBag,
 } from "lucide-react";
 import { db } from "@/data/db";
 
 export default function ProductsPage() {
-  const [viewMode, setViewMode] = React.useState("table"); // "table" | "grid"
-  const [search, setSearch] = React.useState("");
-  const [category, setCategory] = React.useState("all");
-  const [status, setStatus] = React.useState("all");
-  const [page, setPage] = React.useState(1);
+  const router = useRouter();
+
+  // Persistent list filter state
+  const { products: filterState, setProductsFilter } = useListFilterStore();
+  const { search, category, status, page, viewMode } = filterState;
 
   // Modals state
   const [isFormOpen, setIsFormOpen] = React.useState(false);
   const [editingProduct, setEditingProduct] = React.useState(null);
   const [deletingProduct, setDeletingProduct] = React.useState(null);
-  const [selectedProduct, setSelectedProduct] = React.useState(null);
-  const [detailOpen, setDetailOpen] = React.useState(false);
 
   const { data, isLoading } = useProducts({
     search,
@@ -88,9 +69,8 @@ export default function ProductsPage() {
     setDeletingProduct(prod);
   };
 
-  const handleOpenDetail = (prod) => {
-    setSelectedProduct(prod);
-    setDetailOpen(true);
+  const handleRowClick = (prod) => {
+    router.push(`/products/${prod.id}`);
   };
 
   const handleFormSubmit = async (formData) => {
@@ -105,9 +85,6 @@ export default function ProductsPage() {
     if (deletingProduct) {
       await deleteMutation.mutateAsync(deletingProduct.id);
       setDeletingProduct(null);
-      if (selectedProduct?.id === deletingProduct.id) {
-        setDetailOpen(false);
-      }
     }
   };
 
@@ -134,9 +111,13 @@ export default function ProductsPage() {
               className="h-10 w-10 rounded-[8px] object-cover shrink-0 border border-[#E2E8F0]"
             />
             <div>
-              <span className="font-semibold text-xs text-[#1E293B] block hover:text-[#635BDB]">
+              <Link
+                href={`/products/${row.id}`}
+                onClick={(e) => e.stopPropagation()}
+                className="font-semibold text-xs text-[#1E293B] block hover:text-[#635BDB] hover:underline"
+              >
                 {row.name}
-              </span>
+              </Link>
               <span className="text-[10px] text-[#64748B]">SKU: {row.sku}</span>
             </div>
           </div>
@@ -191,11 +172,13 @@ export default function ProductsPage() {
           <Button
             variant="ghost"
             size="icon"
-            onClick={() => handleOpenDetail(row)}
-            className="h-7 w-7 text-[#64748B]"
+            asChild
+            className="h-7 w-7 text-[#64748B] hover:text-[#635BDB]"
             title="View Details"
           >
-            <Eye className="h-3.5 w-3.5" />
+            <Link href={`/products/${row.id}`} onClick={(e) => e.stopPropagation()}>
+              <Eye className="h-3.5 w-3.5" />
+            </Link>
           </Button>
           <Button
             variant="ghost"
@@ -232,7 +215,7 @@ export default function ProductsPage() {
             <Button
               variant="ghost"
               size="icon"
-              onClick={() => setViewMode("table")}
+              onClick={() => setProductsFilter({ viewMode: "table" })}
               className={`h-7 w-7 rounded-[6px] ${
                 viewMode === "table" ? "bg-white text-[#1E293B] shadow-xs" : "text-[#64748B]"
               }`}
@@ -243,7 +226,7 @@ export default function ProductsPage() {
             <Button
               variant="ghost"
               size="icon"
-              onClick={() => setViewMode("grid")}
+              onClick={() => setProductsFilter({ viewMode: "grid" })}
               className={`h-7 w-7 rounded-[6px] ${
                 viewMode === "grid" ? "bg-white text-[#1E293B] shadow-xs" : "text-[#64748B]"
               }`}
@@ -268,30 +251,21 @@ export default function ProductsPage() {
           isLoading={isLoading}
           searchPlaceholder="Search product name, SKU..."
           searchValue={search}
-          onSearchChange={(val) => {
-            setSearch(val);
-            setPage(1);
-          }}
-          onRowClick={handleOpenDetail}
+          onSearchChange={(val) => setProductsFilter({ search: val, page: 1 })}
+          onRowClick={handleRowClick}
           exportFilename="products_catalog"
           filters={
             <div className="flex items-center gap-2">
               <FilterDropdown
                 label="Category"
                 value={category}
-                onChange={(val) => {
-                  setCategory(val);
-                  setPage(1);
-                }}
+                onChange={(val) => setProductsFilter({ category: val, page: 1 })}
                 options={categoryOptions}
               />
               <FilterDropdown
                 label="Status"
                 value={status}
-                onChange={(val) => {
-                  setStatus(val);
-                  setPage(1);
-                }}
+                onChange={(val) => setProductsFilter({ status: val, page: 1 })}
                 options={[
                   { value: "all", label: "All Statuses" },
                   { value: "active", label: "Active" },
@@ -305,7 +279,7 @@ export default function ProductsPage() {
             limit: data?.pagination?.limit || 12,
             totalRecords: data?.pagination?.totalRecords || 0,
             totalPages: data?.pagination?.totalPages || 1,
-            onPageChange: (newPage) => setPage(newPage),
+            onPageChange: (newPage) => setProductsFilter({ page: newPage }),
           }}
         />
       ) : (
@@ -316,13 +290,13 @@ export default function ProductsPage() {
               <FilterDropdown
                 label="Category"
                 value={category}
-                onChange={(val) => setCategory(val)}
+                onChange={(val) => setProductsFilter({ category: val, page: 1 })}
                 options={categoryOptions}
               />
               <FilterDropdown
                 label="Status"
                 value={status}
-                onChange={(val) => setStatus(val)}
+                onChange={(val) => setProductsFilter({ status: val, page: 1 })}
                 options={[
                   { value: "all", label: "All Statuses" },
                   { value: "active", label: "Active" },
@@ -347,7 +321,7 @@ export default function ProductsPage() {
               return (
                 <Card
                   key={prod.id}
-                  onClick={() => handleOpenDetail(prod)}
+                  onClick={() => handleRowClick(prod)}
                   className="cursor-pointer hover:shadow-md transition-all group overflow-hidden flex flex-col justify-between"
                 >
                   <div>
@@ -386,6 +360,17 @@ export default function ProductsPage() {
                     </div>
 
                     <div className="flex items-center gap-1" onClick={(e) => e.stopPropagation()}>
+                      <Button
+                        variant="ghost"
+                        size="icon"
+                        asChild
+                        className="h-7 w-7 text-[#64748B] hover:text-[#635BDB]"
+                        title="View Details"
+                      >
+                        <Link href={`/products/${prod.id}`} onClick={(e) => e.stopPropagation()}>
+                          <Eye className="h-3.5 w-3.5" />
+                        </Link>
+                      </Button>
                       <Button
                         variant="ghost"
                         size="icon"
@@ -432,114 +417,6 @@ export default function ProductsPage() {
         onConfirm={handleDeleteConfirm}
         isLoading={deleteMutation.isPending}
       />
-
-      {/* Product Details Drawer */}
-      <Sheet open={detailOpen} onOpenChange={setDetailOpen}>
-        <SheetContent side="right" className="p-0 sm:max-w-md lg:max-w-lg flex flex-col justify-between">
-          {selectedProduct && (
-            <>
-              <SheetHeader className="p-5 border-b border-[#E2E8F0]">
-                <div className="flex items-center justify-between pr-6">
-                  <div>
-                    <SheetTitle className="text-base font-bold text-[#1E293B]">
-                      {selectedProduct.name}
-                    </SheetTitle>
-                    <SheetDescription>
-                      SKU: {selectedProduct.sku} • {selectedProduct.categoryName}
-                    </SheetDescription>
-                  </div>
-                  <StatusBadge status={selectedProduct.status} />
-                </div>
-              </SheetHeader>
-
-              <div className="flex-1 overflow-y-auto p-5 space-y-6">
-                {/* Product Image Preview */}
-                <div className="rounded-[10px] overflow-hidden border border-[#E2E8F0] aspect-video w-full bg-[#F8FAFC] flex items-center justify-center">
-                  <img
-                    src={generateSVGPlaceholder({
-                      text: selectedProduct.name,
-                      type: "product",
-                      identifier: selectedProduct.id,
-                    })}
-                    alt={selectedProduct.name}
-                    className="h-full w-full object-cover"
-                  />
-                </div>
-
-                {/* Key Metrics */}
-                <div className="grid grid-cols-3 gap-2.5">
-                  <div className="p-3 rounded-[8px] bg-[#F8FAFC] border border-[#E2E8F0] text-center">
-                    <span className="text-[10px] text-[#64748B] block">Price</span>
-                    <span className="text-sm font-bold text-[#1E293B]">
-                      {formatINR(selectedProduct.price)}
-                    </span>
-                  </div>
-                  <div className="p-3 rounded-[8px] bg-[#F8FAFC] border border-[#E2E8F0] text-center">
-                    <span className="text-[10px] text-[#64748B] block">DMs Sent</span>
-                    <span className="text-sm font-bold text-[#635BDB]">
-                      {formatNumber(selectedProduct.messagesSent)}
-                    </span>
-                  </div>
-                  <div className="p-3 rounded-[8px] bg-[#F8FAFC] border border-[#E2E8F0] text-center">
-                    <span className="text-[10px] text-[#64748B] block">Orders</span>
-                    <span className="text-sm font-bold text-emerald-600">
-                      {formatNumber(selectedProduct.ordersCount)}
-                    </span>
-                  </div>
-                </div>
-
-                {/* Description */}
-                <div className="space-y-1.5">
-                  <h4 className="text-xs font-bold uppercase tracking-wider text-[#94A3B8]">
-                    Description
-                  </h4>
-                  <p className="text-xs text-[#1E293B] leading-relaxed p-3.5 rounded-[10px] border border-[#E2E8F0] bg-white">
-                    {selectedProduct.description}
-                  </p>
-                </div>
-
-                {/* Product URL */}
-                <div className="space-y-1.5">
-                  <h4 className="text-xs font-bold uppercase tracking-wider text-[#94A3B8]">
-                    Live Store Link
-                  </h4>
-                  <a
-                    href={selectedProduct.productUrl}
-                    target="_blank"
-                    rel="noreferrer"
-                    className="flex items-center justify-between p-3 rounded-[10px] border border-[#E2E8F0] bg-[#F8FAFC] text-xs font-medium text-[#635BDB] hover:bg-[#EEF2FF] transition-colors"
-                  >
-                    <span className="truncate">{selectedProduct.productUrl}</span>
-                    <ExternalLink className="h-3.5 w-3.5 shrink-0 ml-2" />
-                  </a>
-                </div>
-              </div>
-
-              <SheetFooter className="p-4 border-t border-[#E2E8F0] flex gap-2">
-                <Button
-                  variant="outline"
-                  size="sm"
-                  onClick={() => setDetailOpen(false)}
-                  className="flex-1 text-xs"
-                >
-                  Close
-                </Button>
-                <Button
-                  size="sm"
-                  onClick={() => {
-                    setDetailOpen(false);
-                    handleOpenEdit(selectedProduct);
-                  }}
-                  className="flex-1 text-xs gap-1.5"
-                >
-                  <Edit2 className="h-3.5 w-3.5" />
-                  <span>Edit Product</span>
-                </Button>
-              </SheetFooter>
-            </>
-          )}
-        </SheetContent>
-      </Sheet>
     </div>
   );
 }

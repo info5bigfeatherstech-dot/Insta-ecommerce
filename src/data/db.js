@@ -8,10 +8,9 @@ import { initialAutomations } from "./automations.data";
 import { initialOrders } from "./orders.data";
 import { initialConversations } from "./messages.data";
 import { initialDmActivity } from "./dm-activity.data";
-import { initialIntegrations } from "./integrations.data";
 import { initialSettings } from "./settings.data";
 
-const DB_STORAGE_KEY = "instacommerce_mock_database_v1";
+const DB_STORAGE_KEY = "instacommerce_mock_database_v3";
 
 // Helper to simulate network latency
 export const delay = (ms = 350) => new Promise((resolve) => setTimeout(resolve, ms));
@@ -47,7 +46,6 @@ class MockDatabase {
       orders: [...initialOrders],
       conversations: [...initialConversations],
       dmActivity: [...initialDmActivity],
-      integrations: [...initialIntegrations],
       settings: { ...initialSettings },
     };
   }
@@ -74,7 +72,6 @@ class MockDatabase {
       orders: [...initialOrders],
       conversations: [...initialConversations],
       dmActivity: [...initialDmActivity],
-      integrations: [...initialIntegrations],
       settings: { ...initialSettings },
     };
     this.persist();

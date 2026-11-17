@@ -6,13 +6,11 @@ import {
   Menu,
   Search,
   Bell,
-  HelpCircle,
   Command,
   User,
   Settings,
   LogOut,
   Sparkles,
-  ExternalLink,
 } from "lucide-react";
 import { Suspense } from "react";
 import { AppBreadcrumb } from "./app-breadcrumb";
@@ -42,27 +40,27 @@ export function AppHeader() {
       title: "New Reel Trigger: 'GOLD'",
       desc: "@priya_sharma_98 triggered Gold Necklace DM",
       time: "5m ago",
+      href: "/reels/reel_1",
       unread: true,
     },
     {
       id: "notif_2",
-      title: "Order #ORD-IN-1028 Paid",
+      title: "Order #ORD-IN-1001 Paid",
       desc: "₹1,979 received via UPI (Priya Sharma)",
       time: "15m ago",
+      href: "/orders/ord_1001",
       unread: true,
     },
     {
       id: "notif_3",
       title: "Stock Alert",
-      desc: "Chelsea Leather Boots stock down to 15 units",
+      desc: "Minimal Gold Vermeil Necklace stock low",
       time: "2h ago",
+      href: "/products/prod_1",
       unread: false,
     },
   ];
 
-  const handleHelp = () => {
-    toast.info("Instagram Commerce Automation Engine — Documentation & Guides simulation");
-  };
 
   return (
     <>
@@ -111,11 +109,6 @@ export function AppHeader() {
             <Search className="h-4 w-4" />
           </Button>
 
-          {/* Connected Instagram Indicator */}
-          <div className="hidden lg:flex items-center gap-1.5 px-2.5 py-1 rounded-full bg-[#ECFDF5] border border-emerald-200 text-emerald-700 text-xs font-medium">
-            <span className="h-2 w-2 rounded-full bg-emerald-500 animate-pulse" />
-            <span>{SITE_CONFIG.instagramHandle}</span>
-          </div>
 
           {/* Notifications Dropdown */}
           <DropdownMenu>
@@ -142,32 +135,22 @@ export function AppHeader() {
               <DropdownMenuSeparator />
               <div className="space-y-1 py-1">
                 {notifications.map((n) => (
-                  <div
+                  <Link
                     key={n.id}
-                    className="p-2 rounded-[6px] hover:bg-[#F8FAFC] transition-colors cursor-pointer text-xs"
+                    href={n.href}
+                    className="p-2 rounded-[6px] hover:bg-[#F8FAFC] transition-colors cursor-pointer text-xs block"
                   >
                     <div className="flex items-center justify-between">
                       <span className="font-semibold text-[#1E293B]">{n.title}</span>
                       <span className="text-[10px] text-[#94A3B8]">{n.time}</span>
                     </div>
                     <p className="text-[11px] text-[#64748B] mt-0.5">{n.desc}</p>
-                  </div>
+                  </Link>
                 ))}
               </div>
             </DropdownMenuContent>
           </DropdownMenu>
 
-          {/* Help Button */}
-          <Button
-            variant="ghost"
-            size="icon"
-            onClick={handleHelp}
-            className="h-8 w-8 text-[#64748B] hover:text-[#1E293B]"
-            title="Help & Knowledge Base"
-            aria-label="Help"
-          >
-            <HelpCircle className="h-4 w-4" />
-          </Button>
 
           {/* User Avatar Dropdown */}
           <DropdownMenu>
@@ -201,12 +184,6 @@ export function AppHeader() {
                 <Link href="/settings" className="flex items-center gap-2 cursor-pointer text-xs">
                   <Settings className="h-3.5 w-3.5 text-[#64748B]" />
                   <span>Store Settings</span>
-                </Link>
-              </DropdownMenuItem>
-              <DropdownMenuItem asChild>
-                <Link href="/integrations" className="flex items-center gap-2 cursor-pointer text-xs">
-                  <ExternalLink className="h-3.5 w-3.5 text-[#64748B]" />
-                  <span>Integrations</span>
                 </Link>
               </DropdownMenuItem>
               <DropdownMenuSeparator />

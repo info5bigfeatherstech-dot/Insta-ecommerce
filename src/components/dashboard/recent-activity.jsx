@@ -1,8 +1,7 @@
 import * as React from "react";
 import Link from "next/link";
-import { formatRelativeTime, generateSVGPlaceholder } from "@/lib/utils";
+import { formatRelativeTime } from "@/lib/utils";
 import { Card, CardHeader, CardTitle, CardDescription, CardContent } from "@/components/ui/card";
-import { Avatar, AvatarFallback } from "@/components/ui/avatar";
 import { Zap, ShoppingBag, MousePointerClick, MessageSquare, ArrowRight } from "lucide-react";
 
 export function RecentActivity({ activities = [] }) {
@@ -58,9 +57,12 @@ export function RecentActivity({ activities = [] }) {
               </div>
               <p className="text-xs text-[#64748B] truncate mt-0.5">{item.activity}</p>
               {item.product && (
-                <span className="inline-block text-[10px] bg-[#EEF2FF] text-[#635BDB] px-1.5 py-0.2 rounded mt-1 font-medium">
+                <Link
+                  href={`/products/${item.product.id}`}
+                  className="inline-block text-[10px] bg-[#EEF2FF] text-[#635BDB] hover:underline px-1.5 py-0.2 rounded mt-1 font-medium"
+                >
                   {item.product.name}
-                </span>
+                </Link>
               )}
             </div>
           </div>

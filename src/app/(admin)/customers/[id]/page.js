@@ -5,13 +5,12 @@ import { Suspense } from "react";
 import Link from "next/link";
 import { useParams, useRouter } from "next/navigation";
 import { useCustomer, useAddTagToCustomer, useRemoveTagFromCustomer } from "@/hooks/use-customers";
-import { PageHeader } from "@/components/shared/page-header";
+import { DetailPageHeader } from "@/components/shared/detail-page-header";
 import { StatusBadge } from "@/components/shared/status-badge";
 import { LoadingState } from "@/components/shared/loading-state";
 import { Avatar, AvatarFallback } from "@/components/ui/avatar";
 import { Card, CardHeader, CardTitle, CardDescription, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
-import { Badge } from "@/components/ui/badge";
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -31,10 +30,8 @@ import {
 } from "@/lib/utils";
 import { Instagram } from "@/components/shared/icons";
 import {
-  ArrowLeft,
   Mail,
   Phone,
-  MapPin,
   Calendar,
   MessageSquare,
   ShoppingBag,
@@ -43,13 +40,8 @@ import {
   X,
   CheckCircle2,
   Clock,
-  MousePointerClick,
-  Send,
   Zap,
   Film,
-  User,
-  CreditCard,
-  Tag,
 } from "lucide-react";
 import { db } from "@/data/db";
 
@@ -73,40 +65,27 @@ function CustomerProfileContent() {
 
   return (
     <div className="space-y-6">
-      {/* Top Breadcrumb & Action Header */}
-      <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
-        <div className="flex items-center gap-3">
-          <Button
-            variant="ghost"
-            size="icon"
-            onClick={() => router.push("/customers")}
-            className="h-8 w-8 text-[#64748B]"
-            title="Back to Customers"
-          >
-            <ArrowLeft className="h-4 w-4" />
-          </Button>
-          <div>
-            <div className="flex items-center gap-2">
-              <h1 className="text-xl font-bold text-[#1E293B]">{customer.name}</h1>
-              <StatusBadge status={customer.status} />
-            </div>
-            <p className="text-xs text-[#635BDB] font-medium flex items-center gap-1">
-              <Instagram className="h-3.5 w-3.5" />
-              <span>{customer.username}</span>
-              <span className="text-[#94A3B8]">• ID: {customer.instagramUserId}</span>
-            </p>
+      {/* Detail Page Header with Back button */}
+      <DetailPageHeader
+        backHref="/customers"
+        backLabel="Back to Customers"
+        title={customer.name}
+        subtitle={`${customer.username} • Customer ID: ${customer.instagramUserId} • First contact ${formatDate(
+          customer.firstInteraction,
+          "dd MMM yyyy"
+        )}`}
+        badge={<StatusBadge status={customer.status} />}
+        actions={
+          <div className="flex items-center gap-2">
+            <Button asChild variant="outline" size="sm" className="text-xs gap-1.5">
+              <Link href={`/inbox?user=${customer.username}`}>
+                <MessageSquare className="h-3.5 w-3.5 text-[#635BDB]" />
+                <span>Open in Inbox</span>
+              </Link>
+            </Button>
           </div>
-        </div>
-
-        <div className="flex items-center gap-2">
-          <Button asChild variant="outline" size="sm" className="text-xs gap-1.5">
-            <Link href={`/inbox?user=${customer.username}`}>
-              <MessageSquare className="h-3.5 w-3.5 text-[#635BDB]" />
-              <span>Open in Inbox</span>
-            </Link>
-          </Button>
-        </div>
-      </div>
+        }
+      />
 
       {/* 4 Summary Stat Cards */}
       <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">
@@ -138,7 +117,7 @@ function CustomerProfileContent() {
         </Card>
       </div>
 
-      {/* Section 1 & 2: Customer Journey Timeline */}
+      {/* Customer Journey Timeline */}
       <Card>
         <CardHeader className="pb-3">
           <CardTitle>Customer Conversion Journey</CardTitle>
@@ -188,7 +167,7 @@ function CustomerProfileContent() {
 
       {/* Grid: Profile Info, Custom Fields, Tags, Instagram Account Info */}
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
-        {/* Section 3: Profile Info & Instagram Details */}
+        {/* Profile Info & Instagram Details */}
         <Card className="space-y-4 p-5">
           <div className="flex items-center gap-3 pb-3 border-b border-[#E2E8F0]">
             <Avatar className="h-12 w-12 border border-[#E2E8F0]">
@@ -201,7 +180,7 @@ function CustomerProfileContent() {
             </Avatar>
             <div>
               <h3 className="text-sm font-bold text-[#1E293B]">{customer.name}</h3>
-              <p className="text-xs text-[#64748B]">{customer.city}, India</p>
+              <p className="text-xs text-[#64748B]">{customer.city || "India"}</p>
             </div>
           </div>
 
@@ -245,14 +224,24 @@ function CustomerProfileContent() {
                 <Film className="h-3.5 w-3.5" />
                 <span>Acquired Via Reel</span>
               </span>
-              <span className="font-medium text-[#1E293B]">
-                {customer.sourceReel?.instagramPostId || "Organic Explore"}
-              </span>
+              {customer.sourceReel?.id ? (
+                <Link
+                  href={`/reels/${customer.sourceReel.id}`}
+                  className="font-medium text-[#635BDB] hover:underline flex items-center gap-1"
+                >
+                  <span>{customer.sourceReel.instagramPostId || customer.sourceReel.id}</span>
+                  <ExternalLink className="h-3 w-3" />
+                </Link>
+              ) : (
+                <span className="font-medium text-[#1E293B]">
+                  {customer.sourceReel?.instagramPostId || "Organic Explore"}
+                </span>
+              )}
             </div>
           </div>
         </Card>
 
-        {/* Section 4: Tags Management */}
+        {/* Tags Management */}
         <Card className="p-5 flex flex-col justify-between">
           <div>
             <div className="flex items-center justify-between pb-3 border-b border-[#E2E8F0]">
@@ -316,7 +305,7 @@ function CustomerProfileContent() {
           </p>
         </Card>
 
-        {/* Section 5: Custom Fields & Notes */}
+        {/* Custom Fields & Notes */}
         <Card className="p-5 space-y-3">
           <div className="pb-2 border-b border-[#E2E8F0]">
             <h3 className="text-xs font-bold uppercase tracking-wider text-[#94A3B8]">
@@ -353,7 +342,7 @@ function CustomerProfileContent() {
         </Card>
       </div>
 
-      {/* Section 6 & 7: Orders Placed & Products Interacted With */}
+      {/* Orders Placed & Products Interacted With */}
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
         {/* Orders Placed */}
         <Card>
@@ -368,9 +357,16 @@ function CustomerProfileContent() {
             {customer.orders && customer.orders.length > 0 ? (
               <div className="divide-y divide-[#E2E8F0]">
                 {customer.orders.map((ord) => (
-                  <div key={ord.id} className="p-4 flex items-center justify-between text-xs hover:bg-[#F8FAFC]">
+                  <Link
+                    key={ord.id}
+                    href={`/orders/${ord.id}`}
+                    className="p-4 flex items-center justify-between text-xs hover:bg-[#F8FAFC] group transition-colors block"
+                  >
                     <div>
-                      <p className="font-semibold text-[#1E293B]">{ord.orderNumber}</p>
+                      <p className="font-semibold text-[#1E293B] group-hover:text-[#635BDB] flex items-center gap-1.5">
+                        <span>{ord.orderNumber}</span>
+                        <ExternalLink className="h-3 w-3 opacity-0 group-hover:opacity-100 transition-opacity" />
+                      </p>
                       <p className="text-[10px] text-[#64748B]">
                         {formatDate(ord.createdAt)} • {ord.items?.length} items
                       </p>
@@ -383,7 +379,7 @@ function CustomerProfileContent() {
                         <StatusBadge status={ord.fulfillmentStatus} />
                       </div>
                     </div>
-                  </div>
+                  </Link>
                 ))}
               </div>
             ) : (
@@ -406,7 +402,11 @@ function CustomerProfileContent() {
           <CardContent className="p-0">
             <div className="divide-y divide-[#E2E8F0]">
               {customer.products?.map((prod) => (
-                <div key={prod.id} className="p-3.5 flex items-center gap-3 text-xs hover:bg-[#F8FAFC]">
+                <Link
+                  key={prod.id}
+                  href={`/products/${prod.id}`}
+                  className="p-3.5 flex items-center gap-3 text-xs hover:bg-[#F8FAFC] group transition-colors block"
+                >
                   <img
                     src={generateSVGPlaceholder({
                       text: prod.name,
@@ -417,18 +417,21 @@ function CustomerProfileContent() {
                     className="h-10 w-10 rounded-[6px] object-cover shrink-0 border border-[#E2E8F0]"
                   />
                   <div className="flex-1 min-w-0">
-                    <p className="font-semibold text-[#1E293B] truncate">{prod.name}</p>
+                    <p className="font-semibold text-[#1E293B] truncate group-hover:text-[#635BDB] flex items-center gap-1">
+                      <span>{prod.name}</span>
+                      <ExternalLink className="h-3 w-3 opacity-0 group-hover:opacity-100 transition-opacity" />
+                    </p>
                     <p className="text-[10px] text-[#64748B]">SKU: {prod.sku}</p>
                   </div>
                   <span className="font-bold text-[#1E293B]">{formatINR(prod.price)}</span>
-                </div>
+                </Link>
               ))}
             </div>
           </CardContent>
         </Card>
       </div>
 
-      {/* Section 8 & 9: Automation History & Link Clicks */}
+      {/* Direct Message & Automation Dispatch Logs */}
       <Card>
         <CardHeader className="pb-3">
           <CardTitle>Direct Message & Automation Dispatch Logs</CardTitle>
@@ -453,7 +456,17 @@ function CustomerProfileContent() {
                   customer.dmActivity.map((log) => (
                     <tr key={log.id} className="hover:bg-[#F8FAFC]">
                       <td className="py-3 px-4 font-semibold text-[#1E293B]">
-                        {log.automationName}
+                        {log.automationId ? (
+                          <Link
+                            href={`/automations/${log.automationId}`}
+                            className="text-[#635BDB] hover:underline flex items-center gap-1"
+                          >
+                            <span>{log.automationName}</span>
+                            <ExternalLink className="h-3 w-3" />
+                          </Link>
+                        ) : (
+                          log.automationName
+                        )}
                       </td>
                       <td className="py-3 px-4 text-[#64748B] max-w-xs truncate">
                         {log.message}

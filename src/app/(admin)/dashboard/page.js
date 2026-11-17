@@ -152,14 +152,18 @@ export default function DashboardPage() {
               });
 
               return (
-                <div key={reel.id} className="py-3 first:pt-0 last:pb-0 flex items-start gap-3">
+                <Link
+                  key={reel.id}
+                  href={`/reels/${reel.id}`}
+                  className="py-3 first:pt-0 last:pb-0 flex items-start gap-3 group block hover:bg-[#F8FAFC] -mx-2 px-2 rounded-[6px] transition-colors"
+                >
                   <img
                     src={placeholder}
                     alt={reel.caption}
                     className="h-14 w-11 rounded-[6px] object-cover shrink-0 border border-[#E2E8F0]"
                   />
                   <div className="flex-1 min-w-0">
-                    <p className="text-xs font-semibold text-[#1E293B] line-clamp-2">
+                    <p className="text-xs font-semibold text-[#1E293B] group-hover:text-[#635BDB] line-clamp-2 transition-colors">
                       {reel.caption}
                     </p>
                     <div className="flex items-center gap-2 mt-1 text-[11px] text-[#64748B]">
@@ -176,7 +180,7 @@ export default function DashboardPage() {
                       {reel.conversions} orders
                     </span>
                   </div>
-                </div>
+                </Link>
               );
             })}
           </CardContent>
@@ -212,14 +216,17 @@ export default function DashboardPage() {
                   {recentOrders.map((ord) => (
                     <tr key={ord.id} className="hover:bg-[#F8FAFC] transition-colors">
                       <td className="py-3 px-4 font-medium text-[#1E293B]">
-                        <Link href={`/orders`} className="hover:text-[#635BDB]">
+                        <Link href={`/orders/${ord.id}`} className="hover:text-[#635BDB] font-semibold">
                           {ord.orderNumber}
                         </Link>
                       </td>
                       <td className="py-3 px-3">
-                        <span className="font-medium text-[#1E293B] block truncate max-w-[120px]">
+                        <Link
+                          href={`/customers/${ord.customerId || 'cust_1'}`}
+                          className="font-medium text-[#1E293B] hover:text-[#635BDB] block truncate max-w-[120px]"
+                        >
                           {ord.customerName}
-                        </span>
+                        </Link>
                         <span className="text-[10px] text-[#64748B] block truncate">
                           {ord.instagramUsername}
                         </span>

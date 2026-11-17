@@ -13,7 +13,13 @@ export const initialAutomations = [
     failedCount: 28,
     lastUpdated: "2026-02-28T14:30:00Z",
     triggerKeyword: "GOLD",
-    messageTemplate: "Hey {{username}}! ✨ Thank you for loving our Minimal 18K Gold Vermeil Necklace. We've unlocked an exclusive 15% discount for you! Tap below to shop before stock runs out:",
+    triggerKeywords: ["GOLD", "LINK", "PRICE"],
+    matchType: "contains",
+    linkType: "product",
+    customUrl: "",
+    publicReplyEnabled: true,
+    sendOncePerUser: true,
+    messageTemplate: "Hey {{username}}! ✨ Thank you for loving our Minimal 18K Gold Vermeil Necklace. We've unlocked an exclusive 15% discount for you! Tap below to shop before stock runs out: {{product_url}}",
     workflowConfig: {
       trigger: {
         keyword: "GOLD",
@@ -62,7 +68,13 @@ export const initialAutomations = [
     failedCount: 22,
     lastUpdated: "2026-02-27T16:15:00Z",
     triggerKeyword: "RUN",
-    messageTemplate: "Hey {{username}}! 🏃‍♂️ Here is your direct express checkout link for the Nike Pegasus 40 with complimentary express shipping & size exchange guarantee:",
+    triggerKeywords: ["RUN", "PEGASUS", "LINK", "SIZE"],
+    matchType: "contains",
+    linkType: "product",
+    customUrl: "",
+    publicReplyEnabled: true,
+    sendOncePerUser: true,
+    messageTemplate: "Hey {{username}}! 🏃‍♂️ Here is your direct express checkout link for the Nike Pegasus 40 with complimentary express shipping & size exchange guarantee: {{product_url}}",
     workflowConfig: {
       trigger: {
         keyword: "RUN",
@@ -111,7 +123,13 @@ export const initialAutomations = [
     failedCount: 15,
     lastUpdated: "2026-02-26T11:20:00Z",
     triggerKeyword: "MUG",
-    messageTemplate: "Coffee tastes better in handmade ceramics! ☕ Hey {{username}}, here is your link to grab the Artisanal Matte Ceramic Mug before this kiln batch sells out:",
+    triggerKeywords: ["MUG", "COFFEE", "LINK", "BUY"],
+    matchType: "contains",
+    linkType: "product",
+    customUrl: "",
+    publicReplyEnabled: true,
+    sendOncePerUser: true,
+    messageTemplate: "Coffee tastes better in handmade ceramics! ☕ Hey {{username}}, here is your link to grab the Artisanal Matte Ceramic Mug before this kiln batch sells out: {{product_url}}",
     workflowConfig: {
       trigger: {
         keyword: "MUG",
@@ -160,7 +178,13 @@ export const initialAutomations = [
     failedCount: 11,
     lastUpdated: "2026-02-25T15:45:00Z",
     triggerKeyword: "COLD",
-    messageTemplate: "Hey {{username}}! ❄️ Ready for 24-hour ice-cold hydration? Here is your exclusive link with free delivery across India:",
+    triggerKeywords: ["COLD", "BOTTLE", "LINK", "GYM"],
+    matchType: "contains",
+    linkType: "product",
+    customUrl: "",
+    publicReplyEnabled: true,
+    sendOncePerUser: true,
+    messageTemplate: "Hey {{username}}! ❄️ Ready for 24-hour ice-cold hydration? Here is your exclusive link with free delivery across India: {{product_url}}",
     workflowConfig: {
       trigger: {
         keyword: "COLD",
@@ -209,7 +233,13 @@ export const initialAutomations = [
     failedCount: 14,
     lastUpdated: "2026-02-24T18:10:00Z",
     triggerKeyword: "HOTEL",
-    messageTemplate: "Turn your bedroom into a luxury hotel retreat 🛏️ Hey {{username}}, here is the link to our 300 TC King Bedsheet set + 2 pillow covers with ₹300 off:",
+    triggerKeywords: ["HOTEL", "SHEETS", "LINK", "BED"],
+    matchType: "contains",
+    linkType: "product",
+    customUrl: "",
+    publicReplyEnabled: true,
+    sendOncePerUser: true,
+    messageTemplate: "Turn your bedroom into a luxury hotel retreat 🛏️ Hey {{username}}, here is the link to our 300 TC King Bedsheet set + 2 pillow covers with ₹300 off: {{product_url}}",
     workflowConfig: {
       trigger: {
         keyword: "HOTEL",
@@ -258,7 +288,13 @@ export const initialAutomations = [
     failedCount: 22,
     lastUpdated: "2026-02-28T09:00:00Z",
     triggerKeyword: "AURA",
-    messageTemplate: "Elevate your night setup 💡 Hey {{username}}! Here is your private checkout link for the Aura Smart Ambient LED Lamp with ₹1,000 off coupon attached:",
+    triggerKeywords: ["AURA", "LAMP", "LIGHT", "PRICE"],
+    matchType: "contains",
+    linkType: "product",
+    customUrl: "",
+    publicReplyEnabled: true,
+    sendOncePerUser: true,
+    messageTemplate: "Elevate your night setup 💡 Hey {{username}}! Here is your private checkout link for the Aura Smart Ambient LED Lamp with ₹1,000 off coupon attached: {{product_url}}",
     workflowConfig: {
       trigger: {
         keyword: "AURA",
@@ -307,7 +343,13 @@ export const initialAutomations = [
     failedCount: 18,
     lastUpdated: "2026-02-27T12:00:00Z",
     triggerKeyword: "GLOW",
-    messageTemplate: "Hello gorgeous {{username}}! ✨ Tap below to get your bottle of pure Kumkumadi Tailam plus our Ayurvedic Night Ritual e-guide free with your order:",
+    triggerKeywords: ["GLOW", "OIL", "AYURVEDA", "LINK"],
+    matchType: "contains",
+    linkType: "product",
+    customUrl: "",
+    publicReplyEnabled: true,
+    sendOncePerUser: true,
+    messageTemplate: "Hello gorgeous {{username}}! ✨ Tap below to get your bottle of pure Kumkumadi Tailam plus our Ayurvedic Night Ritual e-guide free with your order: {{product_url}}",
     workflowConfig: {
       trigger: {
         keyword: "GLOW",
@@ -356,7 +398,13 @@ export const initialAutomations = [
     failedCount: 15,
     lastUpdated: "2026-02-26T14:40:00Z",
     triggerKeyword: "NOMAD",
-    messageTemplate: "Hey {{username}}! 🎒 Built for city commuters and digital nomads. Tap here for your 20% discount on the Nomad Vegan Leather Backpack:",
+    triggerKeywords: ["NOMAD", "BAG", "SHOP", "LINK"],
+    matchType: "contains",
+    linkType: "product",
+    customUrl: "",
+    publicReplyEnabled: true,
+    sendOncePerUser: true,
+    messageTemplate: "Hey {{username}}! 🎒 Built for city commuters and digital nomads. Tap here for your 20% discount on the Nomad Vegan Leather Backpack: {{product_url}}",
     workflowConfig: {
       trigger: {
         keyword: "NOMAD",
@@ -405,7 +453,13 @@ export const initialAutomations = [
     failedCount: 18,
     lastUpdated: "2026-02-27T10:15:00Z",
     triggerKeyword: "LINEN",
-    messageTemplate: "Pure French linen for breezy comfort ☀️ Hey {{username}}, sizes run fast on our Sage Green Resort Shirt! Claim yours with instant ₹300 off:",
+    triggerKeywords: ["LINEN", "SHIRT", "BUY", "LINK"],
+    matchType: "contains",
+    linkType: "product",
+    customUrl: "",
+    publicReplyEnabled: true,
+    sendOncePerUser: true,
+    messageTemplate: "Pure French linen for breezy comfort ☀️ Hey {{username}}, sizes run fast on our Sage Green Resort Shirt! Claim yours with instant ₹300 off: {{product_url}}",
     workflowConfig: {
       trigger: {
         keyword: "LINEN",
@@ -454,7 +508,13 @@ export const initialAutomations = [
     failedCount: 8,
     lastUpdated: "2026-02-20T17:00:00Z",
     triggerKeyword: "COPPER",
-    messageTemplate: "Hey {{username}}! 🫖 Start your morning with Ayurvedic copper water. Tap here to get the hammered copper carafe set with matching tumbler glass:",
+    triggerKeywords: ["COPPER", "WATER", "DETAILS"],
+    matchType: "contains",
+    linkType: "product",
+    customUrl: "",
+    publicReplyEnabled: true,
+    sendOncePerUser: true,
+    messageTemplate: "Hey {{username}}! 🫖 Start your morning with Ayurvedic copper water. Tap here to get the hammered copper carafe set with matching tumbler glass: {{product_url}}",
     workflowConfig: {
       trigger: {
         keyword: "COPPER",
@@ -503,7 +563,13 @@ export const initialAutomations = [
     failedCount: 7,
     lastUpdated: "2026-02-24T12:30:00Z",
     triggerKeyword: "BRASS",
-    messageTemplate: "For lovers of fine handwriting ✒️ Hey {{username}}, here is your link to the solid brass desk pen with weighted base:",
+    triggerKeywords: ["BRASS", "PEN", "BUY", "PRICE"],
+    matchType: "contains",
+    linkType: "product",
+    customUrl: "",
+    publicReplyEnabled: true,
+    sendOncePerUser: true,
+    messageTemplate: "For lovers of fine handwriting ✒️ Hey {{username}}, here is your link to the solid brass desk pen with weighted base: {{product_url}}",
     workflowConfig: {
       trigger: {
         keyword: "BRASS",
@@ -552,7 +618,13 @@ export const initialAutomations = [
     failedCount: 18,
     lastUpdated: "2026-02-28T11:50:00Z",
     triggerKeyword: "BUDS",
-    messageTemplate: "Active noise cancellation meets punchy bass 🎧 Hey {{username}}! Tap below to claim your ₹2,000 launch coupon code on the Wireless Earbuds Pro:",
+    triggerKeywords: ["BUDS", "AUDIO", "OFFER", "LINK"],
+    matchType: "contains",
+    linkType: "product",
+    customUrl: "",
+    publicReplyEnabled: true,
+    sendOncePerUser: true,
+    messageTemplate: "Active noise cancellation meets punchy bass 🎧 Hey {{username}}! Tap below to claim your ₹2,000 launch coupon code on the Wireless Earbuds Pro: {{product_url}}",
     workflowConfig: {
       trigger: {
         keyword: "BUDS",
@@ -601,7 +673,13 @@ export const initialAutomations = [
     failedCount: 6,
     lastUpdated: "2026-02-28T18:00:00Z",
     triggerKeyword: "OFFER",
-    messageTemplate: "Hey {{username}}! 🌟 Thanks for replying to our story! Here is your secret 10% welcome discount valid on our entire collection:",
+    triggerKeywords: ["OFFER", "WELCOME", "DISCOUNT"],
+    matchType: "contains",
+    linkType: "product",
+    customUrl: "",
+    publicReplyEnabled: false,
+    sendOncePerUser: true,
+    messageTemplate: "Hey {{username}}! 🌟 Thanks for replying to our story! Here is your secret 10% welcome discount valid on our entire collection: {{product_url}}",
     workflowConfig: {
       trigger: {
         keyword: "OFFER",

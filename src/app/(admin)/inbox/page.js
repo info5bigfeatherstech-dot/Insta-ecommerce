@@ -126,7 +126,12 @@ export default function InboxPage() {
       label: "Customer",
       render: (val, row) => (
         <div>
-          <span className="font-semibold text-xs text-[#1E293B] block">{val}</span>
+          <Link
+            href={`/customers/${row.customerId}`}
+            className="font-semibold text-xs text-[#1E293B] hover:text-[#635BDB] block"
+          >
+            {val}
+          </Link>
           <span className="text-[10px] text-[#635BDB]">{row.username}</span>
         </div>
       ),
@@ -134,8 +139,13 @@ export default function InboxPage() {
     {
       key: "automationName",
       label: "Automation",
-      render: (val) => (
-        <span className="font-medium text-xs text-[#1E293B] block truncate max-w-xs">{val}</span>
+      render: (val, row) => (
+        <Link
+          href={`/automations/${row.automationId}`}
+          className="font-medium text-xs text-[#1E293B] hover:text-[#635BDB] block truncate max-w-xs"
+        >
+          {val}
+        </Link>
       ),
     },
     {
@@ -495,15 +505,16 @@ export default function InboxPage() {
                   </span>
                   <div className="space-y-1.5">
                     {currentConv.products?.map((p) => (
-                      <div
+                      <Link
                         key={p.id}
-                        className="p-2 rounded-[6px] border border-[#E2E8F0] bg-[#F8FAFC] flex items-center justify-between text-xs"
+                        href={`/products/${p.id}`}
+                        className="p-2 rounded-[6px] border border-[#E2E8F0] bg-[#F8FAFC] hover:bg-white hover:border-[#635BDB] flex items-center justify-between text-xs transition-colors group"
                       >
-                        <span className="truncate max-w-[140px] font-medium text-[#1E293B]">
+                        <span className="truncate max-w-[140px] font-medium text-[#1E293B] group-hover:text-[#635BDB]">
                           {p.name}
                         </span>
                         <span className="font-bold text-[#1E293B]">{formatINR(p.price)}</span>
-                      </div>
+                      </Link>
                     ))}
                   </div>
                 </div>
@@ -515,18 +526,19 @@ export default function InboxPage() {
                   </span>
                   <div className="space-y-1.5 text-xs">
                     {currentConv.recentAutomation?.map((ra) => (
-                      <div
+                      <Link
                         key={ra.id}
-                        className="p-2 rounded-[6px] border border-[#E2E8F0] bg-white space-y-1"
+                        href={`/automations/${ra.automationId}`}
+                        className="p-2 rounded-[6px] border border-[#E2E8F0] bg-white hover:border-[#635BDB] space-y-1 block transition-colors group"
                       >
-                        <span className="font-semibold text-[#1E293B] block truncate">
+                        <span className="font-semibold text-[#1E293B] group-hover:text-[#635BDB] block truncate">
                           {ra.automationName}
                         </span>
                         <div className="flex items-center justify-between text-[10px] text-[#64748B]">
                           <span>{formatDate(ra.sentTime, "dd MMM")}</span>
                           <StatusBadge status={ra.deliveryStatus} />
                         </div>
-                      </div>
+                      </Link>
                     ))}
                   </div>
                 </div>

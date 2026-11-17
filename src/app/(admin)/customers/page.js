@@ -3,11 +3,8 @@
 import * as React from "react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
-import {
-  useCustomers,
-  useAddTagToCustomer,
-  useRemoveTagFromCustomer,
-} from "@/hooks/use-customers";
+import { useCustomers } from "@/hooks/use-customers";
+import { useListFilterStore } from "@/store/list-filter-store";
 import { PageHeader } from "@/components/shared/page-header";
 import { DataTable } from "@/components/shared/data-table";
 import { FilterDropdown } from "@/components/shared/filter-dropdown";
@@ -15,23 +12,6 @@ import { StatusBadge } from "@/components/shared/status-badge";
 import { Avatar, AvatarFallback } from "@/components/ui/avatar";
 import { Card } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
-import { Badge } from "@/components/ui/badge";
-import {
-  Sheet,
-  SheetContent,
-  SheetHeader,
-  SheetTitle,
-  SheetDescription,
-  SheetFooter,
-} from "@/components/ui/sheet";
-import {
-  DropdownMenu,
-  DropdownMenuContent,
-  DropdownMenuItem,
-  DropdownMenuLabel,
-  DropdownMenuSeparator,
-  DropdownMenuTrigger,
-} from "@/components/ui/dropdown-menu";
 import {
   formatINR,
   formatNumber,
@@ -40,33 +20,22 @@ import {
   getInitials,
   getAvatarColor,
 } from "@/lib/utils";
-import { Instagram } from "@/components/shared/icons";
 import {
   Users,
   UserPlus,
   Activity,
   RotateCcw,
-  Tag as TagIcon,
-  Plus,
-  X,
-  ExternalLink,
   Eye,
-  ShoppingBag,
-  MessageSquare,
-  MapPin,
-  Mail,
-  Phone,
+  ExternalLink,
 } from "lucide-react";
 import { db } from "@/data/db";
 
 export default function CustomersPage() {
   const router = useRouter();
-  const [search, setSearch] = React.useState("");
-  const [status, setStatus] = React.useState("all");
-  const [tag, setTag] = React.useState("all");
-  const [page, setPage] = React.useState(1);
-  const [selectedCustomer, setSelectedCustomer] = React.useState(null);
-  const [drawerOpen, setDrawerOpen] = React.useState(false);
+
+  // Persistent list filter state
+  const { customers: filterState, setCustomersFilter } = useListFilterStore();
+  const { search, status, tag, page } = filterState;
 
   const { data, isLoading } = useCustomers({
     search,
@@ -76,47 +45,29 @@ export default function CustomersPage() {
     limit: 10,
   });
 
-  const addTagMutation = useAddTagToCustomer();
-  const removeTagMutation = useRemoveTagFromCustomer();
-
-  const handleOpenQuickView = (cust) => {
-    setSelectedCustomer(cust);
-    setDrawerOpen(true);
-  };
-
-  const handleAddTag = async (tagId) => {
-    if (!selectedCustomer) return;
-    await addTagMutation.mutateAsync({ customerId: selectedCustomer.id, tagId });
-    // Update local drawer state
-    setSelectedCustomer((prev) => ({
-      ...prev,
-      tags: [...(prev.tags || []), tagId],
-    }));
-  };
-
-  const handleRemoveTag = async (tagId) => {
-    if (!selectedCustomer) return;
-    await removeTagMutation.mutateAsync({ customerId: selectedCustomer.id, tagId });
-    setSelectedCustomer((prev) => ({
-      ...prev,
-      tags: (prev.tags || []).filter((t) => t !== tagId),
-    }));
-  };
-
-  const stats = data?.stats || { total: 0, new: 0, active: 0, returning: 0 };
   const allTags = db.state.tags;
+
+  // Calculate live metrics from database
+  const stats = React.useMemo(() => {
+    const list = db.state.customers;
+    return {
+      total: list.length,
+      new: list.filter((c) => c.status === "new").length,
+      active: list.filter((c) => c.status === "active").length,
+      returning: list.filter((c) => c.status === "returning").length,
+    };
+  }, [data]);
 
   const columns = [
     {
       key: "name",
       label: "Customer / Contact",
-      sortable: true,
       render: (val, row) => {
-        const palette = getAvatarColor(row.name);
-        const initials = getInitials(row.name);
+        const palette = getAvatarColor(val);
+        const initials = getInitials(val);
         return (
           <div className="flex items-center gap-3">
-            <Avatar className="h-9 w-9 shrink-0">
+            <Avatar className="h-9 w-9 border border-[#E2E8F0]">
               <AvatarFallback
                 style={{
                   backgroundColor: palette.bg,
@@ -206,20 +157,11 @@ export default function CustomersPage() {
           <Button
             variant="ghost"
             size="sm"
-            onClick={() => handleOpenQuickView(row)}
-            className="h-7 px-2 text-xs text-[#635BDB] hover:bg-[#EEF2FF] gap-1"
+            onClick={() => router.push(`/customers/${row.id}`)}
+            className="h-7 px-2.5 text-xs text-[#635BDB] hover:bg-[#EEF2FF] gap-1 font-semibold"
           >
             <Eye className="h-3.5 w-3.5" />
-            <span>Quick View</span>
-          </Button>
-          <Button
-            variant="ghost"
-            size="icon"
-            onClick={() => router.push(`/customers/${row.id}`)}
-            className="h-7 w-7 text-[#64748B]"
-            title="Full Profile"
-          >
-            <ExternalLink className="h-3.5 w-3.5" />
+            <span>View Profile</span>
           </Button>
         </div>
       ),
@@ -275,21 +217,15 @@ export default function CustomersPage() {
         isLoading={isLoading}
         searchPlaceholder="Search customer name, handle, ID..."
         searchValue={search}
-        onSearchChange={(val) => {
-          setSearch(val);
-          setPage(1);
-        }}
-        onRowClick={handleOpenQuickView}
+        onSearchChange={(val) => setCustomersFilter({ search: val, page: 1 })}
+        onRowClick={(row) => router.push(`/customers/${row.id}`)}
         exportFilename="customers_list"
         filters={
           <div className="flex items-center gap-2">
             <FilterDropdown
               label="Status"
               value={status}
-              onChange={(val) => {
-                setStatus(val);
-                setPage(1);
-              }}
+              onChange={(val) => setCustomersFilter({ status: val, page: 1 })}
               options={[
                 { value: "all", label: "All Statuses" },
                 { value: "new", label: "New Leads" },
@@ -300,10 +236,7 @@ export default function CustomersPage() {
             <FilterDropdown
               label="Tag"
               value={tag}
-              onChange={(val) => {
-                setTag(val);
-                setPage(1);
-              }}
+              onChange={(val) => setCustomersFilter({ tag: val, page: 1 })}
               options={[
                 { value: "all", label: "All Tags" },
                 ...allTags.map((t) => ({ value: t.id, label: t.name })),
@@ -316,180 +249,9 @@ export default function CustomersPage() {
           limit: data?.pagination?.limit || 10,
           totalRecords: data?.pagination?.totalRecords || 0,
           totalPages: data?.pagination?.totalPages || 1,
-          onPageChange: (newPage) => setPage(newPage),
+          onPageChange: (newPage) => setCustomersFilter({ page: newPage }),
         }}
       />
-
-      {/* Customer Quick-View Drawer */}
-      <Sheet open={drawerOpen} onOpenChange={setDrawerOpen}>
-        <SheetContent side="right" className="p-0 sm:max-w-md lg:max-w-lg flex flex-col justify-between">
-          {selectedCustomer && (
-            <>
-              <SheetHeader className="p-5 border-b border-[#E2E8F0]">
-                <div className="flex items-center gap-3">
-                  <Avatar className="h-12 w-12 border border-[#E2E8F0]">
-                    <AvatarFallback
-                      style={{
-                        backgroundColor: getAvatarColor(selectedCustomer.name).bg,
-                        color: getAvatarColor(selectedCustomer.name).text,
-                      }}
-                      className="font-bold text-sm"
-                    >
-                      {getInitials(selectedCustomer.name)}
-                    </AvatarFallback>
-                  </Avatar>
-                  <div className="flex-1 min-w-0 pr-6">
-                    <SheetTitle className="text-base font-bold text-[#1E293B]">
-                      {selectedCustomer.name}
-                    </SheetTitle>
-                    <SheetDescription className="text-xs text-[#635BDB] font-medium flex items-center gap-1">
-                      <Instagram className="h-3 w-3" />
-                      <span>{selectedCustomer.username}</span>
-                    </SheetDescription>
-                  </div>
-                </div>
-              </SheetHeader>
-
-              <div className="flex-1 overflow-y-auto p-5 space-y-6">
-                {/* Stats cards */}
-                <div className="grid grid-cols-3 gap-2.5">
-                  <div className="p-3 rounded-[8px] bg-[#F8FAFC] border border-[#E2E8F0] text-center">
-                    <span className="text-[10px] text-[#64748B] block">Orders</span>
-                    <span className="text-sm font-bold text-[#1E293B]">
-                      {selectedCustomer.ordersCount || 0}
-                    </span>
-                  </div>
-                  <div className="p-3 rounded-[8px] bg-[#F8FAFC] border border-[#E2E8F0] text-center">
-                    <span className="text-[10px] text-[#64748B] block">Lifetime Spend</span>
-                    <span className="text-sm font-bold text-emerald-600">
-                      {formatINR(selectedCustomer.lifetimeSpend || 0)}
-                    </span>
-                  </div>
-                  <div className="p-3 rounded-[8px] bg-[#F8FAFC] border border-[#E2E8F0] text-center">
-                    <span className="text-[10px] text-[#64748B] block">Total Messages</span>
-                    <span className="text-sm font-bold text-[#635BDB]">
-                      {selectedCustomer.totalMessages || 0}
-                    </span>
-                  </div>
-                </div>
-
-                {/* Contact Info */}
-                <div className="space-y-2">
-                  <h4 className="text-xs font-bold uppercase tracking-wider text-[#94A3B8]">
-                    Contact Information
-                  </h4>
-                  <div className="p-3.5 rounded-[10px] border border-[#E2E8F0] bg-white space-y-2 text-xs">
-                    <div className="flex items-center gap-2 text-[#1E293B]">
-                      <Mail className="h-3.5 w-3.5 text-[#64748B]" />
-                      <span>{selectedCustomer.email || "No email linked"}</span>
-                    </div>
-                    <div className="flex items-center gap-2 text-[#1E293B]">
-                      <Phone className="h-3.5 w-3.5 text-[#64748B]" />
-                      <span>{selectedCustomer.phone || "No phone linked"}</span>
-                    </div>
-                    <div className="flex items-center gap-2 text-[#1E293B]">
-                      <MapPin className="h-3.5 w-3.5 text-[#64748B]" />
-                      <span>{selectedCustomer.city || "India"}</span>
-                    </div>
-                  </div>
-                </div>
-
-                {/* Tags Management */}
-                <div className="space-y-2">
-                  <div className="flex items-center justify-between">
-                    <h4 className="text-xs font-bold uppercase tracking-wider text-[#94A3B8]">
-                      Assigned Tags
-                    </h4>
-                    <DropdownMenu>
-                      <DropdownMenuTrigger asChild>
-                        <Button variant="outline" size="sm" className="h-6 px-2 text-[10px] gap-1">
-                          <Plus className="h-3 w-3" />
-                          <span>Add Tag</span>
-                        </Button>
-                      </DropdownMenuTrigger>
-                      <DropdownMenuContent align="end" className="w-44">
-                        <DropdownMenuLabel className="text-[10px]">Select Tag to Add</DropdownMenuLabel>
-                        <DropdownMenuSeparator />
-                        {allTags.map((t) => (
-                          <DropdownMenuItem
-                            key={t.id}
-                            onClick={() => handleAddTag(t.id)}
-                            className="text-xs"
-                          >
-                            <span
-                              className="h-2 w-2 rounded-full mr-2"
-                              style={{ backgroundColor: t.color }}
-                            />
-                            <span>{t.name}</span>
-                          </DropdownMenuItem>
-                        ))}
-                      </DropdownMenuContent>
-                    </DropdownMenu>
-                  </div>
-
-                  <div className="flex flex-wrap gap-1.5 p-3 rounded-[10px] border border-[#E2E8F0] bg-white min-h-[44px]">
-                    {(selectedCustomer.tags || []).map((tId) => {
-                      const t = allTags.find((tag) => tag.id === tId);
-                      if (!t) return null;
-                      return (
-                        <span
-                          key={t.id}
-                          style={{ backgroundColor: t.bgColor, color: t.color }}
-                          className="inline-flex items-center gap-1 text-xs px-2 py-0.5 rounded-[4px] font-medium border border-opacity-30"
-                        >
-                          <span>{t.name}</span>
-                          <X
-                            className="h-3 w-3 cursor-pointer hover:opacity-75"
-                            onClick={() => handleRemoveTag(t.id)}
-                          />
-                        </span>
-                      );
-                    })}
-                  </div>
-                </div>
-
-                {/* Custom Notes / Bio */}
-                {selectedCustomer.customFields && (
-                  <div className="space-y-2">
-                    <h4 className="text-xs font-bold uppercase tracking-wider text-[#94A3B8]">
-                      Instagram Bio & Notes
-                    </h4>
-                    <div className="p-3.5 rounded-[10px] border border-[#E2E8F0] bg-[#F8FAFC] space-y-1.5 text-xs text-[#64748B]">
-                      <p className="italic text-[#1E293B]">
-                        "{selectedCustomer.customFields.instagramBio}"
-                      </p>
-                      <p className="text-[11px] pt-1 border-t border-[#E2E8F0]">
-                        Note: {selectedCustomer.customFields.notes}
-                      </p>
-                    </div>
-                  </div>
-                )}
-              </div>
-
-              <SheetFooter className="p-4 border-t border-[#E2E8F0] flex gap-2">
-                <Button
-                  variant="outline"
-                  size="sm"
-                  onClick={() => setDrawerOpen(false)}
-                  className="flex-1 text-xs"
-                >
-                  Close
-                </Button>
-                <Button
-                  asChild
-                  size="sm"
-                  className="flex-1 text-xs gap-1.5"
-                >
-                  <Link href={`/customers/${selectedCustomer.id}`}>
-                    <ExternalLink className="h-3.5 w-3.5" />
-                    <span>View Full Profile</span>
-                  </Link>
-                </Button>
-              </SheetFooter>
-            </>
-          )}
-        </SheetContent>
-      </Sheet>
     </div>
   );
 }

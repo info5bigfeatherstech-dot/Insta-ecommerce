@@ -79,4 +79,28 @@ export const initialTags = [
     description: "Regularly asks questions about sizing, delivery, and stock in DM",
     createdAt: "2026-01-28T10:00:00Z",
   },
+  {
+    id: "tag_11",
+    name: "New Lead",
+    color: "#0284C7",
+    bgColor: "#F0F9FF",
+    description: "Newly acquired follower who commented a trigger keyword on a Reel",
+    createdAt: "2026-01-29T10:00:00Z",
+  },
+  {
+    id: "tag_12",
+    name: "Product Link Sent",
+    color: "#635BDB",
+    bgColor: "#EEF2FF",
+    description: "Follower received automated DM containing personalized product link",
+    createdAt: "2026-01-29T10:00:00Z",
+  },
+  {
+    id: "tag_13",
+    name: "Link Clicked",
+    color: "#059669",
+    bgColor: "#ECFDF5",
+    description: "Contact clicked through to the product store page from Instagram DM",
+    createdAt: "2026-01-29T10:00:00Z",
+  },
 ];

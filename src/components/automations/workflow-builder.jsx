@@ -129,6 +129,7 @@ export function WorkflowBuilder({
       name,
       triggerType,
       triggerKeyword,
+      triggerKeywords: [triggerKeyword],
       reelId,
       productId,
       status,
@@ -167,6 +168,14 @@ export function WorkflowBuilder({
     await onSave(payload);
   };
 
+  const handleBack = () => {
+    if (typeof window !== "undefined" && window.history.length > 1) {
+      router.back();
+    } else {
+      router.push("/automations");
+    }
+  };
+
   return (
     <div className="space-y-6">
       {/* Top Action Header */}
@@ -175,7 +184,7 @@ export function WorkflowBuilder({
           <Button
             variant="ghost"
             size="icon"
-            onClick={() => router.push("/automations")}
+            onClick={handleBack}
             className="h-8 w-8 text-[#64748B]"
             title="Back to Automations"
           >

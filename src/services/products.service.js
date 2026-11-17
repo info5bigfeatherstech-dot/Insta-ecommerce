@@ -76,9 +76,32 @@ export const productsService = {
     const product = db.state.products.find((p) => p.id === id);
     if (!product) return { success: false, data: null, message: "Product not found" };
     const category = db.state.categories.find((c) => c.id === product.categoryId);
+
+    // Linked Reels and Automations
+    const linkedReels = db.state.reels.filter((r) => r.productId === id);
+    const linkedAutomations = db.state.automations.filter((a) => a.productId === id);
+
+    // Attributed orders & revenue
+    const productOrders = db.state.orders.filter(
+      (o) => o.items && o.items.some((item) => item.productId === id)
+    );
+    const ordersCount = productOrders.length;
+    const revenue = productOrders.reduce((sum, o) => {
+      const item = o.items.find((it) => it.productId === id);
+      return sum + (item ? Number(item.price || 0) * Number(item.quantity || 1) : 0);
+    }, 0);
+
     return {
       success: true,
-      data: { ...product, categoryName: category ? category.name : "Uncategorized" },
+      data: {
+        ...product,
+        categoryName: category ? category.name : "Uncategorized",
+        category,
+        linkedReels,
+        linkedAutomations,
+        ordersCount,
+        revenue,
+      },
       message: "Product found",
     };
   },

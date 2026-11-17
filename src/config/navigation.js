@@ -10,7 +10,6 @@ import {
   Tags,
   BarChart3,
   FileSpreadsheet,
-  Blocks,
   Settings,
 } from "lucide-react";
 
@@ -104,12 +103,6 @@ export const NAVIGATION_GROUPS = [
   {
     title: "Configuration",
     items: [
-      {
-        title: "Integrations",
-        href: "/integrations",
-        icon: Blocks,
-        badge: null,
-      },
       {
         title: "Settings",
         href: "/settings",

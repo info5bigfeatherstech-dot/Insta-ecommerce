@@ -9,6 +9,7 @@ import {
   useDuplicateAutomation,
   useDeleteAutomation,
 } from "@/hooks/use-automations";
+import { useListFilterStore } from "@/store/list-filter-store";
 import { PageHeader } from "@/components/shared/page-header";
 import { DataTable } from "@/components/shared/data-table";
 import { FilterDropdown } from "@/components/shared/filter-dropdown";
@@ -42,9 +43,11 @@ import { AUTOMATION_TRIGGERS } from "@/lib/constants";
 
 export default function AutomationsPage() {
   const router = useRouter();
-  const [search, setSearch] = React.useState("");
-  const [status, setStatus] = React.useState("all");
-  const [triggerType, setTriggerType] = React.useState("all");
+
+  // Persistent list filter state
+  const { automations: filterState, setAutomationsFilter } = useListFilterStore();
+  const { search, status, triggerType } = filterState;
+
   const [deletingAuto, setDeletingAuto] = React.useState(null);
 
   const { data, isLoading } = useAutomations({
@@ -79,17 +82,34 @@ export default function AutomationsPage() {
       key: "name",
       label: "Automation Name",
       sortable: true,
-      render: (val, row) => (
-        <div>
-          <Link
-            href={`/automations/${row.id}`}
-            className="font-semibold text-xs text-[#1E293B] hover:text-[#635BDB] block"
-          >
-            {val}
-          </Link>
-          <span className="text-[10px] text-[#64748B]">Keyword: '{row.triggerKeyword}'</span>
-        </div>
-      ),
+      render: (val, row) => {
+        const keywords =
+          row.triggerKeywords && row.triggerKeywords.length > 0
+            ? row.triggerKeywords
+            : row.triggerKeyword
+            ? [row.triggerKeyword]
+            : [];
+        return (
+          <div>
+            <Link
+              href={`/automations/${row.id}`}
+              className="font-semibold text-xs text-[#1E293B] hover:text-[#635BDB] block"
+            >
+              {val}
+            </Link>
+            <div className="flex items-center gap-1.5 mt-0.5 flex-wrap">
+              <span className="text-[10px] text-[#64748B]">
+                Keywords: {keywords.length > 0 ? keywords.join(", ") : "None"}
+              </span>
+              {row.reel && (
+                <span className="text-[10px] font-medium text-[#635BDB] bg-[#EEF2FF] px-1.5 py-0.2 rounded border border-[#C7D2FE]/60">
+                  Reel: {row.reel.instagramPostId}
+                </span>
+              )}
+            </div>
+          </div>
+        );
+      },
     },
     {
       key: "triggerType",
@@ -185,13 +205,13 @@ export default function AutomationsPage() {
                 onClick={() => duplicateMutation.mutate(row.id)}
                 className="text-xs gap-2"
               >
-                <Copy className="h-3.5 w-3.5 text-[#64748B]" />
-                <span>Duplicate</span>
+                <Copy className="h-3.5 w-3.5" />
+                <span>Duplicate Flow</span>
               </DropdownMenuItem>
               <DropdownMenuSeparator />
               <DropdownMenuItem
                 onClick={() => setDeletingAuto(row)}
-                className="text-xs gap-2 text-red-600 focus:text-red-600 focus:bg-red-50"
+                className="text-xs text-red-600 focus:text-red-600 gap-2"
               >
                 <Trash2 className="h-3.5 w-3.5" />
                 <span>Delete</span>
@@ -207,32 +227,26 @@ export default function AutomationsPage() {
     <div className="space-y-6">
       <PageHeader
         title="Automations"
-        description="Automated DM funnels triggered by Reel comments, story replies, and keyword messages."
+        description="Visual automation rules that convert Instagram Reel comments and DMs into product sales."
       >
         <Button asChild size="sm" className="gap-1.5 shadow-sm">
-          <Link href="/automations/create">
+          <Link href="/automations/new">
             <Plus className="h-4 w-4" />
             <span>Create Automation</span>
           </Link>
         </Button>
       </PageHeader>
 
-      {/* 5 Stats Cards */}
-      <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-5 gap-3">
+      {/* 4 Quick Stat Cards */}
+      <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">
         <Card className="p-4 border-[#E2E8F0]">
           <div className="flex items-center justify-between text-xs text-[#64748B]">
-            <span>Total Automations</span>
+            <span>Active Workflows</span>
             <Zap className="h-4 w-4 text-[#635BDB]" />
           </div>
-          <p className="text-xl font-bold text-[#1E293B] mt-1.5">{stats.total}</p>
-        </Card>
-
-        <Card className="p-4 border-[#E2E8F0]">
-          <div className="flex items-center justify-between text-xs text-emerald-600">
-            <span>Active Workflows</span>
-            <Play className="h-4 w-4" />
-          </div>
-          <p className="text-xl font-bold text-emerald-700 mt-1.5">{stats.active}</p>
+          <p className="text-xl font-bold text-[#1E293B] mt-1.5">
+            {stats.active} <span className="text-xs font-normal text-[#64748B]">/ {stats.total} total</span>
+          </p>
         </Card>
 
         <Card className="p-4 border-[#E2E8F0]">
@@ -245,7 +259,7 @@ export default function AutomationsPage() {
 
         <Card className="p-4 border-[#E2E8F0]">
           <div className="flex items-center justify-between text-xs text-emerald-600">
-            <span>Successful</span>
+            <span>Successful Runs</span>
             <CheckCircle2 className="h-4 w-4" />
           </div>
           <p className="text-xl font-bold text-emerald-700 mt-1.5">{formatNumber(stats.successful)}</p>
@@ -267,7 +281,7 @@ export default function AutomationsPage() {
         isLoading={isLoading}
         searchPlaceholder="Search automation name, keyword..."
         searchValue={search}
-        onSearchChange={setSearch}
+        onSearchChange={(val) => setAutomationsFilter({ search: val })}
         onRowClick={(row) => router.push(`/automations/${row.id}`)}
         exportFilename="automations_catalog"
         filters={
@@ -275,7 +289,7 @@ export default function AutomationsPage() {
             <FilterDropdown
               label="Status"
               value={status}
-              onChange={setStatus}
+              onChange={(val) => setAutomationsFilter({ status: val })}
               options={[
                 { value: "all", label: "All Statuses" },
                 { value: "active", label: "Active" },
@@ -285,7 +299,7 @@ export default function AutomationsPage() {
             <FilterDropdown
               label="Trigger"
               value={triggerType}
-              onChange={setTriggerType}
+              onChange={(val) => setAutomationsFilter({ triggerType: val })}
               options={[
                 { value: "all", label: "All Triggers" },
                 ...AUTOMATION_TRIGGERS.map((t) => ({ value: t.id, label: t.label })),

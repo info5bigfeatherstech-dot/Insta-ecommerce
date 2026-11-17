@@ -14,7 +14,14 @@ import {
 import { useUIStore } from "@/store/ui-store";
 import { NAVIGATION_GROUPS } from "@/config/navigation";
 import { db } from "@/data/db";
-import { LayoutDashboard, Users, Package, Film, Zap, ShoppingCart } from "lucide-react";
+import {
+  LayoutDashboard,
+  Users,
+  Package,
+  Film,
+  Zap,
+  ShoppingBag,
+} from "lucide-react";
 
 export function GlobalSearchDialog() {
   const router = useRouter();
@@ -39,7 +46,7 @@ export function GlobalSearchDialog() {
 
   return (
     <CommandDialog open={globalSearchOpen} onOpenChange={setGlobalSearchOpen}>
-      <CommandInput placeholder="Search pages, customers, products, reels... (Cmd+K)" />
+      <CommandInput placeholder="Search pages, customers, products, reels, orders... (Cmd+K)" />
       <CommandList>
         <CommandEmpty>No results found.</CommandEmpty>
 
@@ -59,6 +66,26 @@ export function GlobalSearchDialog() {
               </CommandItem>
             );
           })}
+        </CommandGroup>
+
+        <CommandSeparator />
+
+        {/* Orders */}
+        <CommandGroup heading="Recent Orders">
+          {db.state.orders.slice(0, 5).map((ord) => (
+            <CommandItem
+              key={ord.id}
+              onSelect={() => handleSelect(() => router.push(`/orders/${ord.id}`))}
+              className="gap-2.5"
+            >
+              <ShoppingBag className="h-4 w-4 text-emerald-600" />
+              <span>{ord.orderNumber}</span>
+              <span className="text-[11px] text-[#64748B]">{ord.customerName}</span>
+              <span className="ml-auto text-[10px] font-bold text-[#1E293B]">
+                ₹{ord.totalAmount.toLocaleString("en-IN")}
+              </span>
+            </CommandItem>
+          ))}
         </CommandGroup>
 
         <CommandSeparator />
@@ -86,13 +113,32 @@ export function GlobalSearchDialog() {
           {db.state.products.slice(0, 5).map((prod) => (
             <CommandItem
               key={prod.id}
-              onSelect={() => handleSelect(() => router.push(`/products`))}
+              onSelect={() => handleSelect(() => router.push(`/products/${prod.id}`))}
               className="gap-2.5"
             >
               <Package className="h-4 w-4 text-amber-600" />
               <span>{prod.name}</span>
               <span className="ml-auto text-[11px] font-medium text-[#1E293B]">
                 ₹{prod.price.toLocaleString("en-IN")}
+              </span>
+            </CommandItem>
+          ))}
+        </CommandGroup>
+
+        <CommandSeparator />
+
+        {/* Reels & Posts */}
+        <CommandGroup heading="Reels & Comment Triggers">
+          {db.state.reels.slice(0, 5).map((reel) => (
+            <CommandItem
+              key={reel.id}
+              onSelect={() => handleSelect(() => router.push(`/reels/${reel.id}`))}
+              className="gap-2.5"
+            >
+              <Film className="h-4 w-4 text-rose-500" />
+              <span className="truncate max-w-[220px]">{reel.caption}</span>
+              <span className="ml-auto text-[10px] text-[#635BDB] font-medium">
+                {reel.instagramPostId}
               </span>
             </CommandItem>
           ))}

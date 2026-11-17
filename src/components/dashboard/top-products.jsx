@@ -2,7 +2,7 @@ import * as React from "react";
 import Link from "next/link";
 import { formatINR, formatNumber, generateSVGPlaceholder } from "@/lib/utils";
 import { Card, CardHeader, CardTitle, CardDescription, CardContent } from "@/components/ui/card";
-import { ArrowRight, Send, MousePointerClick, ShoppingBag } from "lucide-react";
+import { ArrowRight } from "lucide-react";
 
 export function TopProducts({ products = [] }) {
   return (
@@ -29,7 +29,11 @@ export function TopProducts({ products = [] }) {
           });
 
           return (
-            <div key={prod.id} className="py-3 first:pt-0 last:pb-0 flex items-center gap-3">
+            <Link
+              key={prod.id}
+              href={`/products/${prod.id}`}
+              className="py-3 first:pt-0 last:pb-0 flex items-center gap-3 group block hover:bg-[#F8FAFC] -mx-2 px-2 rounded-[6px] transition-colors"
+            >
               <img
                 src={placeholder}
                 alt={prod.name}
@@ -37,7 +41,9 @@ export function TopProducts({ products = [] }) {
               />
 
               <div className="flex-1 min-w-0">
-                <p className="text-xs font-semibold text-[#1E293B] truncate">{prod.name}</p>
+                <p className="text-xs font-semibold text-[#1E293B] group-hover:text-[#635BDB] truncate transition-colors">
+                  {prod.name}
+                </p>
                 <p className="text-[10px] text-[#64748B]">{prod.category} • {formatINR(prod.price)}</p>
               </div>
 
@@ -55,7 +61,7 @@ export function TopProducts({ products = [] }) {
                   <span className="text-[10px] text-[#94A3B8]">clicks</span>
                 </div>
               </div>
-            </div>
+            </Link>
           );
         })}
       </CardContent>
