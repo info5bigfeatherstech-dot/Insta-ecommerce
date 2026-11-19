@@ -236,7 +236,10 @@ export function WorkflowCanvas({
   return (
     <div
       ref={reactFlowWrapper}
-      className="relative flex-1 w-full h-[calc(100vh-130px)] min-h-[550px] bg-background overflow-hidden select-none"
+      className={cn(
+        "relative flex-1 w-full h-[calc(100vh-130px)] min-h-[550px] bg-background overflow-hidden select-none",
+        isDark && "dark"
+      )}
     >
       {/* Execution Inspection Mode Top Banner */}
       {isInspectionMode && (
@@ -291,7 +294,6 @@ export function WorkflowCanvas({
         selectionOnDrag={!isLocked}
         panOnDrag={true}
         zoomOnScroll={true}
-        colorMode={isDark ? "dark" : "light"}
         style={{ backgroundColor: "var(--canvas-bg)" }}
         deleteKeyCode={["Backspace", "Delete"]}
         proOptions={{ hideAttribution: true }}

@@ -18,7 +18,7 @@ function EditAutomationContent() {
 
   React.useEffect(() => {
     if (id === "new") {
-      router.replace("/automations/create");
+      router.replace("/automations/create?template=blank");
     }
   }, [id, router]);
 
@@ -53,7 +53,14 @@ function EditAutomationContent() {
     );
   }
 
-  return <WorkflowEditor initialAutomation={automation} />;
+  return (
+    <WorkflowEditor
+      isCreate={false}
+      initialAutomation={automation}
+      fallbackHref="/automations"
+      backLabel="Back to Automations"
+    />
+  );
 }
 
 export default function EditAutomationPage() {

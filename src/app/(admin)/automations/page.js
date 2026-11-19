@@ -1,8 +1,9 @@
 "use client";
 
 import * as React from "react";
+import { Suspense } from "react";
 import Link from "next/link";
-import { useRouter } from "next/navigation";
+import { useRouter, useSearchParams } from "next/navigation";
 import {
   useAutomations,
   useToggleAutomation,
@@ -15,6 +16,7 @@ import { DataTable } from "@/components/shared/data-table";
 import { FilterDropdown } from "@/components/shared/filter-dropdown";
 import { StatusBadge } from "@/components/shared/status-badge";
 import { ConfirmDialog } from "@/components/shared/confirm-dialog";
+import { LoadingState } from "@/components/shared/loading-state";
 import { formatNumber, formatDate } from "@/lib/utils";
 import { Card, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
@@ -41,19 +43,79 @@ import {
 } from "lucide-react";
 import { AUTOMATION_TRIGGERS } from "@/lib/constants";
 
-export default function AutomationsPage() {
+function AutomationsContent() {
   const router = useRouter();
+  const searchParams = useSearchParams();
 
-  // Persistent list filter state
+  // Read URL query parameters
+  const urlSearch = searchParams?.get("search") ?? "";
+  const urlStatus = searchParams?.get("status") ?? "all";
+  const urlTrigger = searchParams?.get("trigger") ?? "all";
+  const urlSort = searchParams?.get("sort") ?? "lastUpdated";
+  const urlDir = searchParams?.get("dir") ?? "desc";
+
+  // Persistent list filter state fallback
   const { automations: filterState, setAutomationsFilter } = useListFilterStore();
-  const { search, status, triggerType } = filterState;
+
+  const [search, setSearch] = React.useState(urlSearch || filterState.search || "");
+  const [status, setStatus] = React.useState(
+    urlStatus !== "all" ? urlStatus : filterState.status || "all"
+  );
+  const [triggerType, setTriggerType] = React.useState(
+    urlTrigger !== "all" ? urlTrigger : filterState.triggerType || "all"
+  );
+  const [sortColumn, setSortColumn] = React.useState(urlSort);
+  const [sortDirection, setSortDirection] = React.useState(urlDir);
 
   const [deletingAuto, setDeletingAuto] = React.useState(null);
+
+  // Sync state to URL search parameters
+  const syncToUrl = React.useCallback(
+    (newSearch, newStatus, newTrigger, newSort, newDir) => {
+      const params = new URLSearchParams();
+      if (newSearch) params.set("search", newSearch);
+      if (newStatus && newStatus !== "all") params.set("status", newStatus);
+      if (newTrigger && newTrigger !== "all") params.set("trigger", newTrigger);
+      if (newSort && newSort !== "lastUpdated") params.set("sort", newSort);
+      if (newDir && newDir !== "desc") params.set("dir", newDir);
+
+      const qs = params.toString();
+      const targetUrl = qs ? `/automations?${qs}` : "/automations";
+      if (typeof window !== "undefined") {
+        window.history.replaceState(window.history.state, "", targetUrl);
+      }
+      setAutomationsFilter({ search: newSearch, status: newStatus, triggerType: newTrigger });
+    },
+    [setAutomationsFilter]
+  );
+
+  const handleSearchChange = (val) => {
+    setSearch(val);
+    syncToUrl(val, status, triggerType, sortColumn, sortDirection);
+  };
+
+  const handleStatusChange = (val) => {
+    setStatus(val);
+    syncToUrl(search, val, triggerType, sortColumn, sortDirection);
+  };
+
+  const handleTriggerChange = (val) => {
+    setTriggerType(val);
+    syncToUrl(search, status, val, sortColumn, sortDirection);
+  };
+
+  const handleSort = (col, dir) => {
+    setSortColumn(col);
+    setSortDirection(dir);
+    syncToUrl(search, status, triggerType, col, dir);
+  };
 
   const { data, isLoading } = useAutomations({
     search,
     status,
     triggerType,
+    sortBy: sortColumn,
+    sortOrder: sortDirection,
   });
 
   const toggleMutation = useToggleAutomation();
@@ -202,7 +264,7 @@ export default function AutomationsPage() {
                 )}
               </DropdownMenuItem>
               <DropdownMenuItem
-                onClick={() => duplicateMutation.mutate(row.id)}
+                onClick={() => router.push(`/automations/create?duplicate=${row.id}`)}
                 className="text-xs gap-2"
               >
                 <Copy className="h-3.5 w-3.5" />
@@ -281,7 +343,10 @@ export default function AutomationsPage() {
         isLoading={isLoading}
         searchPlaceholder="Search automation name, keyword..."
         searchValue={search}
-        onSearchChange={(val) => setAutomationsFilter({ search: val })}
+        onSearchChange={handleSearchChange}
+        sortColumn={sortColumn}
+        sortDirection={sortDirection}
+        onSort={handleSort}
         onRowClick={(row) => router.push(`/automations/${row.id}`)}
         exportFilename="automations_catalog"
         filters={
@@ -289,7 +354,7 @@ export default function AutomationsPage() {
             <FilterDropdown
               label="Status"
               value={status}
-              onChange={(val) => setAutomationsFilter({ status: val })}
+              onChange={handleStatusChange}
               options={[
                 { value: "all", label: "All Statuses" },
                 { value: "active", label: "Active" },
@@ -299,7 +364,7 @@ export default function AutomationsPage() {
             <FilterDropdown
               label="Trigger"
               value={triggerType}
-              onChange={(val) => setAutomationsFilter({ triggerType: val })}
+              onChange={handleTriggerChange}
               options={[
                 { value: "all", label: "All Triggers" },
                 ...AUTOMATION_TRIGGERS.map((t) => ({ value: t.id, label: t.label })),
@@ -320,5 +385,13 @@ export default function AutomationsPage() {
         isLoading={deleteMutation.isPending}
       />
     </div>
+  );
+}
+
+export default function AutomationsPage() {
+  return (
+    <Suspense fallback={<LoadingState text="Loading automations..." />}>
+      <AutomationsContent />
+    </Suspense>
   );
 }

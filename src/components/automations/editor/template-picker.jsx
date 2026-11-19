@@ -19,20 +19,31 @@ import {
 } from "lucide-react";
 import { cn } from "@/lib/utils";
 
-export function TemplatePicker({ onSelectTemplate, onStartBlank }) {
+export function TemplatePicker({ onSelectTemplate, onStartBlank, onBack }) {
   return (
     <div className="max-w-6xl mx-auto py-8 px-4 sm:px-6 space-y-8 animate-in fade-in-50 duration-200">
       {/* Header */}
       <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 border-b border-border pb-6">
         <div>
           <div className="flex items-center gap-2 mb-2">
-            <Link
-              href="/automations"
-              className="text-xs text-muted-foreground hover:text-primary flex items-center gap-1 font-semibold transition-colors"
-            >
-              <ArrowLeft className="h-3.5 w-3.5" />
-              <span>Back to Automations</span>
-            </Link>
+            {onBack ? (
+              <button
+                type="button"
+                onClick={onBack}
+                className="text-xs text-muted-foreground hover:text-primary flex items-center gap-1 font-semibold transition-colors cursor-pointer"
+              >
+                <ArrowLeft className="h-3.5 w-3.5" />
+                <span>Back to Automations</span>
+              </button>
+            ) : (
+              <Link
+                href="/automations"
+                className="text-xs text-muted-foreground hover:text-primary flex items-center gap-1 font-semibold transition-colors"
+              >
+                <ArrowLeft className="h-3.5 w-3.5" />
+                <span>Back to Automations</span>
+              </Link>
+            )}
           </div>
           <h1 className="text-2xl font-extrabold text-foreground">
             Create New Automation

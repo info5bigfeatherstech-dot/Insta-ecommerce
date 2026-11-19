@@ -8,6 +8,8 @@ import { useQueryClient } from "@tanstack/react-query";
 import { TopBar } from "./top-bar";
 import { WorkflowCanvas } from "./workflow-canvas";
 import { ExecutionsTab } from "./executions-tab";
+import { UnsavedChangesDialog } from "./unsaved-changes-dialog";
+import { useSmartBack } from "@/hooks/use-smart-back";
 import {
   runWorkflow,
   migrateAutomationToWorkflow,
@@ -23,10 +25,22 @@ import {
 } from "@/hooks/use-automations";
 import { toast } from "sonner";
 
-function WorkflowEditorInner({ initialAutomation, isCreate = false, onSaveNew }) {
+function WorkflowEditorInner({
+  initialAutomation,
+  isCreate = false,
+  onSaveNew,
+  fallbackHref,
+  backLabel,
+}) {
   const router = useRouter();
   const queryClient = useQueryClient();
   const { getNodes, getEdges } = useReactFlow();
+
+  const effectiveFallback = fallbackHref || (isCreate ? "/automations/create" : "/automations");
+  const effectiveBackLabel = backLabel || (isCreate ? "Back to templates" : "Back to Automations");
+  const { smartBack } = useSmartBack(effectiveFallback);
+
+  const [showUnsavedDialog, setShowUnsavedDialog] = useState(false);
 
   const {
     activeTab,
@@ -42,6 +56,56 @@ function WorkflowEditorInner({ initialAutomation, isCreate = false, onSaveNew })
 
   const [automation, setAutomation] = useState(initialAutomation || {});
   const [workflowName, setWorkflowName] = useState(initialAutomation?.name || "New Automation");
+
+  // Reset dirty flag on initial mount of a fresh automation
+  useEffect(() => {
+    setIsDirty(false);
+    return () => {
+      setIsDirty(false);
+    };
+  }, [setIsDirty]);
+
+  // Request back navigation with unsaved changes guard
+  const handleRequestBack = useCallback(() => {
+    if (useWorkflowEditorStore.getState().isDirty) {
+      setShowUnsavedDialog(true);
+    } else {
+      smartBack();
+    }
+  }, [smartBack]);
+
+  // Dialog actions
+  const handleStay = useCallback(() => {
+    setShowUnsavedDialog(false);
+  }, []);
+
+  const handleDiscard = useCallback(() => {
+    setIsDirty(false);
+    setShowUnsavedDialog(false);
+    setTimeout(() => {
+      smartBack();
+    }, 40);
+  }, [setIsDirty, smartBack]);
+
+  // Intercept browser back button when canvas is dirty
+  useEffect(() => {
+    if (!isDirty || typeof window === "undefined") return;
+
+    // Push barrier entry preserving Next.js internal router state and current URL
+    window.history.pushState(window.history.state, "", window.location.href);
+
+    const handlePopState = () => {
+      if (useWorkflowEditorStore.getState().isDirty) {
+        window.history.pushState(window.history.state, "", window.location.href);
+        setShowUnsavedDialog(true);
+      }
+    };
+
+    window.addEventListener("popstate", handlePopState);
+    return () => {
+      window.removeEventListener("popstate", handlePopState);
+    };
+  }, [isDirty]);
 
   // Mutations
   const updateMutation = useUpdateAutomation();
@@ -240,6 +304,19 @@ function WorkflowEditorInner({ initialAutomation, isCreate = false, onSaveNew })
     queryClient.invalidateQueries({ queryKey: ["dashboard"] });
   };
 
+  // When user chooses "Save and leave" from the unsaved dialog
+  const handleSaveAndLeave = useCallback(async () => {
+    try {
+      await handleSave();
+      setShowUnsavedDialog(false);
+      setTimeout(() => {
+        smartBack();
+      }, 40);
+    } catch (err) {
+      // If save fails, toast already alerted; stay on page
+    }
+  }, [handleSave, smartBack]);
+
   // Inspect execution run on canvas
   const handleSelectExecution = (exec) => {
     setInspectingExecution(exec);
@@ -262,6 +339,8 @@ function WorkflowEditorInner({ initialAutomation, isCreate = false, onSaveNew })
         onToggleActive={handleToggleActive}
         onDuplicate={handleDuplicate}
         onDelete={handleDelete}
+        onBack={handleRequestBack}
+        backLabel={effectiveBackLabel}
       />
 
       {/* Main Area: Canvas or Executions Tab */}
@@ -279,6 +358,16 @@ function WorkflowEditorInner({ initialAutomation, isCreate = false, onSaveNew })
           />
         )}
       </div>
+
+      {/* Unsaved Changes Guard Dialog */}
+      <UnsavedChangesDialog
+        open={showUnsavedDialog}
+        onOpenChange={setShowUnsavedDialog}
+        onStay={handleStay}
+        onDiscard={handleDiscard}
+        onSaveAndLeave={handleSaveAndLeave}
+        isSaving={updateMutation.isPending}
+      />
     </div>
   );
 }

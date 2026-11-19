@@ -50,6 +50,8 @@ export function TopBar({
   onToggleActive,
   onDuplicate,
   onDelete,
+  onBack,
+  backLabel = "Back to Automations",
 }) {
   const router = useRouter();
   const { getNodes, getEdges, setNodes, setEdges } = useReactFlow();
@@ -156,13 +158,15 @@ export function TopBar({
       <div className="h-14 px-3 sm:px-5 flex items-center justify-between gap-3">
         {/* Left: Back button, Name, Status Badge */}
         <div className="flex items-center gap-2 sm:gap-3 min-w-0">
-          <Link
-            href="/automations"
-            className="h-8 w-8 rounded-[8px] border border-border hover:bg-muted flex items-center justify-center text-muted-foreground hover:text-foreground shrink-0 transition-colors"
-            title="Back to Automations"
+          <button
+            type="button"
+            onClick={onBack}
+            className="h-8 px-2.5 rounded-[8px] border border-border hover:bg-muted flex items-center gap-1.5 text-muted-foreground hover:text-foreground shrink-0 transition-colors cursor-pointer group"
+            title={backLabel}
           >
-            <ArrowLeft className="h-4 w-4" />
-          </Link>
+            <ArrowLeft className="h-4 w-4 group-hover:-translate-x-0.5 transition-transform" />
+            <span className="hidden sm:inline text-xs font-semibold">{backLabel}</span>
+          </button>
 
           {/* Editable Workflow Name */}
           <div className="flex items-center gap-2 min-w-0">
