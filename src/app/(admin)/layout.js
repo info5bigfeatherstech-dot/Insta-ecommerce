@@ -2,11 +2,30 @@
 
 import * as React from "react";
 import { Suspense } from "react";
+import { usePathname } from "next/navigation";
 import { AppSidebar } from "@/components/layout/app-sidebar";
 import { AppHeader } from "@/components/layout/app-header";
 import { MobileSidebar } from "@/components/layout/mobile-sidebar";
 import { useUIStore } from "@/store/ui-store";
 import { cn } from "@/lib/utils";
+
+function AdminMain({ children }) {
+  const pathname = usePathname();
+  const isCanvasPage =
+    pathname === "/automations/create" ||
+    (pathname?.startsWith("/automations/") && pathname !== "/automations");
+
+  return (
+    <main
+      className={cn(
+        "flex-1 w-full flex flex-col",
+        isCanvasPage ? "p-0 max-w-none" : "p-4 md:p-6 max-w-7xl mx-auto"
+      )}
+    >
+      {children}
+    </main>
+  );
+}
 
 export default function AdminLayout({ children }) {
   const sidebarCollapsed = useUIStore((s) => s.sidebarCollapsed);
@@ -34,11 +53,9 @@ export default function AdminLayout({ children }) {
           <AppHeader />
         </Suspense>
 
-        <main className="flex-1 p-4 md:p-6 max-w-7xl w-full mx-auto">
-          <Suspense fallback={null}>
-            {children}
-          </Suspense>
-        </main>
+        <Suspense fallback={<main className="flex-1 p-4 md:p-6 max-w-7xl w-full mx-auto" />}>
+          <AdminMain>{children}</AdminMain>
+        </Suspense>
       </div>
     </div>
   );

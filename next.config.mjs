@@ -10,6 +10,11 @@ const nextConfig = {
         destination: "/dashboard",
         permanent: false,
       },
+      {
+        source: "/automations/new",
+        destination: "/automations/create",
+        permanent: false,
+      },
     ];
   },
   turbopack: {

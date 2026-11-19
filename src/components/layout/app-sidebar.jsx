@@ -120,6 +120,7 @@ export function AppSidebar() {
                         <span className="truncate">{item.title}</span>
                         {badge !== null && (
                           <span
+                            suppressHydrationWarning
                             className={cn(
                               "ml-auto text-[10px] font-semibold px-1.5 py-0.5 rounded-full",
                               isActive
@@ -140,7 +141,7 @@ export function AppSidebar() {
                     <Tooltip key={item.href}>
                       <TooltipTrigger asChild>{linkContent}</TooltipTrigger>
                       <TooltipContent side="right" className="font-medium text-xs">
-                        {item.title} {badge ? `(${badge})` : ""}
+                        {item.title} <span suppressHydrationWarning>{badge ? `(${badge})` : ""}</span>
                       </TooltipContent>
                     </Tooltip>
                   );

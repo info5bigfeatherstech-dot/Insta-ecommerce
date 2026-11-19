@@ -91,3 +91,22 @@ body {
 .sidebar-transition {
   transition: width 0.2s cubic-bezier(0.4, 0, 0.2, 1), transform 0.2s cubic-bezier(0.4, 0, 0.2, 1);
 }
+
+/* Force clean white background and smooth 60fps hardware acceleration for React Flow */
+.react-flow,
+.react-flow__pane,
+.react-flow__background {
+  background-color: #FFFFFF !important;
+  --xy-background-color: #FFFFFF !important;
+  --xy-background-color-default: #FFFFFF !important;
+  --xy-background-pattern-dots-color-default: #CBD5E1 !important;
+}
+
+.react-flow__node {
+  will-change: transform;
+  cursor: grab;
+}
+
+.react-flow__node:active {
+  cursor: grabbing;
+}

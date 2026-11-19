@@ -230,7 +230,7 @@ export default function AutomationsPage() {
         description="Visual automation rules that convert Instagram Reel comments and DMs into product sales."
       >
         <Button asChild size="sm" className="gap-1.5 shadow-sm">
-          <Link href="/automations/new">
+          <Link href="/automations/create">
             <Plus className="h-4 w-4" />
             <span>Create Automation</span>
           </Link>

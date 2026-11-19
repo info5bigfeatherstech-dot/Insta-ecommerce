@@ -6,6 +6,8 @@ export const automationKeys = {
   all: ["automations"],
   list: (params) => [...automationKeys.all, "list", params],
   detail: (id) => [...automationKeys.all, "detail", id],
+  executions: (id, params) => [...automationKeys.all, "executions", id, params],
+  execution: (id, execId) => [...automationKeys.all, "execution", id, execId],
 };
 
 export function useAutomations(params = {}) {
@@ -19,7 +21,7 @@ export function useAutomation(id) {
   return useQuery({
     queryKey: automationKeys.detail(id),
     queryFn: () => automationsService.getAutomationById(id).then((res) => res.data),
-    enabled: Boolean(id),
+    enabled: Boolean(id && id !== "new"),
   });
 }
 
@@ -88,5 +90,53 @@ export function useDeleteAutomation() {
       queryClient.invalidateQueries({ queryKey: ["reels"] });
     },
     onError: (err) => toast.error(err.message || "Failed to delete automation"),
+  });
+}
+
+export function useSaveWorkflow() {
+  const queryClient = useQueryClient();
+  return useMutation({
+    mutationFn: ({ id, workflow }) => automationsService.saveWorkflow(id, workflow),
+    onSuccess: (res, vars) => {
+      toast.success(res.message);
+      queryClient.invalidateQueries({ queryKey: automationKeys.detail(vars.id) });
+      queryClient.invalidateQueries({ queryKey: automationKeys.all });
+      queryClient.invalidateQueries({ queryKey: ["reels"] });
+    },
+    onError: (err) => toast.error(err.message || "Failed to save workflow"),
+  });
+}
+
+export function useRunWorkflowSimulation() {
+  const queryClient = useQueryClient();
+  return useMutation({
+    mutationFn: ({ id, triggerPayload }) =>
+      automationsService.runWorkflowSimulation(id, triggerPayload),
+    onSuccess: (res, vars) => {
+      queryClient.invalidateQueries({ queryKey: automationKeys.detail(vars.id) });
+      queryClient.invalidateQueries({ queryKey: automationKeys.executions(vars.id) });
+      queryClient.invalidateQueries({ queryKey: ["customers"] });
+      queryClient.invalidateQueries({ queryKey: ["conversations"] });
+      queryClient.invalidateQueries({ queryKey: ["dmActivity"] });
+      queryClient.invalidateQueries({ queryKey: ["dashboard"] });
+      queryClient.invalidateQueries({ queryKey: ["reels"] });
+    },
+    onError: (err) => toast.error(err.message || "Simulation failed"),
+  });
+}
+
+export function useExecutions(automationId, params = {}) {
+  return useQuery({
+    queryKey: automationKeys.executions(automationId, params),
+    queryFn: () => automationsService.getExecutions(automationId, params).then((res) => res.data),
+    enabled: Boolean(automationId),
+  });
+}
+
+export function useExecution(automationId, execId) {
+  return useQuery({
+    queryKey: automationKeys.execution(automationId, execId),
+    queryFn: () => automationsService.getExecutionById(automationId, execId).then((res) => res.data),
+    enabled: Boolean(automationId && execId),
   });
 }

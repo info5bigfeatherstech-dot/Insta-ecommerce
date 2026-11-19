@@ -1,6 +1,7 @@
 import { db, delay } from "@/data/db";
 import { matchComment, renderTemplate, DEFAULT_PUBLIC_REPLIES } from "@/lib/comment-matcher";
 import { getInitials } from "@/lib/utils";
+import { runWorkflow, migrateAutomationToWorkflow } from "@/lib/workflow-engine";
 
 export const reelsService = {
   async getReels(params = {}) {
@@ -444,6 +445,21 @@ export const reelsService = {
       automation.executions = (automation.executions || 0) + 1;
       automation.messagesSent = (automation.messagesSent || 0) + 1;
       automation.lastUpdated = now;
+
+      // Execute automation graph simulation to record run
+      const workflow = automation.workflow || migrateAutomationToWorkflow(automation);
+      const execResult = runWorkflow(workflow, {
+        username: cleanUsername,
+        customerName: cleanName,
+        commentText,
+        reelId: reel.id,
+        productId: reel.productId,
+        timestamp: now,
+      });
+      if (!automation.executionsList) {
+        automation.executionsList = [];
+      }
+      automation.executionsList.unshift(execResult);
     }
     if (product) {
       product.messagesSent = (product.messagesSent || 0) + 1;

@@ -68,12 +68,16 @@ export function AppBreadcrumb() {
           <React.Fragment key={href}>
             <ChevronRight className="h-3.5 w-3.5 text-[#CBD5E1]" />
             {isLast ? (
-              <span className="font-semibold text-[#1E293B] truncate max-w-[200px]">
+              <span
+                suppressHydrationWarning
+                className="font-semibold text-[#1E293B] truncate max-w-[200px]"
+              >
                 {label}
               </span>
             ) : (
               <Link
                 href={href}
+                suppressHydrationWarning
                 className="hover:text-[#1E293B] transition-colors truncate max-w-[140px]"
               >
                 {label}

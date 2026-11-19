@@ -76,6 +76,7 @@ export function MobileSidebar() {
                     <span>{item.title}</span>
                     {badge !== null && (
                       <span
+                        suppressHydrationWarning
                         className={cn(
                           "ml-auto text-[10px] font-semibold px-1.5 py-0.5 rounded-full",
                           isActive ? "bg-[#635BDB] text-white" : "bg-[#F1F5F9] text-[#64748B]"
