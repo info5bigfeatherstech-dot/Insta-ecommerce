@@ -1,6 +1,10 @@
 import { db, delay } from "@/data/db";
 
 export const analyticsService = {
+  async getAnalytics(dateRange = "30d") {
+    return this.getAnalyticsData(dateRange);
+  },
+
   async getAnalyticsData(dateRange = "30d") {
     await delay(350);
     const agg = db.getDashboardAggregates();

@@ -1,7 +1,7 @@
 "use client";
 
 import * as React from "react";
-import { useQuery } from "@tanstack/react-query";
+import { useAnalytics } from "@/hooks/use-analytics";
 import { analyticsService } from "@/services/analytics.service";
 import { PageHeader } from "@/components/shared/page-header";
 import { LoadingState } from "@/components/shared/loading-state";
@@ -29,13 +29,24 @@ export default function AnalyticsPage() {
   const [range, setRange] = React.useState("30d");
   const chartTheme = useChartTheme();
 
-  const { data: analytics, isLoading } = useQuery({
-    queryKey: ["analytics", range],
-    queryFn: () => analyticsService.getAnalytics(range).then((res) => res.data),
-  });
+  const { data: analytics, isLoading, error } = useAnalytics(range);
 
-  if (isLoading || !analytics) {
+  if (isLoading) {
     return <LoadingState text="Calculating Instagram audience conversion metrics..." />;
+  }
+
+  if (error || !analytics) {
+    return (
+      <div className="space-y-6">
+        <PageHeader
+          title="Analytics & DM Funnel Performance"
+          description="Comprehensive insights across message delivery, audience growth, product demand, and Instagram revenue."
+        />
+        <div className="p-8 text-center text-muted-foreground border border-border rounded-[12px] bg-card">
+          Failed to load analytics metrics. Please refresh or try another range.
+        </div>
+      </div>
+    );
   }
 
   const { stats, charts, tables } = analytics;
