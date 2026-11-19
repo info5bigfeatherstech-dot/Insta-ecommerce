@@ -13,18 +13,18 @@ export function SearchInput({
 }) {
   return (
     <div className={cn("relative w-full max-w-xs", className)}>
-      <Search className="absolute left-2.5 top-2.5 h-3.5 w-3.5 text-[#94A3B8]" />
+      <Search className="absolute left-2.5 top-2.5 h-3.5 w-3.5 text-muted-foreground" />
       <Input
         value={value}
         onChange={(e) => onChange(e.target.value)}
         placeholder={placeholder}
-        className="pl-8 pr-7 h-8 text-xs bg-white border-[#E2E8F0]"
+        className="pl-8 pr-7 h-8 text-xs bg-card border-border"
       />
       {value && (
         <button
           type="button"
           onClick={() => onChange("")}
-          className="absolute right-2 top-2 text-[#94A3B8] hover:text-[#1E293B]"
+          className="absolute right-2 top-2 text-muted-foreground hover:text-foreground"
         >
           <X className="h-3.5 w-3.5" />
         </button>

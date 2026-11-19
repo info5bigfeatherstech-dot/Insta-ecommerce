@@ -30,10 +30,10 @@ export function AppBreadcrumb() {
   if (segments.length === 0) return null;
 
   return (
-    <nav className="flex items-center space-x-1.5 text-xs text-[#64748B]">
+    <nav className="flex items-center space-x-1.5 text-xs text-muted-foreground">
       <Link
         href="/dashboard"
-        className="flex items-center hover:text-[#1E293B] transition-colors"
+        className="flex items-center hover:text-foreground transition-colors"
       >
         <Home className="h-3.5 w-3.5" />
       </Link>
@@ -66,11 +66,11 @@ export function AppBreadcrumb() {
 
         return (
           <React.Fragment key={href}>
-            <ChevronRight className="h-3.5 w-3.5 text-[#CBD5E1]" />
+            <ChevronRight className="h-3.5 w-3.5 text-border" />
             {isLast ? (
               <span
                 suppressHydrationWarning
-                className="font-semibold text-[#1E293B] truncate max-w-[200px]"
+                className="font-semibold text-foreground truncate max-w-[200px]"
               >
                 {label}
               </span>
@@ -78,7 +78,7 @@ export function AppBreadcrumb() {
               <Link
                 href={href}
                 suppressHydrationWarning
-                className="hover:text-[#1E293B] transition-colors truncate max-w-[140px]"
+                className="hover:text-foreground transition-colors truncate max-w-[140px]"
               >
                 {label}
               </Link>

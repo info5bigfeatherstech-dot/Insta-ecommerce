@@ -1,6 +1,7 @@
 "use client";
 
 import * as React from "react";
+import Image from "next/image";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { categoriesService } from "@/services/categories.service";
 import { PageHeader } from "@/components/shared/page-header";
@@ -150,14 +151,17 @@ export default function CategoriesPage() {
         });
         return (
           <div className="flex items-center gap-3">
-            <img
+            <Image
               src={placeholder}
               alt={row.name}
-              className="h-10 w-10 rounded-[8px] object-cover shrink-0 border border-[#E2E8F0]"
+              width={40}
+              height={40}
+              unoptimized
+              className="h-10 w-10 rounded-[8px] object-cover shrink-0 border border-border"
             />
             <div>
-              <span className="font-semibold text-xs text-[#1E293B] block">{row.name}</span>
-              <span className="text-[10px] text-[#64748B] line-clamp-1 max-w-xs">{row.description}</span>
+              <span className="font-semibold text-xs text-foreground block">{row.name}</span>
+              <span className="text-[10px] text-muted-foreground line-clamp-1 max-w-xs">{row.description}</span>
             </div>
           </div>
         );
@@ -167,15 +171,15 @@ export default function CategoriesPage() {
       key: "displayOrder",
       label: "Display Order",
       sortable: true,
-      render: (val) => <span className="text-xs text-[#64748B] font-medium">#{val}</span>,
+      render: (val) => <span className="text-xs text-muted-foreground font-medium">#{val}</span>,
     },
     {
       key: "productCount",
       label: "Active Products",
       sortable: true,
       render: (val) => (
-        <span className="inline-flex items-center gap-1.5 text-xs font-semibold text-[#1E293B] bg-[#F1F5F9] px-2.5 py-0.5 rounded-[6px]">
-          <Package className="h-3 w-3 text-[#64748B]" />
+        <span className="inline-flex items-center gap-1.5 text-xs font-semibold text-foreground bg-muted px-2.5 py-0.5 rounded-[6px]">
+          <Package className="h-3 w-3 text-muted-foreground" />
           {val} products
         </span>
       ),
@@ -195,7 +199,7 @@ export default function CategoriesPage() {
             variant="ghost"
             size="icon"
             onClick={() => handleOpenEdit(row)}
-            className="h-7 w-7 text-[#64748B]"
+            className="h-7 w-7 text-muted-foreground"
             title="Edit Category"
           >
             <Edit2 className="h-3.5 w-3.5" />
@@ -204,7 +208,7 @@ export default function CategoriesPage() {
             variant="ghost"
             size="icon"
             onClick={() => setDeletingCategory(row)}
-            className="h-7 w-7 text-red-600 hover:bg-red-50"
+            className="h-7 w-7 text-destructive hover:bg-destructive-soft hover:text-destructive"
             title="Delete Category"
           >
             <Trash2 className="h-3.5 w-3.5" />
@@ -254,13 +258,13 @@ export default function CategoriesPage() {
 
           <form onSubmit={handleSubmit(handleFormSubmit)} className="space-y-3.5 pt-2">
             <div className="space-y-1">
-              <label className="text-xs font-semibold text-[#1E293B]">Category Name *</label>
+              <label className="text-xs font-semibold text-foreground">Category Name *</label>
               <Input {...register("name")} placeholder="e.g. Footwear & Sneakers" />
-              {errors.name && <p className="text-[11px] text-red-500">{errors.name.message}</p>}
+              {errors.name && <p className="text-[11px] text-destructive">{errors.name.message}</p>}
             </div>
 
             <div className="space-y-1">
-              <label className="text-xs font-semibold text-[#1E293B]">Description</label>
+              <label className="text-xs font-semibold text-foreground">Description</label>
               <Textarea
                 {...register("description")}
                 placeholder="Brief summary of items in this category..."
@@ -270,15 +274,15 @@ export default function CategoriesPage() {
 
             <div className="grid grid-cols-2 gap-3">
               <div className="space-y-1">
-                <label className="text-xs font-semibold text-[#1E293B]">Display Order</label>
+                <label className="text-xs font-semibold text-foreground">Display Order</label>
                 <Input type="number" {...register("displayOrder")} />
                 {errors.displayOrder && (
-                  <p className="text-[11px] text-red-500">{errors.displayOrder.message}</p>
+                  <p className="text-[11px] text-destructive">{errors.displayOrder.message}</p>
                 )}
               </div>
 
               <div className="space-y-1">
-                <label className="text-xs font-semibold text-[#1E293B]">Status</label>
+                <label className="text-xs font-semibold text-foreground">Status</label>
                 <Select
                   value={watch("status")}
                   onValueChange={(val) => setValue("status", val)}
@@ -294,7 +298,7 @@ export default function CategoriesPage() {
               </div>
             </div>
 
-            <DialogFooter className="mt-4 pt-3 border-t border-[#E2E8F0]">
+            <DialogFooter className="mt-4 pt-3 border-t border-border">
               <Button
                 type="button"
                 variant="outline"

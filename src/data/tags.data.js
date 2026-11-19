@@ -104,3 +104,13 @@ export const initialTags = [
     createdAt: "2026-01-29T10:00:00Z",
   },
 ];
+
+export const COLOR_PRESETS = [
+  { name: "Indigo", color: "#635BDB", bgColor: "#EEF2FF" },
+  { name: "Emerald", color: "#10B981", bgColor: "#ECFDF5" },
+  { name: "Blue", color: "#3B82F6", bgColor: "#EFF6FF" },
+  { name: "Amber", color: "#F59E0B", bgColor: "#FFFBEB" },
+  { name: "Rose", color: "#EF4444", bgColor: "#FEF2F2" },
+  { name: "Purple", color: "#8B5CF6", bgColor: "#F5F3FF" },
+  { name: "Cyan", color: "#06B6D4", bgColor: "#ECFEFF" },
+];

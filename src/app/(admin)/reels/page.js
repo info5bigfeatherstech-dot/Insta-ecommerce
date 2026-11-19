@@ -2,6 +2,7 @@
 
 import * as React from "react";
 import Link from "next/link";
+import Image from "next/image";
 import { useRouter } from "next/navigation";
 import { useReels } from "@/hooks/use-reels";
 import { useListFilterStore } from "@/store/list-filter-store";
@@ -49,16 +50,19 @@ export default function ReelsPage() {
         });
         return (
           <div className="flex items-center gap-3">
-            <img
+            <Image
               src={placeholder}
               alt={row.caption}
-              className="h-12 w-9 rounded-[6px] object-cover shrink-0 border border-[#E2E8F0]"
+              width={36}
+              height={48}
+              unoptimized
+              className="h-12 w-9 rounded-[6px] object-cover shrink-0 border border-border"
             />
             <div>
-              <span className="font-semibold text-xs text-[#1E293B] line-clamp-1 block hover:text-[#635BDB]">
+              <span className="font-semibold text-xs text-foreground line-clamp-1 block hover:text-primary">
                 {row.caption}
               </span>
-              <span className="text-[10px] text-[#64748B]">Post ID: {row.instagramPostId}</span>
+              <span className="text-[10px] text-muted-foreground">Post ID: {row.instagramPostId}</span>
             </div>
           </div>
         );
@@ -74,7 +78,7 @@ export default function ReelsPage() {
             {row.triggerKeywords.map((kw) => (
               <span
                 key={kw}
-                className="inline-flex items-center px-1.5 py-0.5 rounded text-[10px] font-bold bg-[#EEF2FF] text-[#635BDB] border border-[#C7D2FE]/60"
+                className="inline-flex items-center px-1.5 py-0.5 rounded text-[10px] font-bold bg-primary-soft text-primary border border-primary/30"
               >
                 Comment: {kw}
               </span>
@@ -82,8 +86,8 @@ export default function ReelsPage() {
           </div>
         ) : (
           <div className="flex items-center gap-1.5">
-            <span className="inline-flex items-center gap-1 text-[10px] font-semibold text-amber-700 bg-amber-50 border border-amber-200 px-2 py-0.5 rounded">
-              <AlertTriangle className="h-3 w-3 text-amber-500" />
+            <span className="inline-flex items-center gap-1 text-[10px] font-semibold text-warning bg-warning-soft border border-warning/30 px-2 py-0.5 rounded">
+              <AlertTriangle className="h-3 w-3 text-warning" />
               No keyword set
             </span>
             <Button
@@ -93,7 +97,7 @@ export default function ReelsPage() {
                 e.stopPropagation();
                 handleNavigate(row, "trigger");
               }}
-              className="h-6 px-2 text-[10px] font-bold text-[#635BDB] border-[#C7D2FE] hover:bg-[#EEF2FF]"
+              className="h-6 px-2 text-[10px] font-bold text-primary border-primary/40 hover:bg-primary-soft"
             >
               Set keyword
             </Button>
@@ -105,26 +109,26 @@ export default function ReelsPage() {
       key: "product",
       label: "Linked Product",
       render: (prod) => (
-        <span className="text-xs font-medium text-[#1E293B]">{prod?.name || "—"}</span>
+        <span className="text-xs font-medium text-foreground">{prod?.name || "—"}</span>
       ),
     },
     {
       key: "triggerCount",
       label: "Triggers",
       sortable: true,
-      render: (val) => <span className="text-xs font-medium text-[#1E293B]">{formatNumber(val)}</span>,
+      render: (val) => <span className="text-xs font-medium text-foreground">{formatNumber(val)}</span>,
     },
     {
       key: "dmsSent",
       label: "DMs Sent",
       sortable: true,
-      render: (val) => <span className="text-xs font-medium text-[#1E293B]">{formatNumber(val)}</span>,
+      render: (val) => <span className="text-xs font-medium text-foreground">{formatNumber(val)}</span>,
     },
     {
       key: "linkClicks",
       label: "Clicks",
       sortable: true,
-      render: (val) => <span className="text-xs font-semibold text-[#635BDB]">{formatNumber(val)}</span>,
+      render: (val) => <span className="text-xs font-semibold text-primary">{formatNumber(val)}</span>,
     },
     {
       key: "status",
@@ -144,7 +148,7 @@ export default function ReelsPage() {
               e.stopPropagation();
               handleNavigate(row, "simulator");
             }}
-            className="h-7 px-2 text-xs text-emerald-600 hover:bg-emerald-50 gap-1 font-semibold"
+            className="h-7 px-2 text-xs text-success hover:bg-success-soft gap-1 font-semibold"
             title="Test trigger in simulator"
           >
             <PlayCircle className="h-3.5 w-3.5" />
@@ -157,7 +161,7 @@ export default function ReelsPage() {
               e.stopPropagation();
               handleNavigate(row, "trigger");
             }}
-            className="h-7 px-2 text-xs text-[#635BDB] hover:bg-[#EEF2FF] gap-1 font-semibold"
+            className="h-7 px-2 text-xs text-primary hover:bg-primary-soft gap-1 font-semibold"
           >
             <Eye className="h-3.5 w-3.5" />
             <span>Details</span>
@@ -173,13 +177,13 @@ export default function ReelsPage() {
         title="Reels & Posts"
         description="Configure comment trigger keywords per Reel to automate personalized DM responses and store link conversions."
       >
-        <div className="flex items-center bg-[#F1F5F9] p-0.5 rounded-[8px] border border-[#E2E8F0]">
+        <div className="flex items-center bg-muted p-0.5 rounded-[8px] border border-border">
           <Button
             variant="ghost"
             size="icon"
             onClick={() => setReelsFilter({ viewMode: "grid" })}
             className={`h-7 w-7 rounded-[6px] ${
-              viewMode === "grid" ? "bg-white text-[#1E293B] shadow-xs" : "text-[#64748B]"
+              viewMode === "grid" ? "bg-card text-foreground shadow-xs" : "text-muted-foreground"
             }`}
             title="Grid View"
           >
@@ -190,7 +194,7 @@ export default function ReelsPage() {
             size="icon"
             onClick={() => setReelsFilter({ viewMode: "table" })}
             className={`h-7 w-7 rounded-[6px] ${
-              viewMode === "table" ? "bg-white text-[#1E293B] shadow-xs" : "text-[#64748B]"
+              viewMode === "table" ? "bg-card text-foreground shadow-xs" : "text-muted-foreground"
             }`}
             title="Table View"
           >
@@ -203,7 +207,7 @@ export default function ReelsPage() {
       {viewMode === "grid" ? (
         <div className="space-y-4">
           {/* Toolbar */}
-          <div className="flex flex-col sm:flex-row items-stretch sm:items-center justify-between gap-3 bg-white p-3 rounded-[12px] border border-[#E2E8F0]">
+          <div className="flex flex-col sm:flex-row items-stretch sm:items-center justify-between gap-3 bg-card p-3 rounded-[12px] border border-border">
             <div className="flex items-center gap-2">
               <FilterDropdown
                 label="Filter"
@@ -217,7 +221,7 @@ export default function ReelsPage() {
                 ]}
               />
             </div>
-            <p className="text-xs text-[#64748B]">Showing {reels.length} Reels</p>
+            <p className="text-xs text-muted-foreground">Showing {reels.length} Reels</p>
           </div>
 
           {/* Cards Grid */}
@@ -238,13 +242,16 @@ export default function ReelsPage() {
                   className="cursor-pointer hover:shadow-md transition-all group overflow-hidden flex flex-col justify-between"
                 >
                   <div>
-                    <div className="relative aspect-[4/5] w-full bg-[#1E293B] overflow-hidden flex items-center justify-center">
-                      <img
+                    <div className="relative aspect-[4/5] w-full bg-muted overflow-hidden flex items-center justify-center">
+                      <Image
                         src={placeholder}
                         alt={reel.caption}
-                        className="h-full w-full object-cover group-hover:scale-105 transition-transform duration-300"
+                        fill
+                        unoptimized
+                        sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 33vw"
+                        className="object-cover group-hover:scale-105 transition-transform duration-300"
                       />
-                      <div className="absolute top-3 left-3 bg-black/60 backdrop-blur-xs text-white text-[10px] px-2 py-0.5 rounded-full flex items-center gap-1 font-medium">
+                      <div className="absolute top-3 left-3 bg-foreground/80 backdrop-blur-xs text-background text-[10px] px-2 py-0.5 rounded-full flex items-center gap-1 font-medium">
                         <Instagram className="h-3 w-3" />
                         <span>{reel.instagramPostId}</span>
                       </div>
@@ -254,37 +261,37 @@ export default function ReelsPage() {
                     </div>
 
                     <CardContent className="p-4 space-y-2">
-                      <p className="text-xs font-semibold text-[#1E293B] line-clamp-2 leading-relaxed">
+                      <p className="text-xs font-semibold text-foreground line-clamp-2 leading-relaxed">
                         {reel.caption}
                       </p>
 
                       <div className="flex items-center justify-between text-[11px] pt-1">
-                        <span className="text-[#64748B] font-medium">{reel.product?.name}</span>
-                        <span className="text-[#94A3B8]">{formatDate(reel.publishedDate, "dd MMM")}</span>
+                        <span className="text-muted-foreground font-medium">{reel.product?.name}</span>
+                        <span className="text-muted-foreground">{formatDate(reel.publishedDate, "dd MMM")}</span>
                       </div>
 
                       {/* Trigger Keywords Chips or Warning */}
-                      <div className="pt-2 border-t border-[#F1F5F9]">
+                      <div className="pt-2 border-t border-border/60">
                         {hasKeywords ? (
                           <div className="flex flex-wrap items-center gap-1">
                             {reel.triggerKeywords.slice(0, 3).map((kw) => (
                               <span
                                 key={kw}
-                                className="inline-flex items-center px-1.5 py-0.5 rounded text-[10px] font-bold bg-[#EEF2FF] text-[#635BDB] border border-[#C7D2FE]/60"
+                                className="inline-flex items-center px-1.5 py-0.5 rounded text-[10px] font-bold bg-primary-soft text-primary border border-primary/30"
                               >
                                 Comment: {kw}
                               </span>
                             ))}
                             {reel.triggerKeywords.length > 3 && (
-                              <span className="text-[10px] text-[#94A3B8]">
+                              <span className="text-[10px] text-muted-foreground">
                                 +{reel.triggerKeywords.length - 3}
                               </span>
                             )}
                           </div>
                         ) : (
                           <div className="flex items-center justify-between w-full">
-                            <span className="inline-flex items-center gap-1 text-[10px] font-semibold text-amber-700 bg-amber-50 border border-amber-200 px-1.5 py-0.5 rounded">
-                              <AlertTriangle className="h-3 w-3 text-amber-500" />
+                            <span className="inline-flex items-center gap-1 text-[10px] font-semibold text-warning bg-warning-soft border border-warning/30 px-1.5 py-0.5 rounded">
+                              <AlertTriangle className="h-3 w-3 text-warning" />
                               No keyword set
                             </span>
                             <Button
@@ -294,7 +301,7 @@ export default function ReelsPage() {
                                 e.stopPropagation();
                                 handleNavigate(reel, "trigger");
                               }}
-                              className="h-6 px-2 text-[10px] font-bold text-[#635BDB] border-[#C7D2FE] hover:bg-[#EEF2FF]"
+                              className="h-6 px-2 text-[10px] font-bold text-primary border-primary/40 hover:bg-primary-soft"
                             >
                               Set keyword
                             </Button>
@@ -304,19 +311,19 @@ export default function ReelsPage() {
                     </CardContent>
                   </div>
 
-                  <div className="p-4 pt-0 border-t border-[#E2E8F0] mt-2">
-                    <div className="grid grid-cols-3 gap-2 text-center text-xs py-2 bg-[#F8FAFC] rounded-[8px] my-2">
+                  <div className="p-4 pt-0 border-t border-border mt-2">
+                    <div className="grid grid-cols-3 gap-2 text-center text-xs py-2 bg-muted/40 rounded-[8px] my-2">
                       <div>
-                        <span className="text-[10px] text-[#64748B] block">Triggers</span>
-                        <span className="font-bold text-[#1E293B]">{formatNumber(reel.triggerCount)}</span>
+                        <span className="text-[10px] text-muted-foreground block">Triggers</span>
+                        <span className="font-bold text-foreground">{formatNumber(reel.triggerCount)}</span>
                       </div>
                       <div>
-                        <span className="text-[10px] text-[#64748B] block">Clicks</span>
-                        <span className="font-bold text-[#635BDB]">{formatNumber(reel.linkClicks)}</span>
+                        <span className="text-[10px] text-muted-foreground block">Clicks</span>
+                        <span className="font-bold text-primary">{formatNumber(reel.linkClicks)}</span>
                       </div>
                       <div>
-                        <span className="text-[10px] text-[#64748B] block">Orders</span>
-                        <span className="font-bold text-emerald-600">{reel.conversions}</span>
+                        <span className="text-[10px] text-muted-foreground block">Orders</span>
+                        <span className="font-bold text-success">{reel.conversions}</span>
                       </div>
                     </div>
 
@@ -329,13 +336,13 @@ export default function ReelsPage() {
                           e.stopPropagation();
                           handleNavigate(reel, "simulator");
                         }}
-                        className="h-6 px-2 text-[11px] text-emerald-700 hover:bg-emerald-50 font-semibold gap-1 p-0"
+                        className="h-6 px-2 text-[11px] text-success hover:bg-success-soft font-semibold gap-1 p-0"
                       >
                         <PlayCircle className="h-3.5 w-3.5" />
                         <span>Test Simulator</span>
                       </Button>
 
-                      <span className="text-xs font-semibold text-[#635BDB] group-hover:underline flex items-center gap-0.5">
+                      <span className="text-xs font-semibold text-primary group-hover:underline flex items-center gap-0.5">
                         <span>Details</span>
                         <ExternalLink className="h-3 w-3" />
                       </span>

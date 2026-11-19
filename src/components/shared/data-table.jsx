@@ -40,15 +40,15 @@ export function DataTable({
   exportFilename = "export_data",
   className = "",
 }) {
-  const [localSearch, setLocalSearch] = React.useState(searchValue);
-
-  React.useEffect(() => {
-    setLocalSearch(searchValue);
-  }, [searchValue]);
+  const [internalSearch, setInternalSearch] = React.useState("");
+  const isControlled = onSearchChange !== null;
+  const currentSearch = isControlled ? (searchValue ?? "") : internalSearch;
 
   const handleSearchInput = (e) => {
     const val = e.target.value;
-    setLocalSearch(val);
+    if (!isControlled) {
+      setInternalSearch(val);
+    }
     if (onSearchChange) {
       onSearchChange(val);
     }
@@ -101,9 +101,9 @@ export function DataTable({
               <div className="relative w-full max-w-xs">
                 <Input
                   placeholder={searchPlaceholder}
-                  value={localSearch}
+                  value={currentSearch}
                   onChange={handleSearchInput}
-                  className="h-8 text-xs bg-white"
+                  className="h-8 text-xs bg-card border-border"
                 />
               </div>
             )}
@@ -112,7 +112,7 @@ export function DataTable({
 
           <div className="flex items-center gap-2">
             {selectable && selectedRows.length > 0 && (
-              <span className="text-xs text-[#635BDB] font-medium bg-[#EEF2FF] px-2.5 py-1 rounded-[6px]">
+              <span className="text-xs text-primary font-medium bg-primary-soft px-2.5 py-1 rounded-[6px]">
                 {selectedRows.length} selected
               </span>
             )}
@@ -133,11 +133,11 @@ export function DataTable({
       )}
 
       {/* Main Table Container */}
-      <div className="rounded-[12px] border border-[#E2E8F0] bg-white overflow-hidden shadow-[0_1px_3px_0_rgb(0_0_0/0.03)]">
+      <div className="rounded-[12px] border border-border bg-card overflow-hidden shadow-xs">
         <div className="overflow-x-auto">
           <table className="w-full text-left border-collapse" style={{ fontSize: "var(--table-font-size, 0.875rem)" }}>
             <thead>
-              <tr className="border-b border-[#E2E8F0] bg-[#F8FAFC]">
+              <tr className="border-b border-border bg-muted/60">
                 {selectable && (
                   <th className="w-10 px-3 py-2.5 text-center">
                     <Checkbox
@@ -160,20 +160,20 @@ export function DataTable({
                         paddingRight: "var(--table-px, 1rem)",
                       }}
                       className={cn(
-                        "font-semibold text-xs text-[#64748B] select-none whitespace-nowrap",
-                        col.sortable && "cursor-pointer hover:text-[#1E293B]",
+                        "font-semibold text-xs text-muted-foreground select-none whitespace-nowrap",
+                        col.sortable && "cursor-pointer hover:text-foreground",
                         col.className
                       )}
                     >
                       <div className="flex items-center gap-1.5">
                         <span>{col.label}</span>
                         {col.sortable && (
-                          <span className="text-[#94A3B8]">
+                          <span className="text-muted-foreground">
                             {isCurrentSort ? (
                               sortDirection === "asc" ? (
-                                <ArrowUp className="h-3.5 w-3.5 text-[#635BDB]" />
+                                <ArrowUp className="h-3.5 w-3.5 text-primary" />
                               ) : (
-                                <ArrowDown className="h-3.5 w-3.5 text-[#635BDB]" />
+                                <ArrowDown className="h-3.5 w-3.5 text-primary" />
                               )
                             ) : (
                               <ArrowUpDown className="h-3 w-3 opacity-60" />
@@ -186,7 +186,7 @@ export function DataTable({
                 })}
               </tr>
             </thead>
-            <tbody className="divide-y divide-[#E2E8F0]">
+            <tbody className="divide-y divide-border">
               {isLoading ? (
                 <tr>
                   <td colSpan={columns.length + (selectable ? 1 : 0)} className="p-8">
@@ -211,9 +211,9 @@ export function DataTable({
                       key={row.id || index}
                       onClick={() => onRowClick && onRowClick(row)}
                       className={cn(
-                        "transition-colors hover:bg-[#F8FAFC]",
+                        "transition-colors hover:bg-muted/50",
                         onRowClick && "cursor-pointer",
-                        isSelected && "bg-[#EEF2FF]/40"
+                        isSelected && "bg-primary-soft/40"
                       )}
                     >
                       {selectable && (
@@ -239,7 +239,7 @@ export function DataTable({
                               paddingLeft: "var(--table-px, 1rem)",
                               paddingRight: "var(--table-px, 1rem)",
                             }}
-                            className={cn("text-[#1E293B]", col.cellClassName)}
+                            className={cn("text-foreground", col.cellClassName)}
                           >
                             {col.render ? col.render(cellVal, row) : (cellVal ?? "—")}
                           </td>
@@ -255,13 +255,13 @@ export function DataTable({
 
         {/* Pagination Bar */}
         {pagination && pagination.totalPages > 1 && (
-          <div className="flex flex-col sm:flex-row items-center justify-between gap-3 border-t border-[#E2E8F0] px-4 py-3 bg-[#F8FAFC]">
-            <p className="text-xs text-[#64748B]">
-              Showing <span className="font-medium text-[#1E293B]">{(pagination.page - 1) * pagination.limit + 1}</span> to{" "}
-              <span className="font-medium text-[#1E293B]">
+          <div className="flex flex-col sm:flex-row items-center justify-between gap-3 border-t border-border px-4 py-3 bg-muted/30">
+            <p className="text-xs text-muted-foreground">
+              Showing <span className="font-medium text-foreground">{(pagination.page - 1) * pagination.limit + 1}</span> to{" "}
+              <span className="font-medium text-foreground">
                 {Math.min(pagination.page * pagination.limit, pagination.totalRecords)}
               </span>{" "}
-              of <span className="font-medium text-[#1E293B]">{pagination.totalRecords}</span> entries
+              of <span className="font-medium text-foreground">{pagination.totalRecords}</span> entries
             </p>
 
             <div className="flex items-center gap-1.5">
@@ -276,7 +276,7 @@ export function DataTable({
                 <span>Prev</span>
               </Button>
 
-              <div className="flex items-center gap-1 px-1 text-xs text-[#1E293B]">
+              <div className="flex items-center gap-1 px-1 text-xs text-foreground">
                 Page <span className="font-semibold">{pagination.page}</span> of{" "}
                 <span className="font-semibold">{pagination.totalPages}</span>
               </div>

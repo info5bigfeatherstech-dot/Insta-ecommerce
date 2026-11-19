@@ -79,14 +79,14 @@ export function getInitials(name = "") {
  * Deterministic color palette for avatars and placeholders
  */
 const PALETTES = [
-  { bg: "#EEF2FF", text: "#4F46E5", border: "#C7D2FE", accent: "#635BDB" }, // Indigo
-  { bg: "#F0FDF4", text: "#16A34A", border: "#BBF7D0", accent: "#10B981" }, // Emerald
-  { bg: "#FFF7ED", text: "#C2410C", border: "#FED7AA", accent: "#F97316" }, // Orange
-  { bg: "#EFF6FF", text: "#2563EB", border: "#BFDBFE", accent: "#3B82F6" }, // Blue
-  { bg: "#FAF5FF", text: "#9333EA", border: "#E9D5FF", accent: "#A855F7" }, // Purple
-  { bg: "#FFF1F2", text: "#E11D48", border: "#FECDD3", accent: "#F43F5E" }, // Rose
-  { bg: "#ECFEFF", text: "#0891B2", border: "#A5F3FC", accent: "#06B6D4" }, // Cyan
-  { bg: "#FEFCE8", text: "#CA8A04", border: "#FEF08A", accent: "#EAB308" }, // Amber
+  { bg: "var(--palette-0-bg, #EEF2FF)", text: "var(--palette-0-text, #4F46E5)", border: "var(--palette-0-border, #C7D2FE)", accent: "var(--primary, #635BDB)", rawBg: "#EEF2FF", rawText: "#4F46E5" }, // Indigo
+  { bg: "var(--palette-1-bg, #F0FDF4)", text: "var(--palette-1-text, #16A34A)", border: "var(--palette-1-border, #BBF7D0)", accent: "var(--success, #10B981)", rawBg: "#F0FDF4", rawText: "#16A34A" }, // Emerald
+  { bg: "var(--palette-2-bg, #FFF7ED)", text: "var(--palette-2-text, #C2410C)", border: "var(--palette-2-border, #FED7AA)", accent: "var(--warning, #F97316)", rawBg: "#FFF7ED", rawText: "#C2410C" }, // Orange
+  { bg: "var(--palette-3-bg, #EFF6FF)", text: "var(--palette-3-text, #2563EB)", border: "var(--palette-3-border, #BFDBFE)", accent: "var(--info, #3B82F6)", rawBg: "#EFF6FF", rawText: "#2563EB" }, // Blue
+  { bg: "var(--palette-4-bg, #FAF5FF)", text: "var(--palette-4-text, #9333EA)", border: "var(--palette-4-border, #E9D5FF)", accent: "#A855F7", rawBg: "#FAF5FF", rawText: "#9333EA" }, // Purple
+  { bg: "var(--palette-5-bg, #FFF1F2)", text: "var(--palette-5-text, #E11D48)", border: "var(--palette-5-border, #FECDD3)", accent: "var(--destructive, #F43F5E)", rawBg: "#FFF1F2", rawText: "#E11D48" }, // Rose
+  { bg: "var(--palette-6-bg, #ECFEFF)", text: "var(--palette-6-text, #0891B2)", border: "var(--palette-6-border, #A5F3FC)", accent: "#06B6D4", rawBg: "#ECFEFF", rawText: "#0891B2" }, // Cyan
+  { bg: "var(--palette-7-bg, #FEFCE8)", text: "var(--palette-7-text, #CA8A04)", border: "var(--palette-7-border, #FEF08A)", accent: "#EAB308", rawBg: "#FEFCE8", rawText: "#CA8A04" }, // Amber
 ];
 
 export function getAvatarColor(identifier = "") {
@@ -111,36 +111,38 @@ export function generateSVGPlaceholder({
 }) {
   const palette = getAvatarColor(identifier || text);
   const initials = getInitials(text);
+  const strokeColor = palette.rawText || palette.text;
+  const bgColor = palette.rawBg || palette.bg;
   
   let iconSvg = "";
   if (type === "reel") {
     // Reel play icon
     iconSvg = `
-      <rect x="35" y="30" width="30" height="40" rx="4" fill="none" stroke="${palette.text}" stroke-width="2.5" />
-      <polygon points="46,45 56,50 46,55" fill="${palette.text}" />
+      <rect x="35" y="30" width="30" height="40" rx="4" fill="none" stroke="${strokeColor}" stroke-width="2.5" />
+      <polygon points="46,45 56,50 46,55" fill="${strokeColor}" />
     `;
   } else if (type === "category") {
     // Category grid icon
     iconSvg = `
-      <rect x="36" y="36" width="12" height="12" rx="2" fill="${palette.text}" opacity="0.8" />
-      <rect x="52" y="36" width="12" height="12" rx="2" fill="${palette.text}" opacity="0.4" />
-      <rect x="36" y="52" width="12" height="12" rx="2" fill="${palette.text}" opacity="0.4" />
-      <rect x="52" y="52" width="12" height="12" rx="2" fill="${palette.text}" opacity="0.8" />
+      <rect x="36" y="36" width="12" height="12" rx="2" fill="${strokeColor}" opacity="0.8" />
+      <rect x="52" y="36" width="12" height="12" rx="2" fill="${strokeColor}" opacity="0.4" />
+      <rect x="36" y="52" width="12" height="12" rx="2" fill="${strokeColor}" opacity="0.4" />
+      <rect x="52" y="52" width="12" height="12" rx="2" fill="${strokeColor}" opacity="0.8" />
     `;
   } else {
     // Product shopping bag icon
     iconSvg = `
-      <path d="M35 40 L65 40 L62 64 L38 64 Z" fill="none" stroke="${palette.text}" stroke-width="2.5" stroke-linejoin="round" />
-      <path d="M43 40 C43 33 57 33 57 40" fill="none" stroke="${palette.text}" stroke-width="2.5" stroke-linecap="round" />
+      <path d="M35 40 L65 40 L62 64 L38 64 Z" fill="none" stroke="${strokeColor}" stroke-width="2.5" stroke-linejoin="round" />
+      <path d="M43 40 C43 33 57 33 57 40" fill="none" stroke="${strokeColor}" stroke-width="2.5" stroke-linecap="round" />
     `;
   }
 
   const svg = `<svg xmlns="http://www.w3.org/2000/svg" width="${width}" height="${height}" viewBox="0 0 100 100">
-    <rect width="100%" height="100%" fill="${palette.bg}" rx="10" />
+    <rect width="100%" height="100%" fill="${bgColor}" rx="10" />
     <g transform="translate(0, -6)">
       ${iconSvg}
     </g>
-    <text x="50" y="78" font-family="-apple-system, BlinkMacSystemFont, sans-serif" font-size="11" font-weight="700" fill="${palette.text}" text-anchor="middle" letter-spacing="0.5">${initials}</text>
+    <text x="50" y="78" font-family="-apple-system, BlinkMacSystemFont, sans-serif" font-size="11" font-weight="700" fill="${strokeColor}" text-anchor="middle" letter-spacing="0.5">${initials}</text>
   </svg>`;
 
   return `data:image/svg+xml;utf8,${encodeURIComponent(svg)}`;

@@ -37,62 +37,65 @@ import {
 import { Tabs, TabsList, TabsTrigger, TabsContent } from "@/components/ui/tabs";
 import { toast } from "sonner";
 
+function getRandomDuration() {
+  return Math.floor(Math.random() * 40 + 15);
+}
+
 export function NodeSettingsDialog() {
   const settingsNodeId = useWorkflowEditorStore((s) => s.settingsNodeId);
   const isSettingsOpen = useWorkflowEditorStore((s) => s.isSettingsOpen);
+  const { getNode } = useReactFlow();
+
+  if (!isSettingsOpen || !settingsNodeId) return null;
+
+  const currentNode = getNode(settingsNodeId);
+  if (!currentNode) return null;
+
+  return (
+    <NodeSettingsDialogContent
+      key={settingsNodeId}
+      settingsNodeId={settingsNodeId}
+      currentNode={currentNode}
+    />
+  );
+}
+
+function NodeSettingsDialogContent({ settingsNodeId, currentNode }) {
   const closeSettings = useWorkflowEditorStore((s) => s.closeSettings);
   const setIsDirty = useWorkflowEditorStore((s) => s.setIsDirty);
   const setExecutionResults = useWorkflowEditorStore((s) => s.setExecutionResults);
   const nodeExecResult = useWorkflowEditorStore((s) =>
-    s.settingsNodeId ? s.executionResults[s.settingsNodeId] : null
+    s.executionResults[settingsNodeId] || null
   );
-  const { getNode, setNodes, getNodes, getEdges } = useReactFlow();
+  const { setNodes } = useReactFlow();
+
+  const nodeType = currentNode?.data?.nodeType || "action_send_dm";
+  const def = getNodeDefinition(nodeType);
 
   const [activeTab, setActiveTab] = React.useState("parameters"); // parameters, settings
   const [leftViewMode, setLeftViewMode] = React.useState("json"); // json, table
   const [rightViewMode, setRightViewMode] = React.useState("json"); // json, table
   const [isTestingStep, setIsTestingStep] = React.useState(false);
-  const [testResult, setTestResult] = React.useState(null);
+  const [testResult, setTestResult] = React.useState(nodeExecResult);
 
-  // Form local state
-  const [nodeLabel, setNodeLabel] = React.useState("");
-  const [nodeSubtitle, setNodeSubtitle] = React.useState("");
-  const [nodeDisabled, setNodeDisabled] = React.useState(false);
-  const [nodeNotes, setNodeNotes] = React.useState("");
-  const [retryOnFail, setRetryOnFail] = React.useState(false);
-  const [config, setConfig] = React.useState({});
+  // Form local state initialized directly from currentNode
+  const [nodeLabel, setNodeLabel] = React.useState(currentNode.data?.label || def.label);
+  const [nodeSubtitle, setNodeSubtitle] = React.useState(
+    currentNode.data?.subtitle || def.defaultSubtitle
+  );
+  const [nodeDisabled, setNodeDisabled] = React.useState(currentNode.data?.disabled === true);
+  const [nodeNotes, setNodeNotes] = React.useState(currentNode.data?.notes || "");
+  const [retryOnFail, setRetryOnFail] = React.useState(currentNode.data?.retryOnFail === true);
+  const [config, setConfig] = React.useState(() =>
+    JSON.parse(JSON.stringify(currentNode.data?.config || def.defaultConfig || {}))
+  );
 
   const messageInputRef = React.useRef(null);
 
-  const currentNode = settingsNodeId ? getNode(settingsNodeId) : null;
-  const nodeType = currentNode?.data?.nodeType || "action_send_dm";
-  const def = getNodeDefinition(nodeType);
-
-  // Initialize form from node data
-  React.useEffect(() => {
-    if (currentNode) {
-      setNodeLabel(currentNode.data?.label || def.label);
-      setNodeSubtitle(currentNode.data?.subtitle || def.defaultSubtitle);
-      setNodeDisabled(currentNode.data?.disabled === true);
-      setNodeNotes(currentNode.data?.notes || "");
-      setRetryOnFail(currentNode.data?.retryOnFail === true);
-      setConfig(JSON.parse(JSON.stringify(currentNode.data?.config || def.defaultConfig || {})));
-
-      // Preload test results if previously recorded
-      if (nodeExecResult) {
-        setTestResult(nodeExecResult);
-      } else {
-        setTestResult(null);
-      }
-    }
-  }, [settingsNodeId, currentNode?.id, nodeExecResult]);
-
-  // Available reels, products, tags from mock DB (called at top level to obey Rules of Hooks)
+  // Available reels, products, tags from mock DB
   const availableReels = React.useMemo(() => db.state.reels || [], []);
   const availableProducts = React.useMemo(() => db.state.products || [], []);
   const availableTags = React.useMemo(() => db.state.tags || [], []);
-
-  if (!isSettingsOpen || !currentNode) return null;
 
   const triggerKeyword = Array.isArray(config.keywords)
     ? config.keywords[0]
@@ -184,7 +187,6 @@ export function NodeSettingsDialog() {
 
     setTimeout(() => {
       // Simulate running this single step with sample data
-      const startTime = Date.now();
       const product = db.state.products.find((p) => p.id === (config.productId || "prod_2"));
 
       let producedOutput = {
@@ -210,7 +212,7 @@ export function NodeSettingsDialog() {
         producedOutput.conditionResult = true;
       }
 
-      const duration = Math.floor(Math.random() * 40 + 15);
+      const duration = getRandomDuration();
 
       const result = {
         status: "success",
@@ -237,11 +239,11 @@ export function NodeSettingsDialog() {
   );
 
   return (
-    <div className="fixed inset-0 z-50 bg-black/40 flex items-center justify-center p-2 sm:p-4">
+    <div className="fixed inset-0 z-50 bg-foreground/40 flex items-center justify-center p-2 sm:p-4">
       {/* 3-Column Modal Container */}
-      <div className="bg-white rounded-[16px] shadow-xl border border-[#E2E8F0] w-full max-w-7xl h-[92vh] flex flex-col overflow-hidden">
+      <div className="bg-card rounded-[16px] shadow-xl border border-border text-card-foreground w-full max-w-7xl h-[92vh] flex flex-col overflow-hidden">
         {/* Top Header */}
-        <div className="h-14 px-5 border-b border-[#F1F5F9] flex items-center justify-between shrink-0 bg-white">
+        <div className="h-14 px-5 border-b border-border flex items-center justify-between shrink-0 bg-card">
           <div className="flex items-center gap-3">
             <div
               className="h-8 w-8 rounded-[8px] flex items-center justify-center border"
@@ -260,9 +262,9 @@ export function NodeSettingsDialog() {
                   type="text"
                   value={nodeLabel}
                   onChange={(e) => setNodeLabel(e.target.value)}
-                  className="font-bold text-sm text-[#1E293B] border-b border-transparent hover:border-[#CBD5E1] focus:border-[#635BDB] focus:outline-hidden px-1"
+                  className="font-bold text-sm text-foreground border-b border-transparent hover:border-border focus:border-primary focus:outline-hidden px-1 bg-transparent text-foreground"
                 />
-                <span className="text-[10px] uppercase font-bold text-[#64748B] bg-[#F1F5F9] px-2 py-0.5 rounded">
+                <span className="text-[10px] uppercase font-bold text-muted-foreground bg-muted px-2 py-0.5 rounded">
                   {def.label}
                 </span>
               </div>
@@ -275,7 +277,7 @@ export function NodeSettingsDialog() {
               variant="outline"
               size="sm"
               onClick={closeSettings}
-              className="h-8 text-xs text-[#64748B]"
+              className="h-8 text-xs text-muted-foreground hover:text-foreground"
             >
               Cancel
             </Button>
@@ -283,7 +285,7 @@ export function NodeSettingsDialog() {
               type="button"
               size="sm"
               onClick={handleSave}
-              className="h-8 px-4 text-xs font-semibold bg-[#635BDB] hover:bg-[#5248c8] text-white shadow-xs"
+              className="h-8 px-4 text-xs font-semibold bg-primary hover:bg-primary-hover text-primary-foreground shadow-xs"
             >
               Save Parameters
             </Button>
@@ -292,7 +294,7 @@ export function NodeSettingsDialog() {
               variant="ghost"
               size="icon"
               onClick={closeSettings}
-              className="h-8 w-8 text-[#94A3B8] hover:text-[#1E293B]"
+              className="h-8 w-8 text-muted-foreground hover:text-foreground"
             >
               <X className="h-4 w-4" />
             </Button>
@@ -300,22 +302,22 @@ export function NodeSettingsDialog() {
         </div>
 
         {/* 3 Columns Body */}
-        <div className="flex-1 grid grid-cols-1 lg:grid-cols-12 overflow-hidden divide-y lg:divide-y-0 lg:divide-x divide-[#F1F5F9]">
+        <div className="flex-1 grid grid-cols-1 lg:grid-cols-12 overflow-hidden divide-y lg:divide-y-0 lg:divide-x divide-border">
           {/* COLUMN 1: INPUT DATA PREVIEW (Left, 3 cols) */}
-          <div className="lg:col-span-3 bg-[#F8FAFC] flex flex-col overflow-hidden max-h-[30vh] lg:max-h-full">
-            <div className="p-3 border-b border-[#F1F5F9] flex items-center justify-between shrink-0 bg-white">
-              <span className="font-bold text-xs text-[#1E293B] flex items-center gap-1.5">
+          <div className="lg:col-span-3 bg-muted/40 flex flex-col overflow-hidden max-h-[30vh] lg:max-h-full">
+            <div className="p-3 border-b border-border flex items-center justify-between shrink-0 bg-card">
+              <span className="font-bold text-xs text-foreground flex items-center gap-1.5">
                 <span>INPUT DATA</span>
-                <span className="text-[10px] text-[#64748B] font-normal">(1 Item)</span>
+                <span className="text-[10px] text-muted-foreground font-normal">(1 Item)</span>
               </span>
 
-              <div className="flex items-center gap-1 bg-[#F1F5F9] p-0.5 rounded-[6px]">
+              <div className="flex items-center gap-1 bg-secondary p-0.5 rounded-[6px]">
                 <button
                   type="button"
                   onClick={() => setLeftViewMode("json")}
                   className={cn(
                     "p-1 rounded-[4px] text-xs transition-colors",
-                    leftViewMode === "json" ? "bg-white text-[#635BDB] shadow-2xs font-bold" : "text-[#64748B]"
+                    leftViewMode === "json" ? "bg-card text-primary shadow-2xs font-bold" : "text-muted-foreground"
                   )}
                   title="JSON view"
                 >
@@ -326,7 +328,7 @@ export function NodeSettingsDialog() {
                   onClick={() => setLeftViewMode("table")}
                   className={cn(
                     "p-1 rounded-[4px] text-xs transition-colors",
-                    leftViewMode === "table" ? "bg-white text-[#635BDB] shadow-2xs font-bold" : "text-[#64748B]"
+                    leftViewMode === "table" ? "bg-card text-primary shadow-2xs font-bold" : "text-muted-foreground"
                   )}
                   title="Table view"
                 >
@@ -337,7 +339,7 @@ export function NodeSettingsDialog() {
 
             <div className="flex-1 overflow-y-auto p-3 font-mono text-[11px] leading-relaxed">
               {leftViewMode === "json" ? (
-                <pre className="text-[#334155] whitespace-pre-wrap bg-white p-3 rounded-[8px] border border-[#E2E8F0]">
+                <pre className="text-foreground whitespace-pre-wrap bg-card p-3 rounded-[8px] border border-border">
                   {JSON.stringify(sampleInput, null, 2)}
                 </pre>
               ) : (
@@ -345,32 +347,32 @@ export function NodeSettingsDialog() {
                   {Object.entries(sampleInput).map(([k, v]) => (
                     <div
                       key={k}
-                      className="p-2 rounded-[6px] bg-white border border-[#E2E8F0] flex flex-col text-xs font-sans"
+                      className="p-2 rounded-[6px] bg-card border border-border flex flex-col text-xs font-sans"
                     >
-                      <span className="font-bold text-[10px] text-[#64748B] uppercase">{k}</span>
-                      <span className="text-xs text-[#1E293B] truncate">{String(v)}</span>
+                      <span className="font-bold text-[10px] text-muted-foreground uppercase">{k}</span>
+                      <span className="text-xs text-foreground truncate">{String(v)}</span>
                     </div>
                   ))}
                 </div>
               )}
             </div>
 
-            <div className="p-2.5 bg-white border-t border-[#F1F5F9] text-[10px] text-[#64748B]">
+            <div className="p-2.5 bg-card border-t border-border text-[10px] text-muted-foreground">
               Payload received from preceding workflow trigger or step.
             </div>
           </div>
 
           {/* COLUMN 2: PARAMETERS FORM (Center, 6 cols) */}
-          <div className="lg:col-span-6 flex flex-col overflow-hidden bg-white">
+          <div className="lg:col-span-6 flex flex-col overflow-hidden bg-card">
             {/* Tabs Bar */}
-            <div className="p-3 border-b border-[#F1F5F9] flex items-center justify-between shrink-0">
+            <div className="p-3 border-b border-border flex items-center justify-between shrink-0">
               <div className="flex items-center gap-2">
                 <button
                   type="button"
                   onClick={() => setActiveTab("parameters")}
                   className={cn(
                     "px-3 py-1 rounded-[6px] text-xs font-bold transition-colors",
-                    activeTab === "parameters" ? "bg-[#EEF2FF] text-[#635BDB]" : "text-[#64748B] hover:text-[#1E293B]"
+                    activeTab === "parameters" ? "bg-primary-soft text-primary" : "text-muted-foreground hover:text-foreground"
                   )}
                 >
                   Parameters
@@ -380,7 +382,7 @@ export function NodeSettingsDialog() {
                   onClick={() => setActiveTab("settings")}
                   className={cn(
                     "px-3 py-1 rounded-[6px] text-xs font-bold transition-colors",
-                    activeTab === "settings" ? "bg-[#EEF2FF] text-[#635BDB]" : "text-[#64748B] hover:text-[#1E293B]"
+                    activeTab === "settings" ? "bg-primary-soft text-primary" : "text-muted-foreground hover:text-foreground"
                   )}
                 >
                   Node Settings
@@ -393,7 +395,7 @@ export function NodeSettingsDialog() {
                 size="sm"
                 onClick={handleTestStep}
                 disabled={isTestingStep}
-                className="h-7 px-3 text-xs gap-1.5 bg-emerald-600 hover:bg-emerald-700 text-white shadow-xs"
+                className="h-7 px-3 text-xs gap-1.5 bg-success hover:bg-success/90 text-success-foreground shadow-xs"
               >
                 <Play className="h-3 w-3 fill-current" />
                 <span>{isTestingStep ? "Testing..." : "Test Step"}</span>
@@ -407,7 +409,7 @@ export function NodeSettingsDialog() {
                 {nodeType === "trigger_reel_comment" && (
                   <div className="space-y-4">
                     <div>
-                      <Label className="text-xs font-bold text-[#1E293B]">
+                      <Label className="text-xs font-bold text-foreground">
                         Trigger Keywords (Comma separated)
                       </Label>
                       <Input
@@ -425,35 +427,35 @@ export function NodeSettingsDialog() {
                         placeholder="BUY, LINK, PRICE, GOLD"
                         className="mt-1 h-9 text-xs"
                       />
-                      <p className="text-[11px] text-[#64748B] mt-1">
+                      <p className="text-[11px] text-muted-foreground mt-1">
                         Any comment matching one of these words will initiate the workflow.
                       </p>
                     </div>
 
                     <div>
-                      <Label className="text-xs font-bold text-[#1E293B]">Match Type</Label>
+                      <Label className="text-xs font-bold text-foreground">Match Type</Label>
                       <Select
                         value={config.matchType || "contains"}
                         onValueChange={(val) => handleConfigChange("matchType", val)}
                       >
-                        <SelectTrigger className="mt-1 h-9 text-xs bg-white border-[#CBD5E1]">
+                        <SelectTrigger className="mt-1 h-9 text-xs bg-card border-input">
                           <SelectValue placeholder="Select match type" />
                         </SelectTrigger>
                         <SelectContent>
-                          <SelectItem value="contains">Contains (e.g. "I want to BUY this")</SelectItem>
-                          <SelectItem value="exact">Exact match ("BUY" only)</SelectItem>
+                          <SelectItem value="contains">Contains (e.g. &ldquo;I want to BUY this&rdquo;)</SelectItem>
+                          <SelectItem value="exact">Exact match (&ldquo;BUY&rdquo; only)</SelectItem>
                           <SelectItem value="starts_with">Starts with keyword</SelectItem>
                         </SelectContent>
                       </Select>
                     </div>
 
                     <div>
-                      <Label className="text-xs font-bold text-[#1E293B]">Associated Reel Post</Label>
+                      <Label className="text-xs font-bold text-foreground">Associated Reel Post</Label>
                       <Select
                         value={config.reelId || "reel_1"}
                         onValueChange={(val) => handleConfigChange("reelId", val)}
                       >
-                        <SelectTrigger className="mt-1 h-9 text-xs bg-white border-[#CBD5E1]">
+                        <SelectTrigger className="mt-1 h-9 text-xs bg-card border-input">
                           <SelectValue placeholder="Select Reel Post" />
                         </SelectTrigger>
                         <SelectContent className="max-h-60">
@@ -466,9 +468,9 @@ export function NodeSettingsDialog() {
                       </Select>
                     </div>
 
-                    <div className="pt-2 border-t border-[#F1F5F9] space-y-2">
+                    <div className="pt-2 border-t border-border space-y-2">
                       <div className="flex items-center justify-between">
-                        <Label className="text-xs font-bold text-[#1E293B]">
+                        <Label className="text-xs font-bold text-foreground">
                           Public Comment Reply
                         </Label>
                         <input
@@ -477,7 +479,7 @@ export function NodeSettingsDialog() {
                           onChange={(e) =>
                             handleConfigChange("replyToCommentPublicly", e.target.checked)
                           }
-                          className="h-4 w-4 rounded accent-[#635BDB]"
+                          className="h-4 w-4 rounded accent-primary"
                         />
                       </div>
                       <Input
@@ -495,10 +497,10 @@ export function NodeSettingsDialog() {
                   <div className="space-y-4">
                     <div>
                       <div className="flex items-center justify-between">
-                        <Label className="text-xs font-bold text-[#1E293B]">
+                        <Label className="text-xs font-bold text-foreground">
                           DM Message Template
                         </Label>
-                        <span className="text-[10px] text-[#64748B]">Click chip to insert</span>
+                        <span className="text-[10px] text-muted-foreground">Click chip to insert</span>
                       </div>
 
                       {/* Variable Chips */}
@@ -508,7 +510,7 @@ export function NodeSettingsDialog() {
                             key={chip.expr}
                             type="button"
                             onClick={() => handleInsertVariable(chip.expr)}
-                            className="text-[10px] font-semibold bg-[#EEF2FF] text-[#635BDB] hover:bg-[#635BDB] hover:text-white px-2 py-0.5 rounded-[4px] transition-colors border border-[#C7D2FE]"
+                            className="text-[10px] font-semibold bg-primary-soft text-primary hover:bg-primary hover:text-primary-foreground px-2 py-0.5 rounded-[4px] transition-colors border border-primary/30"
                           >
                             +{chip.label}
                           </button>
@@ -521,13 +523,13 @@ export function NodeSettingsDialog() {
                         value={config.messageText || ""}
                         onChange={(e) => handleConfigChange("messageText", e.target.value)}
                         placeholder="Hey {{username}}! Tap below to shop {{product_name}}: {{product_url}}"
-                        className="w-full rounded-[8px] border border-[#CBD5E1] p-3 text-xs leading-relaxed focus:border-[#635BDB] focus:outline-hidden"
+                        className="w-full rounded-[8px] border border-input p-3 text-xs leading-relaxed focus:border-primary focus:outline-hidden"
                       />
                     </div>
 
                     <div className="grid grid-cols-2 gap-3">
                       <div>
-                        <Label className="text-xs font-bold text-[#1E293B]">Primary Button Text</Label>
+                        <Label className="text-xs font-bold text-foreground">Primary Button Text</Label>
                         <Input
                           value={config.buttonText || "Shop Now"}
                           onChange={(e) => handleConfigChange("buttonText", e.target.value)}
@@ -537,12 +539,12 @@ export function NodeSettingsDialog() {
                       </div>
 
                       <div>
-                        <Label className="text-xs font-bold text-[#1E293B]">Target Product Link</Label>
+                        <Label className="text-xs font-bold text-foreground">Target Product Link</Label>
                         <Select
                           value={config.productId || "prod_2"}
                           onValueChange={(val) => handleConfigChange("productId", val)}
                         >
-                          <SelectTrigger className="mt-1 h-8 text-xs bg-white border-[#CBD5E1]">
+                          <SelectTrigger className="mt-1 h-8 text-xs bg-card border-input">
                             <SelectValue placeholder="Select Product" />
                           </SelectTrigger>
                           <SelectContent className="max-h-60">
@@ -557,8 +559,8 @@ export function NodeSettingsDialog() {
                     </div>
 
                     {/* Live Instagram Smartphone Preview for DM Node */}
-                    <div className="pt-3 border-t border-[#F1F5F9]">
-                      <Label className="text-xs font-bold text-[#635BDB] mb-2 flex items-center gap-1.5">
+                    <div className="pt-3 border-t border-border">
+                      <Label className="text-xs font-bold text-primary mb-2 flex items-center gap-1.5">
                         <Send className="h-3.5 w-3.5" />
                         <span>Live Instagram DM Preview</span>
                       </Label>
@@ -579,12 +581,12 @@ export function NodeSettingsDialog() {
                 {nodeType === "action_send_product" && (
                   <div className="space-y-4">
                     <div>
-                      <Label className="text-xs font-bold text-[#1E293B]">Select Product</Label>
+                      <Label className="text-xs font-bold text-foreground">Select Product</Label>
                       <Select
                         value={config.productId || "prod_1"}
                         onValueChange={(val) => handleConfigChange("productId", val)}
                       >
-                        <SelectTrigger className="mt-1 h-9 text-xs bg-white border-[#CBD5E1]">
+                        <SelectTrigger className="mt-1 h-9 text-xs bg-card border-input">
                           <SelectValue placeholder="Select Product" />
                         </SelectTrigger>
                         <SelectContent className="max-h-60">
@@ -598,7 +600,7 @@ export function NodeSettingsDialog() {
                     </div>
 
                     <div>
-                      <Label className="text-xs font-bold text-[#1E293B]">Custom Link Message</Label>
+                      <Label className="text-xs font-bold text-foreground">Custom Link Message</Label>
                       <Input
                         value={config.customMessage || ""}
                         onChange={(e) => handleConfigChange("customMessage", e.target.value)}
@@ -612,14 +614,14 @@ export function NodeSettingsDialog() {
                 {/* 4. ADD / REMOVE TAG */}
                 {(nodeType === "action_add_tag" || nodeType === "action_remove_tag") && (
                   <div className="space-y-4">
-                    <Label className="text-xs font-bold text-[#1E293B]">Select CRM Tags</Label>
+                    <Label className="text-xs font-bold text-foreground">Select CRM Tags</Label>
                     <div className="space-y-2">
                       {availableTags.map((t) => {
                         const isChecked = (config.tagIds || []).includes(t.id);
                         return (
                           <label
                             key={t.id}
-                            className="flex items-center gap-2.5 p-2 rounded-[8px] border border-[#E2E8F0] hover:bg-[#F8FAFC] cursor-pointer text-xs"
+                            className="flex items-center gap-2.5 p-2 rounded-[8px] border border-border hover:bg-muted/40 cursor-pointer text-xs"
                           >
                             <input
                               type="checkbox"
@@ -631,10 +633,10 @@ export function NodeSettingsDialog() {
                                   : current.filter((id) => id !== t.id);
                                 handleConfigChange("tagIds", updated);
                               }}
-                              className="h-4 w-4 rounded accent-[#635BDB]"
+                              className="h-4 w-4 rounded accent-primary"
                             />
-                            <span className="font-semibold text-[#1E293B]">{t.name}</span>
-                            <span className="text-[10px] text-[#94A3B8]">({t.id})</span>
+                            <span className="font-semibold text-foreground">{t.name}</span>
+                            <span className="text-[10px] text-muted-foreground">({t.id})</span>
                           </label>
                         );
                       })}
@@ -646,7 +648,7 @@ export function NodeSettingsDialog() {
                 {nodeType === "logic_if" && (
                   <div className="space-y-4">
                     <div>
-                      <Label className="text-xs font-bold text-[#1E293B]">Left Variable</Label>
+                      <Label className="text-xs font-bold text-foreground">Left Variable</Label>
                       <Input
                         value={config.leftVariable || "{{commentText}}"}
                         onChange={(e) => handleConfigChange("leftVariable", e.target.value)}
@@ -656,12 +658,12 @@ export function NodeSettingsDialog() {
                     </div>
 
                     <div>
-                      <Label className="text-xs font-bold text-[#1E293B]">Condition Operator</Label>
+                      <Label className="text-xs font-bold text-foreground">Condition Operator</Label>
                       <Select
                         value={config.operator || "contains"}
                         onValueChange={(val) => handleConfigChange("operator", val)}
                       >
-                        <SelectTrigger className="mt-1 h-9 text-xs bg-white border-[#CBD5E1]">
+                        <SelectTrigger className="mt-1 h-9 text-xs bg-card border-input">
                           <SelectValue placeholder="Select operator" />
                         </SelectTrigger>
                         <SelectContent>
@@ -676,7 +678,7 @@ export function NodeSettingsDialog() {
                     </div>
 
                     <div>
-                      <Label className="text-xs font-bold text-[#1E293B]">Right Value</Label>
+                      <Label className="text-xs font-bold text-foreground">Right Value</Label>
                       <Input
                         value={config.rightValue || ""}
                         onChange={(e) => handleConfigChange("rightValue", e.target.value)}
@@ -685,7 +687,7 @@ export function NodeSettingsDialog() {
                       />
                     </div>
 
-                    <div className="p-3 rounded-[8px] bg-[#EEF2FF] border border-[#C7D2FE] text-[11px] text-[#635BDB]">
+                    <div className="p-3 rounded-[8px] bg-primary-soft border border-primary/30 text-[11px] text-primary">
                       If the condition evaluates to true, data routes to the green <strong>True</strong> handle. Otherwise, it routes to the red <strong>False</strong> handle.
                     </div>
                   </div>
@@ -696,7 +698,7 @@ export function NodeSettingsDialog() {
                   <div className="space-y-4">
                     <div className="grid grid-cols-2 gap-3">
                       <div>
-                        <Label className="text-xs font-bold text-[#1E293B]">Duration</Label>
+                        <Label className="text-xs font-bold text-foreground">Duration</Label>
                         <Input
                           type="number"
                           min={1}
@@ -706,12 +708,12 @@ export function NodeSettingsDialog() {
                         />
                       </div>
                       <div>
-                        <Label className="text-xs font-bold text-[#1E293B]">Unit</Label>
+                        <Label className="text-xs font-bold text-foreground">Unit</Label>
                         <Select
                           value={config.unit || "minutes"}
                           onValueChange={(val) => handleConfigChange("unit", val)}
                         >
-                          <SelectTrigger className="mt-1 h-9 text-xs bg-white border-[#CBD5E1]">
+                          <SelectTrigger className="mt-1 h-9 text-xs bg-card border-input">
                             <SelectValue placeholder="Select unit" />
                           </SelectTrigger>
                           <SelectContent>
@@ -722,7 +724,7 @@ export function NodeSettingsDialog() {
                         </Select>
                       </div>
                     </div>
-                    <p className="text-[11px] text-[#64748B]">
+                    <p className="text-[11px] text-muted-foreground">
                       Simulates a delay before proceeding to downstream nodes in this branch.
                     </p>
                   </div>
@@ -732,7 +734,7 @@ export function NodeSettingsDialog() {
                 {!["trigger_reel_comment", "action_send_dm", "action_send_product", "action_add_tag", "action_remove_tag", "logic_if", "logic_wait"].includes(nodeType) && (
                   <div className="space-y-4">
                     <div>
-                      <Label className="text-xs font-bold text-[#1E293B]">Configuration JSON</Label>
+                      <Label className="text-xs font-bold text-foreground">Configuration JSON</Label>
                       <textarea
                         rows={8}
                         value={JSON.stringify(config, null, 2)}
@@ -741,7 +743,7 @@ export function NodeSettingsDialog() {
                             setConfig(JSON.parse(e.target.value));
                           } catch (_) {}
                         }}
-                        className="mt-1 w-full font-mono text-xs p-3 border border-[#CBD5E1] rounded-[8px]"
+                        className="mt-1 w-full font-mono text-xs p-3 border border-input rounded-[8px]"
                       />
                     </div>
                   </div>
@@ -753,7 +755,7 @@ export function NodeSettingsDialog() {
             {activeTab === "settings" && (
               <div className="flex-1 overflow-y-auto p-5 space-y-4">
                 <div>
-                  <Label className="text-xs font-bold text-[#1E293B]">Custom Node Title</Label>
+                  <Label className="text-xs font-bold text-foreground">Custom Node Title</Label>
                   <Input
                     value={nodeLabel}
                     onChange={(e) => setNodeLabel(e.target.value)}
@@ -762,21 +764,21 @@ export function NodeSettingsDialog() {
                 </div>
 
                 <div>
-                  <Label className="text-xs font-bold text-[#1E293B]">Documentation Notes</Label>
+                  <Label className="text-xs font-bold text-foreground">Documentation Notes</Label>
                   <textarea
                     rows={3}
                     value={nodeNotes}
                     onChange={(e) => setNodeNotes(e.target.value)}
                     placeholder="Describe the business logic or rationale for this step..."
-                    className="mt-1 w-full rounded-[8px] border border-[#CBD5E1] p-3 text-xs leading-relaxed"
+                    className="mt-1 w-full rounded-[8px] border border-input p-3 text-xs leading-relaxed"
                   />
                 </div>
 
-                <div className="pt-2 border-t border-[#F1F5F9] space-y-3">
+                <div className="pt-2 border-t border-border space-y-3">
                   <label className="flex items-center justify-between cursor-pointer">
                     <div>
-                      <span className="text-xs font-bold text-[#1E293B] block">Disable Node</span>
-                      <span className="text-[11px] text-[#64748B]">
+                      <span className="text-xs font-bold text-foreground block">Disable Node</span>
+                      <span className="text-[11px] text-muted-foreground">
                         Disabled nodes pass input through without performing actions
                       </span>
                     </div>
@@ -784,14 +786,14 @@ export function NodeSettingsDialog() {
                       type="checkbox"
                       checked={nodeDisabled}
                       onChange={(e) => setNodeDisabled(e.target.checked)}
-                      className="h-4 w-4 rounded accent-[#635BDB]"
+                      className="h-4 w-4 rounded accent-primary"
                     />
                   </label>
 
                   <label className="flex items-center justify-between cursor-pointer">
                     <div>
-                      <span className="text-xs font-bold text-[#1E293B] block">Retry on Failure</span>
-                      <span className="text-[11px] text-[#64748B]">
+                      <span className="text-xs font-bold text-foreground block">Retry on Failure</span>
+                      <span className="text-[11px] text-muted-foreground">
                         Automatically retry step once if Instagram Graph API throttles
                       </span>
                     </div>
@@ -799,7 +801,7 @@ export function NodeSettingsDialog() {
                       type="checkbox"
                       checked={retryOnFail}
                       onChange={(e) => setRetryOnFail(e.target.checked)}
-                      className="h-4 w-4 rounded accent-[#635BDB]"
+                      className="h-4 w-4 rounded accent-primary"
                     />
                   </label>
                 </div>
@@ -808,24 +810,24 @@ export function NodeSettingsDialog() {
           </div>
 
           {/* COLUMN 3: OUTPUT DATA PREVIEW (Right, 3 cols) */}
-          <div className="lg:col-span-3 bg-[#F8FAFC] flex flex-col overflow-hidden max-h-[30vh] lg:max-h-full">
-            <div className="p-3 border-b border-[#F1F5F9] flex items-center justify-between shrink-0 bg-white">
-              <span className="font-bold text-xs text-[#1E293B] flex items-center gap-1.5">
+          <div className="lg:col-span-3 bg-muted/40 flex flex-col overflow-hidden max-h-[30vh] lg:max-h-full">
+            <div className="p-3 border-b border-border flex items-center justify-between shrink-0 bg-card">
+              <span className="font-bold text-xs text-foreground flex items-center gap-1.5">
                 <span>OUTPUT DATA</span>
                 {testResult && (
-                  <span className="text-[10px] text-emerald-600 font-bold">
+                  <span className="text-[10px] text-success font-bold">
                     ({testResult.duration}ms)
                   </span>
                 )}
               </span>
 
-              <div className="flex items-center gap-1 bg-[#F1F5F9] p-0.5 rounded-[6px]">
+              <div className="flex items-center gap-1 bg-secondary p-0.5 rounded-[6px]">
                 <button
                   type="button"
                   onClick={() => setRightViewMode("json")}
                   className={cn(
                     "p-1 rounded-[4px] text-xs transition-colors",
-                    rightViewMode === "json" ? "bg-white text-[#635BDB] shadow-2xs font-bold" : "text-[#64748B]"
+                    rightViewMode === "json" ? "bg-card text-primary shadow-2xs font-bold" : "text-muted-foreground"
                   )}
                   title="JSON view"
                 >
@@ -836,7 +838,7 @@ export function NodeSettingsDialog() {
                   onClick={() => setRightViewMode("table")}
                   className={cn(
                     "p-1 rounded-[4px] text-xs transition-colors",
-                    rightViewMode === "table" ? "bg-white text-[#635BDB] shadow-2xs font-bold" : "text-[#64748B]"
+                    rightViewMode === "table" ? "bg-card text-primary shadow-2xs font-bold" : "text-muted-foreground"
                   )}
                   title="Table view"
                 >
@@ -848,7 +850,7 @@ export function NodeSettingsDialog() {
             <div className="flex-1 overflow-y-auto p-3 font-mono text-[11px] leading-relaxed">
               {testResult ? (
                 rightViewMode === "json" ? (
-                  <pre className="text-[#334155] whitespace-pre-wrap bg-white p-3 rounded-[8px] border border-[#E2E8F0]">
+                  <pre className="text-foreground whitespace-pre-wrap bg-card p-3 rounded-[8px] border border-border">
                     {JSON.stringify(testResult.outputItems?.[0] || testResult, null, 2)}
                   </pre>
                 ) : (
@@ -856,16 +858,16 @@ export function NodeSettingsDialog() {
                     {Object.entries(testResult.outputItems?.[0] || {}).map(([k, v]) => (
                       <div
                         key={k}
-                        className="p-2 rounded-[6px] bg-white border border-[#E2E8F0] flex flex-col text-xs font-sans"
+                        className="p-2 rounded-[6px] bg-card border border-border flex flex-col text-xs font-sans"
                       >
-                        <span className="font-bold text-[10px] text-[#64748B] uppercase">{k}</span>
-                        <span className="text-xs text-[#1E293B] truncate">{String(v)}</span>
+                        <span className="font-bold text-[10px] text-muted-foreground uppercase">{k}</span>
+                        <span className="text-xs text-foreground truncate">{String(v)}</span>
                       </div>
                     ))}
                   </div>
                 )
               ) : (
-                <div className="text-center py-12 text-[#94A3B8] text-xs font-sans">
+                <div className="text-center py-12 text-muted-foreground text-xs font-sans">
                   <p>Step has not been tested yet.</p>
                   <Button
                     type="button"
@@ -873,7 +875,7 @@ export function NodeSettingsDialog() {
                     size="sm"
                     onClick={handleTestStep}
                     disabled={isTestingStep}
-                    className="mt-3 text-xs text-[#635BDB] border-[#C7D2FE]"
+                    className="mt-3 text-xs text-primary border-primary/30"
                   >
                     <Play className="h-3 w-3 mr-1 fill-current" />
                     <span>Run Test Step</span>
@@ -882,7 +884,7 @@ export function NodeSettingsDialog() {
               )}
             </div>
 
-            <div className="p-2.5 bg-white border-t border-[#F1F5F9] text-[10px] text-[#64748B]">
+            <div className="p-2.5 bg-card border-t border-border text-[10px] text-muted-foreground">
               Results generated by testing this node with sample data.
             </div>
           </div>

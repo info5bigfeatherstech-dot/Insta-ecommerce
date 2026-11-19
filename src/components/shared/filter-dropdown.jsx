@@ -26,9 +26,9 @@ export function FilterDropdown({
     <DropdownMenu>
       <DropdownMenuTrigger asChild>
         <Button variant="outline" size="sm" className={cn("h-8 text-xs gap-1.5", className)}>
-          <Filter className="h-3 w-3 text-[#64748B]" />
+          <Filter className="h-3 w-3 text-muted-foreground" />
           <span>{label}:</span>
-          <span className="font-semibold text-[#635BDB]">{currentOption?.label || "All"}</span>
+          <span className="font-semibold text-primary">{currentOption?.label || "All"}</span>
         </Button>
       </DropdownMenuTrigger>
       <DropdownMenuContent align="start" className="w-48">
@@ -40,12 +40,12 @@ export function FilterDropdown({
             onClick={() => onChange(opt.value)}
             className={cn(
               "text-xs flex items-center justify-between",
-              value === opt.value && "font-semibold text-[#635BDB] bg-[#EEF2FF]"
+              value === opt.value && "font-semibold text-primary bg-primary-soft"
             )}
           >
             <span>{opt.label}</span>
             {opt.count !== undefined && (
-              <span className="text-[10px] text-[#64748B] bg-[#F1F5F9] px-1.5 py-0.5 rounded">
+              <span className="text-[10px] text-muted-foreground bg-muted px-1.5 py-0.5 rounded">
                 {opt.count}
               </span>
             )}

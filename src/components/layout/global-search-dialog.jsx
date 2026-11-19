@@ -60,9 +60,9 @@ export function GlobalSearchDialog() {
                 onSelect={() => handleSelect(() => router.push(item.href))}
                 className="gap-2.5"
               >
-                <Icon className="h-4 w-4 text-[#635BDB]" />
+                <Icon className="h-4 w-4 text-primary" />
                 <span>{item.title}</span>
-                <span className="ml-auto text-[10px] text-[#94A3B8]">{item.href}</span>
+                <span className="ml-auto text-[10px] text-muted-foreground">{item.href}</span>
               </CommandItem>
             );
           })}
@@ -78,10 +78,10 @@ export function GlobalSearchDialog() {
               onSelect={() => handleSelect(() => router.push(`/orders/${ord.id}`))}
               className="gap-2.5"
             >
-              <ShoppingBag className="h-4 w-4 text-emerald-600" />
+              <ShoppingBag className="h-4 w-4 text-success" />
               <span>{ord.orderNumber}</span>
-              <span className="text-[11px] text-[#64748B]">{ord.customerName}</span>
-              <span className="ml-auto text-[10px] font-bold text-[#1E293B]">
+              <span className="text-[11px] text-muted-foreground">{ord.customerName}</span>
+              <span className="ml-auto text-[10px] font-bold text-foreground">
                 ₹{ord.totalAmount.toLocaleString("en-IN")}
               </span>
             </CommandItem>
@@ -98,10 +98,10 @@ export function GlobalSearchDialog() {
               onSelect={() => handleSelect(() => router.push(`/customers/${cust.id}`))}
               className="gap-2.5"
             >
-              <Users className="h-4 w-4 text-emerald-600" />
+              <Users className="h-4 w-4 text-info" />
               <span>{cust.name}</span>
-              <span className="text-[11px] text-[#64748B]">{cust.username}</span>
-              <span className="ml-auto text-[10px] text-[#94A3B8]">{cust.city}</span>
+              <span className="text-[11px] text-muted-foreground">{cust.username}</span>
+              <span className="ml-auto text-[10px] text-muted-foreground">{cust.city}</span>
             </CommandItem>
           ))}
         </CommandGroup>
@@ -116,9 +116,9 @@ export function GlobalSearchDialog() {
               onSelect={() => handleSelect(() => router.push(`/products/${prod.id}`))}
               className="gap-2.5"
             >
-              <Package className="h-4 w-4 text-amber-600" />
+              <Package className="h-4 w-4 text-warning" />
               <span>{prod.name}</span>
-              <span className="ml-auto text-[11px] font-medium text-[#1E293B]">
+              <span className="ml-auto text-[11px] font-medium text-foreground">
                 ₹{prod.price.toLocaleString("en-IN")}
               </span>
             </CommandItem>
@@ -135,9 +135,9 @@ export function GlobalSearchDialog() {
               onSelect={() => handleSelect(() => router.push(`/reels/${reel.id}`))}
               className="gap-2.5"
             >
-              <Film className="h-4 w-4 text-rose-500" />
+              <Film className="h-4 w-4 text-destructive" />
               <span className="truncate max-w-[220px]">{reel.caption}</span>
-              <span className="ml-auto text-[10px] text-[#635BDB] font-medium">
+              <span className="ml-auto text-[10px] text-primary font-medium">
                 {reel.instagramPostId}
               </span>
             </CommandItem>
@@ -154,9 +154,9 @@ export function GlobalSearchDialog() {
               onSelect={() => handleSelect(() => router.push(`/automations/${auto.id}`))}
               className="gap-2.5"
             >
-              <Zap className="h-4 w-4 text-indigo-500" />
+              <Zap className="h-4 w-4 text-primary" />
               <span>{auto.name}</span>
-              <span className="ml-auto text-[10px] text-[#64748B]">{auto.executions} runs</span>
+              <span className="ml-auto text-[10px] text-muted-foreground">{auto.executions} runs</span>
             </CommandItem>
           ))}
         </CommandGroup>

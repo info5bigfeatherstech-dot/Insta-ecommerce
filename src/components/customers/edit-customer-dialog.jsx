@@ -83,12 +83,12 @@ export function EditCustomerDialog({
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
       <DialogContent className="sm:max-w-xl max-h-[90vh] overflow-y-auto p-0">
-        <DialogHeader className="p-5 pb-4 border-b border-[#E2E8F0] sticky top-0 bg-white z-10">
-          <DialogTitle className="text-base font-bold text-[#1E293B] flex items-center gap-2">
-            <User className="h-4 w-4 text-[#635BDB]" />
+        <DialogHeader className="p-5 pb-4 border-b border-border sticky top-0 bg-card z-10">
+          <DialogTitle className="text-base font-bold text-foreground flex items-center gap-2">
+            <User className="h-4 w-4 text-primary" />
             <span>{title}</span>
           </DialogTitle>
-          <DialogDescription className="text-xs text-[#64748B]">
+          <DialogDescription className="text-xs text-muted-foreground">
             {description}
           </DialogDescription>
         </DialogHeader>
@@ -96,51 +96,51 @@ export function EditCustomerDialog({
         <form onSubmit={handleSubmit(onSubmit)} className="p-5 space-y-5">
           {/* Section 1: Personal & Instagram Identity */}
           <div className="space-y-3">
-            <h4 className="text-[11px] font-bold uppercase tracking-wider text-[#94A3B8] flex items-center gap-1.5">
-              <User className="h-3 w-3 text-[#635BDB]" />
+            <h4 className="text-[11px] font-bold uppercase tracking-wider text-muted-foreground flex items-center gap-1.5">
+              <User className="h-3 w-3 text-primary" />
               <span>Personal & Social Identity</span>
             </h4>
 
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
               <div className="space-y-1">
-                <label className="text-xs font-semibold text-[#1E293B]">Full Name *</label>
+                <label className="text-xs font-semibold text-foreground">Full Name *</label>
                 <Input
                   {...register("name")}
                   placeholder="e.g. Siddharth Verma"
                   className="h-9 text-xs"
                 />
                 {errors.name && (
-                  <p className="text-[11px] text-red-500">{errors.name.message}</p>
+                  <p className="text-[11px] text-destructive">{errors.name.message}</p>
                 )}
               </div>
 
               <div className="space-y-1">
-                <label className="text-xs font-semibold text-[#1E293B]">Instagram Username *</label>
+                <label className="text-xs font-semibold text-foreground">Instagram Username *</label>
                 <div className="relative">
                   <Input
                     {...register("username")}
                     placeholder="@siddharth_v_fits"
                     className="h-9 text-xs pl-7"
                   />
-                  <Instagram className="h-3.5 w-3.5 text-[#64748B] absolute left-2.5 top-2.5" />
+                  <Instagram className="h-3.5 w-3.5 text-muted-foreground absolute left-2.5 top-2.5" />
                 </div>
                 {errors.username && (
-                  <p className="text-[11px] text-red-500">{errors.username.message}</p>
+                  <p className="text-[11px] text-destructive">{errors.username.message}</p>
                 )}
               </div>
             </div>
           </div>
 
           {/* Section 2: Contact Information */}
-          <div className="space-y-3 pt-2 border-t border-[#F1F5F9]">
-            <h4 className="text-[11px] font-bold uppercase tracking-wider text-[#94A3B8] flex items-center gap-1.5">
-              <Mail className="h-3 w-3 text-[#635BDB]" />
+          <div className="space-y-3 pt-2 border-t border-border">
+            <h4 className="text-[11px] font-bold uppercase tracking-wider text-muted-foreground flex items-center gap-1.5">
+              <Mail className="h-3 w-3 text-primary" />
               <span>Contact Information</span>
             </h4>
 
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
               <div className="space-y-1">
-                <label className="text-xs font-semibold text-[#1E293B]">Email Address</label>
+                <label className="text-xs font-semibold text-foreground">Email Address</label>
                 <Input
                   type="email"
                   {...register("email")}
@@ -148,34 +148,34 @@ export function EditCustomerDialog({
                   className="h-9 text-xs"
                 />
                 {errors.email && (
-                  <p className="text-[11px] text-red-500">{errors.email.message}</p>
+                  <p className="text-[11px] text-destructive">{errors.email.message}</p>
                 )}
               </div>
 
               <div className="space-y-1">
-                <label className="text-xs font-semibold text-[#1E293B]">Phone Number</label>
+                <label className="text-xs font-semibold text-foreground">Phone Number</label>
                 <Input
                   {...register("phone")}
                   placeholder="+91 98201 44521"
                   className="h-9 text-xs"
                 />
                 {errors.phone && (
-                  <p className="text-[11px] text-red-500">{errors.phone.message}</p>
+                  <p className="text-[11px] text-destructive">{errors.phone.message}</p>
                 )}
               </div>
             </div>
           </div>
 
           {/* Section 3: Delivery Address */}
-          <div className="space-y-3 pt-2 border-t border-[#F1F5F9]">
-            <h4 className="text-[11px] font-bold uppercase tracking-wider text-[#94A3B8] flex items-center gap-1.5">
-              <MapPin className="h-3 w-3 text-[#635BDB]" />
+          <div className="space-y-3 pt-2 border-t border-border">
+            <h4 className="text-[11px] font-bold uppercase tracking-wider text-muted-foreground flex items-center gap-1.5">
+              <MapPin className="h-3 w-3 text-primary" />
               <span>Physical Address & Location</span>
             </h4>
 
             <div className="space-y-3">
               <div className="space-y-1">
-                <label className="text-xs font-semibold text-[#1E293B]">Street Address</label>
+                <label className="text-xs font-semibold text-foreground">Street Address</label>
                 <Input
                   {...register("street")}
                   placeholder="Flat / House No., Building Name, Street / Locality"
@@ -185,7 +185,7 @@ export function EditCustomerDialog({
 
               <div className="grid grid-cols-2 gap-3">
                 <div className="space-y-1">
-                  <label className="text-xs font-semibold text-[#1E293B]">City</label>
+                  <label className="text-xs font-semibold text-foreground">City</label>
                   <Input
                     {...register("city")}
                     placeholder="e.g. Mumbai"
@@ -194,7 +194,7 @@ export function EditCustomerDialog({
                 </div>
 
                 <div className="space-y-1">
-                  <label className="text-xs font-semibold text-[#1E293B]">State / Province</label>
+                  <label className="text-xs font-semibold text-foreground">State / Province</label>
                   <Input
                     {...register("state")}
                     placeholder="e.g. Maharashtra"
@@ -205,7 +205,7 @@ export function EditCustomerDialog({
 
               <div className="grid grid-cols-2 gap-3">
                 <div className="space-y-1">
-                  <label className="text-xs font-semibold text-[#1E293B]">Postal / PIN Code</label>
+                  <label className="text-xs font-semibold text-foreground">Postal / PIN Code</label>
                   <Input
                     {...register("postalCode")}
                     placeholder="e.g. 400050"
@@ -214,7 +214,7 @@ export function EditCustomerDialog({
                 </div>
 
                 <div className="space-y-1">
-                  <label className="text-xs font-semibold text-[#1E293B]">Country</label>
+                  <label className="text-xs font-semibold text-foreground">Country</label>
                   <Input
                     {...register("country")}
                     placeholder="India"
@@ -225,7 +225,7 @@ export function EditCustomerDialog({
             </div>
           </div>
 
-          <DialogFooter className="pt-4 border-t border-[#E2E8F0] gap-2">
+          <DialogFooter className="pt-4 border-t border-border gap-2">
             <Button
               type="button"
               variant="outline"

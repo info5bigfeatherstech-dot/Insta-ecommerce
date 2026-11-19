@@ -20,6 +20,10 @@ import {
 } from "lucide-react";
 import { toast } from "sonner";
 
+function generateDuplicateNodeId() {
+  return `node_${Date.now()}`;
+}
+
 export const AppNode = memo(({ id, data, selected }) => {
   const { deleteElements, getNode, setNodes, getEdges, addNodes, addEdges } = useReactFlow();
   const openSettings = useWorkflowEditorStore((s) => s.openSettings);
@@ -83,30 +87,33 @@ export const AppNode = memo(({ id, data, selected }) => {
   };
 
   // Duplicate node
-  const handleDuplicate = (e) => {
-    e?.stopPropagation();
-    const currentNode = getNode(id);
-    if (!currentNode) return;
+  const handleDuplicate = React.useCallback(
+    (e) => {
+      e?.stopPropagation();
+      const currentNode = getNode(id);
+      if (!currentNode) return;
 
-    const newId = `node_${Date.now()}`;
-    const newNode = {
-      ...currentNode,
-      id: newId,
-      position: {
-        x: currentNode.position.x + 40,
-        y: currentNode.position.y + 40,
-      },
-      data: {
-        ...currentNode.data,
-        label: `${currentNode.data?.label || def.label} (Copy)`,
-      },
-      selected: true,
-    };
+      const newId = generateDuplicateNodeId();
+      const newNode = {
+        ...currentNode,
+        id: newId,
+        position: {
+          x: currentNode.position.x + 40,
+          y: currentNode.position.y + 40,
+        },
+        data: {
+          ...currentNode.data,
+          label: `${currentNode.data?.label || def.label} (Copy)`,
+        },
+        selected: false,
+      };
 
-    addNodes([newNode]);
-    setIsDirty(true);
-    toast.success("Node duplicated");
-  };
+      addNodes([newNode]);
+      setIsDirty(true);
+      toast.success("Node duplicated");
+    },
+    [getNode, id, def?.label, addNodes, setIsDirty]
+  );
 
   // Delete node
   const handleDelete = (e) => {
@@ -132,21 +139,21 @@ export const AppNode = memo(({ id, data, selected }) => {
 
   // Status-dependent classes
   const statusBorderClass = {
-    idle: selected ? "ring-2 ring-[#635BDB] border-[#635BDB]" : "border-[#E2E8F0] hover:border-[#CBD5E1]",
-    running: "ring-2 ring-amber-500 border-amber-500 shadow-md animate-pulse",
-    success: "ring-2 ring-emerald-500 border-emerald-500 shadow-sm",
-    error: "ring-2 ring-rose-500 border-rose-500 shadow-md",
-    skipped: "border-[#CBD5E1] opacity-60",
+    idle: selected ? "ring-2 ring-primary border-primary" : "border-border hover:border-border/80",
+    running: "ring-2 ring-warning border-warning shadow-md animate-pulse",
+    success: "ring-2 ring-success border-success shadow-xs",
+    error: "ring-2 ring-destructive border-destructive shadow-md",
+    skipped: "border-border opacity-60",
   }[execStatus];
 
   return (
     <div
       onDoubleClick={handleOpenSettings}
       className={cn(
-        "group relative w-[250px] rounded-[14px] bg-white transition-[border-color,box-shadow] duration-150 shadow-xs select-none",
+        "group relative w-[250px] rounded-[14px] bg-card text-card-foreground transition-[border-color,box-shadow] duration-150 shadow-xs select-none",
         "border",
         statusBorderClass,
-        isDisabled && "opacity-50 grayscale-20 bg-slate-50/60"
+        isDisabled && "opacity-50 grayscale-20 bg-muted/60"
       )}
     >
       {/* Action Toolbar with hover-bridge and selected-state pinning */}
@@ -158,12 +165,12 @@ export const AppNode = memo(({ id, data, selected }) => {
             : "hidden group-hover:flex group-hover:opacity-100 opacity-0 pointer-events-none group-hover:pointer-events-auto"
         )}
       >
-        <div className="flex items-center gap-1 bg-[#1E293B] text-white px-2 py-1 rounded-[8px] shadow-lg border border-slate-700/50">
+        <div className="flex items-center gap-1 bg-popover text-popover-foreground px-2 py-1 rounded-[8px] shadow-lg border border-border">
           <button
             type="button"
             onClick={handleOpenSettings}
             title="Open settings (Double-click)"
-            className="p-1.5 hover:bg-white/20 rounded-[4px] text-white/90 hover:text-white transition-colors"
+            className="p-1.5 hover:bg-muted rounded-[4px] text-muted-foreground hover:text-foreground transition-colors cursor-pointer"
           >
             <Settings className="h-3.5 w-3.5" />
           </button>
@@ -172,8 +179,8 @@ export const AppNode = memo(({ id, data, selected }) => {
             onClick={handleToggleDisable}
             title={isDisabled ? "Enable node" : "Disable node"}
             className={cn(
-              "p-1.5 hover:bg-white/20 rounded-[4px] transition-colors",
-              isDisabled ? "text-amber-400" : "text-white/90 hover:text-white"
+              "p-1.5 hover:bg-muted rounded-[4px] transition-colors cursor-pointer",
+              isDisabled ? "text-warning" : "text-muted-foreground hover:text-foreground"
             )}
           >
             <Power className="h-3.5 w-3.5" />
@@ -182,7 +189,7 @@ export const AppNode = memo(({ id, data, selected }) => {
             type="button"
             onClick={handleDuplicate}
             title="Duplicate node (Ctrl+D)"
-            className="p-1.5 hover:bg-white/20 rounded-[4px] text-white/90 hover:text-white transition-colors"
+            className="p-1.5 hover:bg-muted rounded-[4px] text-muted-foreground hover:text-foreground transition-colors cursor-pointer"
           >
             <Copy className="h-3.5 w-3.5" />
           </button>
@@ -190,7 +197,7 @@ export const AppNode = memo(({ id, data, selected }) => {
             type="button"
             onClick={handleDelete}
             title="Delete node (Delete key)"
-            className="p-1.5 hover:bg-rose-500 rounded-[4px] text-white/90 hover:text-white transition-colors"
+            className="p-1.5 hover:bg-destructive hover:text-destructive-foreground rounded-[4px] text-muted-foreground transition-colors cursor-pointer"
           >
             <Trash2 className="h-3.5 w-3.5" />
           </button>
@@ -203,10 +210,10 @@ export const AppNode = memo(({ id, data, selected }) => {
           onClick={handleOpenSettings}
           className={cn(
             "absolute -top-3 -right-2 px-2 py-0.5 rounded-full text-[10px] font-bold shadow-xs cursor-pointer flex items-center gap-1 z-10",
-            execStatus === "success" && "bg-emerald-500 text-white",
-            execStatus === "error" && "bg-rose-500 text-white",
-            execStatus === "running" && "bg-amber-500 text-white animate-pulse",
-            execStatus === "skipped" && "bg-slate-400 text-white"
+            execStatus === "success" && "bg-success text-success-foreground",
+            execStatus === "error" && "bg-destructive text-destructive-foreground",
+            execStatus === "running" && "bg-warning text-warning-foreground animate-pulse",
+            execStatus === "skipped" && "bg-muted-foreground text-card"
           )}
         >
           {execStatus === "running" && <Loader2 className="h-2.5 w-2.5 animate-spin" />}
@@ -222,7 +229,7 @@ export const AppNode = memo(({ id, data, selected }) => {
           type="target"
           position={Position.Left}
           id="input"
-          className="!w-3 !h-3 !border-2 !border-white !bg-[#635BDB] hover:!scale-125 !transition-transform !-left-1.5"
+          className="!w-3 !h-3 !border-2 !border-card !bg-primary hover:!scale-125 !transition-transform !-left-1.5"
         />
       )}
 
@@ -243,19 +250,19 @@ export const AppNode = memo(({ id, data, selected }) => {
         {/* Node Details (Title & Subtitle Summary) */}
         <div className="min-w-0 flex-1">
           <div className="flex items-center gap-1.5 justify-between">
-            <h4 className="text-xs font-bold text-[#1E293B] truncate">
+            <h4 className="text-xs font-bold text-foreground truncate">
               {data?.label || def.label}
             </h4>
 
             {/* Validation Warning Alert Icon */}
             {validationWarning && (
-              <span title={validationWarning} className="text-rose-500 shrink-0">
+              <span title={validationWarning} className="text-destructive shrink-0">
                 <AlertCircle className="h-3.5 w-3.5" />
               </span>
             )}
           </div>
 
-          <p className="text-[11px] text-[#64748B] truncate mt-0.5 font-medium">
+          <p className="text-[11px] text-muted-foreground truncate mt-0.5 font-medium">
             {data?.subtitle || def.defaultSubtitle}
           </p>
 
@@ -264,7 +271,7 @@ export const AppNode = memo(({ id, data, selected }) => {
             <span
               className="text-[9px] uppercase tracking-wider font-bold px-1.5 py-0.5 rounded-[4px]"
               style={{
-                backgroundColor: `${def.accentColor}12`,
+                backgroundColor: `${def.accentColor}15`,
                 color: def.accentColor,
               }}
             >
@@ -272,7 +279,7 @@ export const AppNode = memo(({ id, data, selected }) => {
             </span>
 
             {isDisabled && (
-              <span className="text-[9px] font-semibold bg-slate-200 text-slate-700 px-1 rounded-[3px]">
+              <span className="text-[9px] font-semibold bg-muted text-muted-foreground px-1 rounded-[3px]">
                 Disabled
               </span>
             )}
@@ -283,56 +290,56 @@ export const AppNode = memo(({ id, data, selected }) => {
       {/* Output Handles */}
       {isIfNode ? (
         // IF NODE: Two distinct labeled output handles
-        <div className="border-t border-[#F1F5F9] px-3 py-2 flex flex-col gap-1.5 bg-[#F8FAFC]/60 rounded-b-[14px] text-[10px] font-bold">
+        <div className="border-t border-border px-3 py-2 flex flex-col gap-1.5 bg-muted/40 rounded-b-[14px] text-[10px] font-bold">
           {/* True Handle */}
-          <div className="relative flex items-center justify-between text-emerald-700">
+          <div className="relative flex items-center justify-between text-success">
             <div className="flex items-center gap-1">
-              <span className="h-2 w-2 rounded-full bg-emerald-500" />
+              <span className="h-2 w-2 rounded-full bg-success" />
               <span>True</span>
             </div>
             <Handle
               type="source"
               position={Position.Right}
               id="true"
-              className="!w-3 !h-3 !border-2 !border-white !bg-emerald-500 hover:!scale-125 !transition-transform !-right-1.5"
+              className="!w-3 !h-3 !border-2 !border-card !bg-success hover:!scale-125 !transition-transform !-right-1.5"
             />
           </div>
 
           {/* False Handle */}
-          <div className="relative flex items-center justify-between text-rose-700">
+          <div className="relative flex items-center justify-between text-destructive">
             <div className="flex items-center gap-1">
-              <span className="h-2 w-2 rounded-full bg-rose-500" />
+              <span className="h-2 w-2 rounded-full bg-destructive" />
               <span>False</span>
             </div>
             <Handle
               type="source"
               position={Position.Right}
               id="false"
-              className="!w-3 !h-3 !border-2 !border-white !bg-rose-500 hover:!scale-125 !transition-transform !-right-1.5"
+              className="!w-3 !h-3 !border-2 !border-card !bg-destructive hover:!scale-125 !transition-transform !-right-1.5"
             />
           </div>
         </div>
       ) : isSwitchNode ? (
         // SWITCH NODE: Labeled branches
-        <div className="border-t border-[#F1F5F9] px-3 py-2 flex flex-col gap-1 bg-[#F8FAFC]/60 rounded-b-[14px] text-[10px] font-bold">
+        <div className="border-t border-border px-3 py-2 flex flex-col gap-1 bg-muted/40 rounded-b-[14px] text-[10px] font-bold">
           {(data?.config?.cases || [{ id: "case_1", label: "Case 1" }]).map((c, i) => (
-            <div key={c.id} className="relative flex items-center justify-between text-amber-800">
+            <div key={c.id} className="relative flex items-center justify-between text-warning">
               <span>{c.label || `Branch ${i + 1}`}</span>
               <Handle
                 type="source"
                 position={Position.Right}
                 id={c.id}
-                className="!w-3 !h-3 !border-2 !border-white !bg-amber-500 hover:!scale-125 !transition-transform !-right-1.5"
+                className="!w-3 !h-3 !border-2 !border-card !bg-warning hover:!scale-125 !transition-transform !-right-1.5"
               />
             </div>
           ))}
-          <div className="relative flex items-center justify-between text-slate-600">
+          <div className="relative flex items-center justify-between text-muted-foreground">
             <span>Default</span>
             <Handle
               type="source"
               position={Position.Right}
               id="default"
-              className="!w-3 !h-3 !border-2 !border-white !bg-slate-400 hover:!scale-125 !transition-transform !-right-1.5"
+              className="!w-3 !h-3 !border-2 !border-card !bg-muted-foreground hover:!scale-125 !transition-transform !-right-1.5"
             />
           </div>
         </div>
@@ -343,14 +350,14 @@ export const AppNode = memo(({ id, data, selected }) => {
             type="source"
             position={Position.Right}
             id="default"
-            className="!w-3 !h-3 !border-2 !border-white !bg-[#635BDB] hover:!scale-125 !transition-transform !-right-1.5"
+            className="!w-3 !h-3 !border-2 !border-card !bg-primary hover:!scale-125 !transition-transform !-right-1.5"
           />
           {/* Quick Plus button to add next node */}
           <button
             type="button"
             onClick={(e) => handleQuickAddOutput(e, "default")}
             title="Add next step"
-            className="absolute -right-4 top-1/2 -translate-y-1/2 hidden group-hover:flex items-center justify-center h-4 w-4 rounded-full bg-[#635BDB] text-white shadow-xs text-[10px] z-20 hover:scale-125 transition-transform"
+            className="absolute -right-4 top-1/2 -translate-y-1/2 hidden group-hover:flex items-center justify-center h-4 w-4 rounded-full bg-primary text-primary-foreground shadow-xs text-[10px] z-20 hover:scale-125 transition-transform cursor-pointer"
           >
             <Plus className="h-2.5 w-2.5" />
           </button>

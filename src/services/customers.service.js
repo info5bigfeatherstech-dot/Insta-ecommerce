@@ -8,6 +8,7 @@ export const customersService = {
       status = "all",
       tag = "all",
       source = "all",
+      segment = "all",
       sortBy = "lastInteraction",
       sortOrder = "desc",
       page = 1,
@@ -52,6 +53,25 @@ export const customersService = {
 
     if (source && source !== "all") {
       customers = customers.filter((c) => c.sourceReelId === source);
+    }
+
+    if (segment && segment !== "all") {
+      const segObj = db.state.segments.find((s) => s.id === segment);
+      if (segObj && segObj.conditions) {
+        customers = customers.filter((customer) => {
+          return segObj.conditions.every((cond) => {
+            const val = customer[cond.field];
+            if (cond.operator === "equals") return val === cond.value;
+            if (cond.operator === "not_equals") return val !== cond.value;
+            if (cond.operator === "greater_than") return Number(val || 0) > Number(cond.value);
+            if (cond.operator === "contains") {
+              if (Array.isArray(val)) return val.includes(cond.value);
+              return String(val || "").toLowerCase().includes(String(cond.value).toLowerCase());
+            }
+            return true;
+          });
+        });
+      }
     }
 
     customers.sort((a, b) => {

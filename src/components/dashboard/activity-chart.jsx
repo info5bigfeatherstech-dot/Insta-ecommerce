@@ -12,10 +12,12 @@ import {
   Legend,
 } from "recharts";
 import { Card, CardHeader, CardTitle, CardDescription, CardContent } from "@/components/ui/card";
-import { Button } from "@/components/ui/button";
+import { useChartTheme } from "@/hooks/use-chart-theme";
+import { cn } from "@/lib/utils";
 
 export function ActivityChart({ data = [] }) {
   const [range, setRange] = React.useState("14d");
+  const chartTheme = useChartTheme();
 
   return (
     <Card className="col-span-1 lg:col-span-2">
@@ -26,16 +28,17 @@ export function ActivityChart({ data = [] }) {
             Contacts acquired, DM messages sent, and trackable link clicks
           </CardDescription>
         </div>
-        <div className="flex items-center gap-1 mt-2 sm:mt-0 bg-[#F1F5F9] p-0.5 rounded-[8px]">
+        <div className="flex items-center gap-1 mt-2 sm:mt-0 bg-secondary p-0.5 rounded-[8px]">
           {["7d", "14d", "30d"].map((r) => (
             <button
               key={r}
               onClick={() => setRange(r)}
-              className={`px-2.5 py-1 text-xs rounded-[6px] font-medium transition-colors ${
+              className={cn(
+                "px-2.5 py-1 text-xs rounded-[6px] font-medium transition-colors cursor-pointer",
                 range === r
-                  ? "bg-white text-[#1E293B] shadow-xs"
-                  : "text-[#64748B] hover:text-[#1E293B]"
-              }`}
+                  ? "bg-card text-foreground shadow-xs"
+                  : "text-muted-foreground hover:text-foreground"
+              )}
             >
               {r.toUpperCase()}
             </button>
@@ -46,29 +49,25 @@ export function ActivityChart({ data = [] }) {
         <div className="h-[280px] w-full">
           <ResponsiveContainer width="100%" height="100%">
             <LineChart data={data} margin={{ top: 5, right: 10, left: -20, bottom: 0 }}>
-              <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="#F1F5F9" />
+              <CartesianGrid strokeDasharray="3 3" vertical={false} stroke={chartTheme.resolved.grid} />
               <XAxis
                 dataKey="date"
                 tickLine={false}
                 axisLine={false}
-                tick={{ fontSize: 11, fill: "#94A3B8" }}
+                tick={{ fontSize: 11, fill: chartTheme.resolved.text }}
               />
               <YAxis
                 tickLine={false}
                 axisLine={false}
-                tick={{ fontSize: 11, fill: "#94A3B8" }}
+                tick={{ fontSize: 11, fill: chartTheme.resolved.text }}
               />
               <Tooltip
-                contentStyle={{
-                  backgroundColor: "#FFFFFF",
-                  borderColor: "#E2E8F0",
-                  borderRadius: "8px",
-                  boxShadow: "0 4px 6px -1px rgb(0 0 0 / 0.08)",
-                  fontSize: "12px",
-                }}
+                contentStyle={chartTheme.tooltipContentStyle}
+                itemStyle={chartTheme.tooltipItemStyle}
+                labelStyle={chartTheme.tooltipLabelStyle}
               />
               <Legend
-                wrapperStyle={{ fontSize: "11px", paddingTop: "12px" }}
+                wrapperStyle={{ fontSize: "11px", paddingTop: "12px", color: chartTheme.resolved.text }}
                 iconType="circle"
                 iconSize={8}
               />
@@ -76,7 +75,7 @@ export function ActivityChart({ data = [] }) {
                 type="monotone"
                 dataKey="messages"
                 name="Messages Sent"
-                stroke="#635BDB"
+                stroke={chartTheme.resolved.chart1}
                 strokeWidth={2}
                 dot={false}
                 activeDot={{ r: 4 }}
@@ -85,7 +84,7 @@ export function ActivityChart({ data = [] }) {
                 type="monotone"
                 dataKey="clicks"
                 name="Link Clicks"
-                stroke="#3B82F6"
+                stroke={chartTheme.resolved.chart2}
                 strokeWidth={2}
                 dot={false}
                 activeDot={{ r: 4 }}
@@ -94,7 +93,7 @@ export function ActivityChart({ data = [] }) {
                 type="monotone"
                 dataKey="contacts"
                 name="New Contacts"
-                stroke="#10B981"
+                stroke={chartTheme.resolved.chart3}
                 strokeWidth={2}
                 dot={false}
                 activeDot={{ r: 4 }}

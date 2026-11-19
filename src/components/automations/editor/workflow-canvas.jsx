@@ -23,7 +23,9 @@ import { NodePanel } from "./node-panel";
 import { NodeSettingsDialog } from "./node-settings-dialog";
 import { useWorkflowEditorStore } from "@/store/workflow-editor-store";
 import { useUIStore } from "@/store/ui-store";
+import { useTheme } from "next-themes";
 import { cn } from "@/lib/utils";
+import { useMounted } from "@/hooks/use-mounted";
 import {
   Plus,
   FileText,
@@ -52,14 +54,29 @@ const edgeTypes = {
   deletableEdge: CustomEdge,
 };
 
+function generateStickyNoteId() {
+  return `note_${Date.now()}`;
+}
+
+function getStickyNoteDefaultPosition() {
+  return {
+    x: 180 + Math.floor(Math.random() * 60),
+    y: 120 + Math.floor(Math.random() * 40),
+  };
+}
+
 export function WorkflowCanvas({
   initialNodes = [],
   initialEdges = [],
   onSaveWorkflow,
 }) {
   const { getNode } = useReactFlow();
+  const { resolvedTheme } = useTheme();
+  const mounted = useMounted();
   const [nodes, setNodes, onNodesChange] = useNodesState(initialNodes);
   const [edges, setEdges, onEdgesChange] = useEdgesState(initialEdges);
+
+  const isDark = mounted && resolvedTheme === "dark";
 
   const {
     openNodePanel,
@@ -111,7 +128,7 @@ export function WorkflowCanvas({
           type: MarkerType.ArrowClosed,
           width: 14,
           height: 14,
-          color: "#635BDB",
+          color: "var(--canvas-edge-selected)",
         },
       };
 
@@ -145,15 +162,12 @@ export function WorkflowCanvas({
   );
 
   // Add Sticky Note directly to canvas
-  const handleAddStickyNote = () => {
-    const newId = `note_${Date.now()}`;
+  const handleAddStickyNote = useCallback(() => {
+    const newId = generateStickyNoteId();
     const newNote = {
       id: newId,
       type: "stickyNote",
-      position: {
-        x: 180 + Math.floor(Math.random() * 60),
-        y: 120 + Math.floor(Math.random() * 40),
-      },
+      position: getStickyNoteDefaultPosition(),
       data: {
         text: "Add instructions or notes here...",
         color: "amber",
@@ -162,7 +176,7 @@ export function WorkflowCanvas({
     setNodes((nds) => [...nds, newNote]);
     setIsDirty(true);
     toast.success("Sticky note added");
-  };
+  }, [setNodes, setIsDirty]);
 
   // Auto-arrange / Tidy up layout algorithm
   const handleTidyUp = () => {
@@ -222,24 +236,24 @@ export function WorkflowCanvas({
   return (
     <div
       ref={reactFlowWrapper}
-      className="relative flex-1 w-full h-[calc(100vh-130px)] min-h-[550px] bg-white overflow-hidden select-none"
+      className="relative flex-1 w-full h-[calc(100vh-130px)] min-h-[550px] bg-background overflow-hidden select-none"
     >
       {/* Execution Inspection Mode Top Banner */}
       {isInspectionMode && (
-        <div className="absolute top-3 left-1/2 -translate-x-1/2 z-30 bg-[#1E293B] text-white px-4 py-2 rounded-[12px] shadow-xl flex items-center gap-3 text-xs border border-white/10 animate-in fade-in slide-in-from-top-3">
+        <div className="absolute top-3 left-1/2 -translate-x-1/2 z-30 bg-popover text-popover-foreground px-4 py-2 rounded-[12px] shadow-xl flex items-center gap-3 text-xs border border-border animate-in fade-in slide-in-from-top-3">
           <div className="flex items-center gap-2">
             <span
               className={cn(
                 "h-2 w-2 rounded-full",
                 inspectingExecution.status === "success"
-                  ? "bg-emerald-400"
-                  : "bg-rose-400"
+                  ? "bg-success"
+                  : "bg-destructive"
               )}
             />
             <span className="font-bold">
               Inspecting Execution: {inspectingExecution.id}
             </span>
-            <span className="text-white/60">
+            <span className="text-muted-foreground">
               ({inspectingExecution.duration}ms • {inspectingExecution.status})
             </span>
           </div>
@@ -252,7 +266,7 @@ export function WorkflowCanvas({
               setInspectingExecution(null);
               setActiveTab("executions");
             }}
-            className="h-6 px-2.5 text-[11px] font-bold bg-white/20 hover:bg-white text-white hover:text-[#1E293B]"
+            className="h-6 px-2.5 text-[11px] font-bold bg-muted hover:bg-muted/80 text-foreground"
           >
             <ArrowLeft className="h-3 w-3 mr-1" />
             <span>Back to Executions</span>
@@ -277,8 +291,8 @@ export function WorkflowCanvas({
         selectionOnDrag={!isLocked}
         panOnDrag={true}
         zoomOnScroll={true}
-        colorMode="light"
-        style={{ backgroundColor: "#FFFFFF" }}
+        colorMode={isDark ? "dark" : "light"}
+        style={{ backgroundColor: "var(--canvas-bg)" }}
         deleteKeyCode={["Backspace", "Delete"]}
         proOptions={{ hideAttribution: true }}
         defaultEdgeOptions={{
@@ -288,7 +302,7 @@ export function WorkflowCanvas({
             type: MarkerType.ArrowClosed,
             width: 14,
             height: 14,
-            color: "#635BDB",
+            color: "var(--canvas-edge-selected)",
           },
         }}
       >
@@ -297,33 +311,34 @@ export function WorkflowCanvas({
           variant="dots"
           gap={22}
           size={1.5}
-          color="#CBD5E1"
-          bgColor="#FFFFFF"
-          className="!bg-white"
+          color="var(--canvas-dots)"
+          bgColor="var(--canvas-bg)"
+          className="!bg-[var(--canvas-bg)]"
         />
 
         {/* MiniMap Docked Bottom Right */}
         <MiniMap
           nodeStrokeWidth={3}
+          maskColor={isDark ? "rgba(15, 17, 23, 0.75)" : "rgba(240, 242, 245, 0.75)"}
           nodeColor={(node) => {
-            if (node.type === "stickyNote") return "#FDE68A";
-            if (node.data?.category === "trigger") return "#10B981";
-            if (node.data?.category === "logic") return "#F59E0B";
-            return "#635BDB";
+            if (node.type === "stickyNote") return "var(--warning)";
+            if (node.data?.category === "trigger") return "var(--success)";
+            if (node.data?.category === "logic") return "var(--warning)";
+            return "var(--primary)";
           }}
-          className="!rounded-[12px] !border !border-[#E2E8F0] !bg-white/80 !shadow-sm !overflow-hidden hidden sm:block"
+          className="!rounded-[12px] !border !border-border !bg-card/90 !shadow-xs !overflow-hidden hidden sm:block"
         />
 
         {/* Canvas Toolbar Controls (Bottom Left) */}
         <Panel position="bottom-left" className="m-4 flex items-center gap-1.5">
-          <div className="bg-white border border-[#E2E8F0] rounded-[10px] p-1 shadow-sm flex items-center gap-1 text-[#64748B]">
+          <div className="bg-card border border-border rounded-[10px] p-1 shadow-xs flex items-center gap-1 text-muted-foreground">
             <Button
               type="button"
               variant="ghost"
               size="icon"
               onClick={handleTidyUp}
               title="Tidy Up / Auto-arrange layout"
-              className="h-8 w-8 hover:text-[#635BDB]"
+              className="h-8 w-8 hover:text-primary hover:bg-muted"
             >
               <LayoutGrid className="h-4 w-4" />
             </Button>
@@ -333,18 +348,18 @@ export function WorkflowCanvas({
               size="icon"
               onClick={() => setIsLocked(!isLocked)}
               title={isLocked ? "Unlock canvas" : "Lock canvas elements"}
-              className={cn("h-8 w-8", isLocked && "text-amber-600 bg-amber-50")}
+              className={cn("h-8 w-8 hover:bg-muted", isLocked && "text-warning bg-warning-soft")}
             >
               {isLocked ? <Lock className="h-4 w-4" /> : <Unlock className="h-4 w-4" />}
             </Button>
-            <div className="h-4 w-px bg-[#E2E8F0] mx-0.5" />
+            <div className="h-4 w-px bg-border mx-0.5" />
             <Button
               type="button"
               variant="ghost"
               size="icon"
               onClick={handleAddStickyNote}
               title="Add Sticky Note"
-              className="h-8 w-8 hover:text-amber-600"
+              className="h-8 w-8 hover:text-warning hover:bg-muted"
             >
               <FileText className="h-4 w-4" />
             </Button>
@@ -358,7 +373,7 @@ export function WorkflowCanvas({
               type="button"
               size="sm"
               onClick={() => openNodePanel()}
-              className="h-9 px-3.5 gap-2 rounded-[10px] bg-[#635BDB] hover:bg-[#5248c8] text-white shadow-md font-bold text-xs"
+              className="h-9 px-3.5 gap-2 rounded-[10px] bg-primary hover:bg-primary-hover text-primary-foreground shadow-md font-bold text-xs"
             >
               <Plus className="h-4 w-4" />
               <span>Add Node</span>
@@ -369,9 +384,9 @@ export function WorkflowCanvas({
               variant="outline"
               size="sm"
               onClick={handleAddStickyNote}
-              className="h-9 px-3 gap-1.5 rounded-[10px] bg-white border-[#E2E8F0] text-[#1E293B] hover:bg-[#F8FAFC] shadow-2xs font-semibold text-xs"
+              className="h-9 px-3 gap-1.5 rounded-[10px] bg-card border-border text-foreground hover:bg-muted shadow-2xs font-semibold text-xs"
             >
-              <FileText className="h-3.5 w-3.5 text-amber-500" />
+              <FileText className="h-3.5 w-3.5 text-warning" />
               <span>Add Note</span>
             </Button>
           </Panel>
@@ -380,18 +395,18 @@ export function WorkflowCanvas({
         {/* Empty State Helper when workflow has no nodes */}
         {nodes.length === 0 && (
           <div className="absolute inset-0 flex items-center justify-center pointer-events-none">
-            <div className="pointer-events-auto text-center p-8 border-2 border-dashed border-[#CBD5E1] rounded-[20px] bg-white/60 backdrop-blur-2xs max-w-sm mx-4">
-              <div className="h-12 w-12 rounded-full bg-[#EEF2FF] text-[#635BDB] flex items-center justify-center mx-auto mb-3 shadow-inner">
+            <div className="pointer-events-auto text-center p-8 border-2 border-dashed border-border rounded-[20px] bg-card/75 backdrop-blur-xs max-w-sm mx-4">
+              <div className="h-12 w-12 rounded-full bg-primary-soft text-primary flex items-center justify-center mx-auto mb-3 shadow-inner">
                 <Plus className="h-6 w-6" />
               </div>
-              <h3 className="font-bold text-sm text-[#1E293B]">Workflow is empty</h3>
-              <p className="text-xs text-[#64748B] mt-1 mb-4 leading-relaxed">
+              <h3 className="font-bold text-sm text-foreground">Workflow is empty</h3>
+              <p className="text-xs text-muted-foreground mt-1 mb-4 leading-relaxed">
                 Add your first trigger (e.g., Reel Comment or DM Keyword) to start automating sales.
               </p>
               <Button
                 type="button"
                 onClick={() => openNodePanel()}
-                className="bg-[#635BDB] hover:bg-[#5248c8] text-white text-xs h-8 px-4 font-bold shadow-xs"
+                className="bg-primary hover:bg-primary-hover text-primary-foreground text-xs h-8 px-4 font-bold shadow-xs"
               >
                 Add First Step
               </Button>

@@ -13,7 +13,7 @@ export function StatusBadge({ status = "active", className = "" }) {
     case "successful":
       return (
         <Badge variant="success" className={cn("capitalize gap-1", className)}>
-          <span className="h-1.5 w-1.5 rounded-full bg-emerald-500" />
+          <span className="h-1.5 w-1.5 rounded-full bg-success" />
           {status}
         </Badge>
       );
@@ -23,7 +23,7 @@ export function StatusBadge({ status = "active", className = "" }) {
     case "returning":
       return (
         <Badge variant="blue" className={cn("capitalize gap-1", className)}>
-          <span className="h-1.5 w-1.5 rounded-full bg-blue-500" />
+          <span className="h-1.5 w-1.5 rounded-full bg-info" />
           {status}
         </Badge>
       );
@@ -32,7 +32,7 @@ export function StatusBadge({ status = "active", className = "" }) {
     case "invited":
       return (
         <Badge variant="warning" className={cn("capitalize gap-1", className)}>
-          <span className="h-1.5 w-1.5 rounded-full bg-amber-500" />
+          <span className="h-1.5 w-1.5 rounded-full bg-warning" />
           {status}
         </Badge>
       );
@@ -41,8 +41,8 @@ export function StatusBadge({ status = "active", className = "" }) {
     case "disconnected":
     case "unassigned":
       return (
-        <Badge variant="secondary" className={cn("capitalize gap-1 text-[#64748B]", className)}>
-          <span className="h-1.5 w-1.5 rounded-full bg-[#94A3B8]" />
+        <Badge variant="secondary" className={cn("capitalize gap-1 text-muted-foreground", className)}>
+          <span className="h-1.5 w-1.5 rounded-full bg-muted-foreground" />
           {status}
         </Badge>
       );
@@ -53,7 +53,7 @@ export function StatusBadge({ status = "active", className = "" }) {
     case "deleted":
       return (
         <Badge variant="destructive" className={cn("capitalize gap-1", className)}>
-          <span className="h-1.5 w-1.5 rounded-full bg-red-500" />
+          <span className="h-1.5 w-1.5 rounded-full bg-destructive" />
           {status}
         </Badge>
       );
@@ -61,7 +61,7 @@ export function StatusBadge({ status = "active", className = "" }) {
     case "new":
       return (
         <Badge variant="indigo" className={cn("capitalize gap-1", className)}>
-          <span className="h-1.5 w-1.5 rounded-full bg-[#635BDB]" />
+          <span className="h-1.5 w-1.5 rounded-full bg-primary" />
           {status}
         </Badge>
       );

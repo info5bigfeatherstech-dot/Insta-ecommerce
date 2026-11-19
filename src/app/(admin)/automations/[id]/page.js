@@ -36,12 +36,12 @@ function EditAutomationContent() {
   if (error || !automation) {
     return (
       <div className="max-w-xl mx-auto py-16 text-center space-y-4">
-        <div className="h-12 w-12 rounded-full bg-rose-50 text-rose-500 flex items-center justify-center mx-auto">
+        <div className="h-12 w-12 rounded-full bg-destructive-soft text-destructive flex items-center justify-center mx-auto">
           <AlertCircle className="h-6 w-6" />
         </div>
-        <h2 className="text-lg font-bold text-[#1E293B]">Automation Not Found</h2>
-        <p className="text-xs text-[#64748B]">
-          The automation with ID "{id}" could not be found or has been deleted.
+        <h2 className="text-lg font-bold text-foreground">Automation Not Found</h2>
+        <p className="text-xs text-muted-foreground">
+          The automation with ID &ldquo;{id}&rdquo; could not be found or has been deleted.
         </p>
         <Link href="/automations">
           <Button variant="outline" size="sm" className="gap-2 text-xs">

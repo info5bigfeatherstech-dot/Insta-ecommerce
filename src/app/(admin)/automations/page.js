@@ -93,16 +93,16 @@ export default function AutomationsPage() {
           <div>
             <Link
               href={`/automations/${row.id}`}
-              className="font-semibold text-xs text-[#1E293B] hover:text-[#635BDB] block"
+              className="font-semibold text-xs text-foreground hover:text-primary block"
             >
               {val}
             </Link>
             <div className="flex items-center gap-1.5 mt-0.5 flex-wrap">
-              <span className="text-[10px] text-[#64748B]">
+              <span className="text-[10px] text-muted-foreground">
                 Keywords: {keywords.length > 0 ? keywords.join(", ") : "None"}
               </span>
               {row.reel && (
-                <span className="text-[10px] font-medium text-[#635BDB] bg-[#EEF2FF] px-1.5 py-0.2 rounded border border-[#C7D2FE]/60">
+                <span className="text-[10px] font-medium text-primary bg-primary/10 px-1.5 py-0.5 rounded border border-primary/20">
                   Reel: {row.reel.instagramPostId}
                 </span>
               )}
@@ -118,7 +118,7 @@ export default function AutomationsPage() {
       render: (val) => {
         const trigger = AUTOMATION_TRIGGERS.find((t) => t.id === val);
         return (
-          <span className="text-xs text-[#1E293B] font-medium">
+          <span className="text-xs text-foreground font-medium">
             {trigger?.label || val}
           </span>
         );
@@ -128,7 +128,7 @@ export default function AutomationsPage() {
       key: "product",
       label: "Attached Product",
       render: (prod) => (
-        <span className="text-xs text-[#64748B] truncate max-w-[150px] block">
+        <span className="text-xs text-muted-foreground truncate max-w-[150px] block">
           {prod?.name || "—"}
         </span>
       ),
@@ -137,19 +137,19 @@ export default function AutomationsPage() {
       key: "executions",
       label: "Executions",
       sortable: true,
-      render: (val) => <span className="text-xs font-semibold text-[#1E293B]">{formatNumber(val)}</span>,
+      render: (val) => <span className="text-xs font-semibold text-foreground">{formatNumber(val)}</span>,
     },
     {
       key: "messagesSent",
       label: "DMs Sent",
       sortable: true,
-      render: (val) => <span className="text-xs font-medium text-[#1E293B]">{formatNumber(val)}</span>,
+      render: (val) => <span className="text-xs font-medium text-foreground">{formatNumber(val)}</span>,
     },
     {
       key: "linkClicks",
       label: "Clicks",
       sortable: true,
-      render: (val) => <span className="text-xs font-semibold text-[#635BDB]">{formatNumber(val)}</span>,
+      render: (val) => <span className="text-xs font-semibold text-primary">{formatNumber(val)}</span>,
     },
     {
       key: "status",
@@ -160,7 +160,7 @@ export default function AutomationsPage() {
       key: "lastUpdated",
       label: "Last Updated",
       sortable: true,
-      render: (val) => <span className="text-xs text-[#94A3B8]">{formatDate(val, "dd MMM")}</span>,
+      render: (val) => <span className="text-xs text-muted-foreground">{formatDate(val, "dd MMM")}</span>,
     },
     {
       key: "actions",
@@ -172,7 +172,7 @@ export default function AutomationsPage() {
             variant="ghost"
             size="sm"
             onClick={() => router.push(`/automations/${row.id}`)}
-            className="h-7 px-2 text-xs text-[#635BDB] hover:bg-[#EEF2FF] gap-1"
+            className="h-7 px-2 text-xs text-primary hover:bg-primary/10 gap-1"
           >
             <Edit2 className="h-3.5 w-3.5" />
             <span>Edit</span>
@@ -180,7 +180,7 @@ export default function AutomationsPage() {
 
           <DropdownMenu>
             <DropdownMenuTrigger asChild>
-              <Button variant="ghost" size="icon" className="h-7 w-7 text-[#64748B]">
+              <Button variant="ghost" size="icon" className="h-7 w-7 text-muted-foreground">
                 <MoreVertical className="h-4 w-4" />
               </Button>
             </DropdownMenuTrigger>
@@ -191,12 +191,12 @@ export default function AutomationsPage() {
               >
                 {row.status === "active" ? (
                   <>
-                    <Pause className="h-3.5 w-3.5 text-amber-600" />
+                    <Pause className="h-3.5 w-3.5 text-warning" />
                     <span>Deactivate</span>
                   </>
                 ) : (
                   <>
-                    <Play className="h-3.5 w-3.5 text-emerald-600" />
+                    <Play className="h-3.5 w-3.5 text-success" />
                     <span>Activate</span>
                   </>
                 )}
@@ -211,7 +211,7 @@ export default function AutomationsPage() {
               <DropdownMenuSeparator />
               <DropdownMenuItem
                 onClick={() => setDeletingAuto(row)}
-                className="text-xs text-red-600 focus:text-red-600 gap-2"
+                className="text-xs text-destructive focus:text-destructive gap-2"
               >
                 <Trash2 className="h-3.5 w-3.5" />
                 <span>Delete</span>
@@ -239,38 +239,38 @@ export default function AutomationsPage() {
 
       {/* 4 Quick Stat Cards */}
       <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">
-        <Card className="p-4 border-[#E2E8F0]">
-          <div className="flex items-center justify-between text-xs text-[#64748B]">
+        <Card className="p-4 border-border">
+          <div className="flex items-center justify-between text-xs text-muted-foreground">
             <span>Active Workflows</span>
-            <Zap className="h-4 w-4 text-[#635BDB]" />
+            <Zap className="h-4 w-4 text-primary" />
           </div>
-          <p className="text-xl font-bold text-[#1E293B] mt-1.5">
-            {stats.active} <span className="text-xs font-normal text-[#64748B]">/ {stats.total} total</span>
+          <p className="text-xl font-bold text-foreground mt-1.5">
+            {stats.active} <span className="text-xs font-normal text-muted-foreground">/ {stats.total} total</span>
           </p>
         </Card>
 
-        <Card className="p-4 border-[#E2E8F0]">
-          <div className="flex items-center justify-between text-xs text-[#64748B]">
+        <Card className="p-4 border-border">
+          <div className="flex items-center justify-between text-xs text-muted-foreground">
             <span>Total Executions</span>
-            <Activity className="h-4 w-4 text-[#635BDB]" />
+            <Activity className="h-4 w-4 text-primary" />
           </div>
-          <p className="text-xl font-bold text-[#1E293B] mt-1.5">{formatNumber(stats.executions)}</p>
+          <p className="text-xl font-bold text-foreground mt-1.5">{formatNumber(stats.executions)}</p>
         </Card>
 
-        <Card className="p-4 border-[#E2E8F0]">
-          <div className="flex items-center justify-between text-xs text-emerald-600">
+        <Card className="p-4 border-border">
+          <div className="flex items-center justify-between text-xs text-success">
             <span>Successful Runs</span>
             <CheckCircle2 className="h-4 w-4" />
           </div>
-          <p className="text-xl font-bold text-emerald-700 mt-1.5">{formatNumber(stats.successful)}</p>
+          <p className="text-xl font-bold text-success mt-1.5">{formatNumber(stats.successful)}</p>
         </Card>
 
-        <Card className="p-4 border-[#E2E8F0]">
-          <div className="flex items-center justify-between text-xs text-red-600">
+        <Card className="p-4 border-border">
+          <div className="flex items-center justify-between text-xs text-destructive">
             <span>Failed / Dropped</span>
             <AlertCircle className="h-4 w-4" />
           </div>
-          <p className="text-xl font-bold text-red-700 mt-1.5">{stats.failed}</p>
+          <p className="text-xl font-bold text-destructive mt-1.5">{stats.failed}</p>
         </Card>
       </div>
 

@@ -83,14 +83,11 @@ export default function InboxPage() {
     filter: activeFilter,
   });
 
-  // Automatically select first conversation if none selected on desktop
-  React.useEffect(() => {
-    if (!selectedConversationId && conversations.length > 0) {
-      setSelectedConversationId(conversations[0].id);
-    }
-  }, [selectedConversationId, conversations, setSelectedConversationId]);
+  // Derived active conversation (selected or fallback to first conversation)
+  const activeConversationId =
+    selectedConversationId || (conversations.length > 0 ? conversations[0].id : null);
 
-  const { data: currentConv } = useConversation(selectedConversationId);
+  const { data: currentConv } = useConversation(activeConversationId);
   const sendMessageMutation = useSendMessage();
   const updateStatusMutation = useUpdateConversationStatus();
 
@@ -104,19 +101,19 @@ export default function InboxPage() {
 
   const handleSend = async (e) => {
     e?.preventDefault();
-    if (!replyText.trim() || !selectedConversationId) return;
+    if (!replyText.trim() || !activeConversationId) return;
     const textToSend = replyText.trim();
     setReplyText("");
     await sendMessageMutation.mutateAsync({
-      conversationId: selectedConversationId,
+      conversationId: activeConversationId,
       text: textToSend,
     });
   };
 
   const handleResolve = () => {
-    if (!selectedConversationId || !currentConv) return;
+    if (!activeConversationId || !currentConv) return;
     const newStatus = currentConv.status === "resolved" ? "active" : "resolved";
-    updateStatusMutation.mutate({ conversationId: selectedConversationId, status: newStatus });
+    updateStatusMutation.mutate({ conversationId: activeConversationId, status: newStatus });
   };
 
   // DM Activity columns
@@ -128,11 +125,11 @@ export default function InboxPage() {
         <div>
           <Link
             href={`/customers/${row.customerId}`}
-            className="font-semibold text-xs text-[#1E293B] hover:text-[#635BDB] block"
+            className="font-semibold text-xs text-foreground hover:text-primary block"
           >
             {val}
           </Link>
-          <span className="text-[10px] text-[#635BDB]">{row.username}</span>
+          <span className="text-[10px] text-primary">{row.username}</span>
         </div>
       ),
     },
@@ -142,7 +139,7 @@ export default function InboxPage() {
       render: (val, row) => (
         <Link
           href={`/automations/${row.automationId}`}
-          className="font-medium text-xs text-[#1E293B] hover:text-[#635BDB] block truncate max-w-xs"
+          className="font-medium text-xs text-foreground hover:text-primary block truncate max-w-xs"
         >
           {val}
         </Link>
@@ -152,14 +149,14 @@ export default function InboxPage() {
       key: "message",
       label: "Message Sent",
       render: (val) => (
-        <span className="text-xs text-[#64748B] line-clamp-1 max-w-xs">{val}</span>
+        <span className="text-xs text-muted-foreground line-clamp-1 max-w-xs">{val}</span>
       ),
     },
     {
       key: "sentTime",
       label: "Sent At",
       sortable: true,
-      render: (val) => <span className="text-xs text-[#64748B]">{formatDate(val)}</span>,
+      render: (val) => <span className="text-xs text-muted-foreground">{formatDate(val)}</span>,
     },
     {
       key: "deliveryStatus",
@@ -171,12 +168,12 @@ export default function InboxPage() {
       label: "Link Click",
       render: (val) => (
         val === "clicked" ? (
-          <span className="inline-flex items-center gap-1 text-emerald-600 font-bold text-xs">
+          <span className="inline-flex items-center gap-1 text-success font-bold text-xs">
             <Check className="h-3.5 w-3.5 stroke-[3]" />
             <span>Clicked</span>
           </span>
         ) : (
-          <span className="text-xs text-[#94A3B8]">Not clicked</span>
+          <span className="text-xs text-muted-foreground">Not clicked</span>
         )
       ),
     },
@@ -186,17 +183,17 @@ export default function InboxPage() {
     <div className="space-y-4">
       <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3">
         <div>
-          <h1 className="text-xl font-bold tracking-tight text-[#1E293B]">
+          <h1 className="text-xl font-bold tracking-tight text-foreground">
             Inbox & DM Activity
           </h1>
-          <p className="text-xs text-[#64748B]">
+          <p className="text-xs text-muted-foreground">
             Manage live Instagram Direct Message customer queries and review automated DM delivery logs.
           </p>
         </div>
 
         {/* Tab Switcher */}
         <Tabs value={activeTab} onValueChange={setActiveTab} className="w-auto">
-          <TabsList className="bg-white border border-[#E2E8F0]">
+          <TabsList className="bg-card border border-border">
             <TabsTrigger value="inbox" className="text-xs gap-1.5">
               <MessageSquare className="h-3.5 w-3.5" />
               <span>Live Inbox</span>
@@ -211,22 +208,22 @@ export default function InboxPage() {
 
       {/* Tab 1: 3-Column Live Inbox */}
       {activeTab === "inbox" && (
-        <div className="rounded-[12px] border border-[#E2E8F0] bg-white overflow-hidden shadow-xs h-[calc(100vh-190px)] min-h-[580px] flex">
+        <div className="rounded-[12px] border border-border bg-card overflow-hidden shadow-xs h-[calc(100vh-190px)] min-h-[580px] flex">
           {/* Column 1: Conversations List (Visible always on desktop; on mobile only when mobileView === 'list') */}
           <div
-            className={`w-full md:w-80 lg:w-88 border-r border-[#E2E8F0] flex flex-col shrink-0 bg-white ${
+            className={`w-full md:w-80 lg:w-88 border-r border-border flex flex-col shrink-0 bg-card ${
               mobileView === "detail" ? "hidden md:flex" : "flex"
             }`}
           >
             {/* Search & Filter Header */}
-            <div className="p-3 border-b border-[#E2E8F0] space-y-2 bg-[#F8FAFC]">
+            <div className="p-3 border-b border-border space-y-2 bg-muted/40">
               <div className="relative">
-                <Search className="absolute left-2.5 top-2.5 h-3.5 w-3.5 text-[#94A3B8]" />
+                <Search className="absolute left-2.5 top-2.5 h-3.5 w-3.5 text-muted-foreground" />
                 <Input
                   value={searchQuery}
                   onChange={(e) => setSearchQuery(e.target.value)}
                   placeholder="Search conversations..."
-                  className="pl-8 h-8 text-xs bg-white"
+                  className="pl-8 h-8 text-xs bg-card"
                 />
               </div>
 
@@ -243,8 +240,8 @@ export default function InboxPage() {
                     onClick={() => setActiveFilter(f.id)}
                     className={`px-2.5 py-1 text-[11px] rounded-[6px] font-medium whitespace-nowrap transition-colors ${
                       activeFilter === f.id
-                        ? "bg-[#635BDB] text-white"
-                        : "bg-white border border-[#E2E8F0] text-[#64748B] hover:text-[#1E293B]"
+                        ? "bg-primary text-primary-foreground"
+                        : "bg-card border border-border text-muted-foreground hover:text-foreground"
                     }`}
                   >
                     {f.label}
@@ -254,14 +251,14 @@ export default function InboxPage() {
             </div>
 
             {/* List */}
-            <div className="flex-1 overflow-y-auto divide-y divide-[#E2E8F0]">
+            <div className="flex-1 overflow-y-auto divide-y divide-border">
               {conversations.length === 0 ? (
-                <div className="p-8 text-center text-xs text-[#64748B]">
+                <div className="p-8 text-center text-xs text-muted-foreground">
                   No conversations match this filter.
                 </div>
               ) : (
                 conversations.map((conv) => {
-                  const isSelected = selectedConversationId === conv.id;
+                  const isSelected = activeConversationId === conv.id;
                   const palette = getAvatarColor(conv.customerName);
                   const initials = getInitials(conv.customerName);
 
@@ -270,11 +267,11 @@ export default function InboxPage() {
                       key={conv.id}
                       onClick={() => setSelectedConversationId(conv.id)}
                       className={`p-3.5 cursor-pointer transition-colors flex items-start gap-3 relative ${
-                        isSelected ? "bg-[#EEF2FF]/60" : "hover:bg-[#F8FAFC]"
+                        isSelected ? "bg-primary-soft/60" : "hover:bg-muted/50"
                       }`}
                     >
                       {conv.unread && (
-                        <span className="absolute left-1 top-1/2 -translate-y-1/2 h-2 w-2 rounded-full bg-[#635BDB]" />
+                        <span className="absolute left-1 top-1/2 -translate-y-1/2 h-2 w-2 rounded-full bg-primary" />
                       )}
 
                       <Avatar className="h-9 w-9 shrink-0">
@@ -290,23 +287,23 @@ export default function InboxPage() {
                         <div className="flex items-center justify-between">
                           <span
                             className={`text-xs truncate ${
-                              conv.unread ? "font-bold text-[#1E293B]" : "font-semibold text-[#1E293B]"
+                              conv.unread ? "font-bold text-foreground" : "font-semibold text-foreground"
                             }`}
                           >
                             {conv.customerName}
                           </span>
-                          <span className="text-[10px] text-[#94A3B8] shrink-0">
+                          <span className="text-[10px] text-muted-foreground shrink-0">
                             {formatRelativeTime(conv.lastMessageTimestamp)}
                           </span>
                         </div>
 
-                        <span className="text-[10px] text-[#635BDB] font-medium block truncate">
+                        <span className="text-[10px] text-primary font-medium block truncate">
                           {conv.username}
                         </span>
 
                         <p
                           className={`text-xs truncate mt-1 ${
-                            conv.unread ? "font-semibold text-[#1E293B]" : "text-[#64748B]"
+                            conv.unread ? "font-semibold text-foreground" : "text-muted-foreground"
                           }`}
                         >
                           {conv.lastMessage}
@@ -321,25 +318,25 @@ export default function InboxPage() {
 
           {/* Column 2: Active Chat Messages (Center) */}
           <div
-            className={`flex-1 flex flex-col bg-[#F8FAFC] ${
+            className={`flex-1 flex flex-col bg-muted/20 ${
               mobileView === "list" ? "hidden md:flex" : "flex"
             }`}
           >
             {currentConv ? (
               <>
                 {/* Chat Header */}
-                <div className="h-16 border-b border-[#E2E8F0] bg-white px-4 flex items-center justify-between shrink-0">
+                <div className="h-16 border-b border-border bg-card px-4 flex items-center justify-between shrink-0">
                   <div className="flex items-center gap-3">
                     <Button
                       variant="ghost"
                       size="icon"
                       onClick={() => setMobileView("list")}
-                      className="md:hidden h-8 w-8 text-[#64748B]"
+                      className="md:hidden h-8 w-8 text-muted-foreground"
                     >
                       <ArrowLeft className="h-4 w-4" />
                     </Button>
 
-                    <Avatar className="h-8 w-8 border border-[#E2E8F0]">
+                    <Avatar className="h-8 w-8 border border-border">
                       <AvatarFallback
                         style={{
                           backgroundColor: getAvatarColor(currentConv.customerName).bg,
@@ -353,12 +350,12 @@ export default function InboxPage() {
 
                     <div>
                       <div className="flex items-center gap-1.5">
-                        <span className="text-xs font-bold text-[#1E293B]">
+                        <span className="text-xs font-bold text-foreground">
                           {currentConv.customerName}
                         </span>
                         <StatusBadge status={currentConv.status} />
                       </div>
-                      <span className="text-[10px] text-[#635BDB] font-medium block">
+                      <span className="text-[10px] text-primary font-medium block">
                         {currentConv.username}
                       </span>
                     </div>
@@ -369,9 +366,9 @@ export default function InboxPage() {
                       variant="outline"
                       size="sm"
                       onClick={handleResolve}
-                      className="h-7 px-2.5 text-xs text-[#1E293B] gap-1"
+                      className="h-7 px-2.5 text-xs text-foreground gap-1"
                     >
-                      <CheckCircle2 className="h-3.5 w-3.5 text-emerald-600" />
+                      <CheckCircle2 className="h-3.5 w-3.5 text-success" />
                       <span>{currentConv.status === "resolved" ? "Reopen" : "Resolve"}</span>
                     </Button>
                   </div>
@@ -389,14 +386,14 @@ export default function InboxPage() {
                         <div
                           className={`max-w-[78%] rounded-[14px] px-3.5 py-2.5 text-xs shadow-xs leading-relaxed ${
                             isUser
-                              ? "bg-white text-[#1E293B] border border-[#E2E8F0] rounded-bl-[2px]"
-                              : "bg-[#635BDB] text-white rounded-br-[2px]"
+                              ? "bg-card text-foreground border border-border rounded-bl-[2px]"
+                              : "bg-primary text-primary-foreground rounded-br-[2px]"
                           }`}
                         >
                           <p className="whitespace-pre-wrap">{msg.text}</p>
                           <div
                             className={`flex items-center justify-end gap-1 mt-1 text-[9px] ${
-                              isUser ? "text-[#94A3B8]" : "text-white/80"
+                              isUser ? "text-muted-foreground" : "text-primary-foreground/80"
                             }`}
                           >
                             <span>{formatDate(msg.timestamp, "hh:mm a")}</span>
@@ -404,7 +401,7 @@ export default function InboxPage() {
                           </div>
                         </div>
                         {msg.isAutomation && (
-                          <span className="text-[9px] text-[#635BDB] font-medium mt-0.5 mr-1">
+                          <span className="text-[9px] text-primary font-medium mt-0.5 mr-1">
                             Triggered via Automation
                           </span>
                         )}
@@ -416,14 +413,14 @@ export default function InboxPage() {
                 {/* Reply Input Box */}
                 <form
                   onSubmit={handleSend}
-                  className="p-3 bg-white border-t border-[#E2E8F0] flex items-center gap-2 shrink-0"
+                  className="p-3 bg-card border-t border-border flex items-center gap-2 shrink-0"
                 >
                   <Button
                     type="button"
                     variant="ghost"
                     size="icon"
                     onClick={() => toast.info("Simulated attachment picker")}
-                    className="h-8 w-8 text-[#64748B]"
+                    className="h-8 w-8 text-muted-foreground"
                   >
                     <Paperclip className="h-4 w-4" />
                   </Button>
@@ -447,23 +444,23 @@ export default function InboxPage() {
                 </form>
               </>
             ) : (
-              <div className="flex-1 flex items-center justify-center text-xs text-[#64748B]">
+              <div className="flex-1 flex items-center justify-center text-xs text-muted-foreground">
                 Select a conversation to view chat thread.
               </div>
             )}
           </div>
 
           {/* Column 3: Contact & Customer Dossier Panel (Right - hidden on mobile/small screens) */}
-          <div className="w-80 border-l border-[#E2E8F0] bg-white hidden xl:flex flex-col shrink-0 overflow-y-auto p-4 space-y-5">
+          <div className="w-80 border-l border-border bg-card hidden xl:flex flex-col shrink-0 overflow-y-auto p-4 space-y-5">
             {currentConv ? (
               <>
-                <div className="flex items-center justify-between pb-3 border-b border-[#E2E8F0]">
-                  <h4 className="text-xs font-bold uppercase tracking-wider text-[#94A3B8]">
+                <div className="flex items-center justify-between pb-3 border-b border-border">
+                  <h4 className="text-xs font-bold uppercase tracking-wider text-muted-foreground">
                     Customer Context
                   </h4>
                   <Link
                     href={`/customers/${currentConv.customerId}`}
-                    className="text-xs font-semibold text-[#635BDB] hover:underline flex items-center gap-0.5"
+                    className="text-xs font-semibold text-primary hover:underline flex items-center gap-0.5"
                   >
                     <span>Full Profile</span>
                     <ExternalLink className="h-3 w-3" />
@@ -472,17 +469,17 @@ export default function InboxPage() {
 
                 {/* Customer basic info */}
                 <div className="space-y-1.5 text-xs">
-                  <span className="text-[10px] text-[#94A3B8] font-bold uppercase block">
+                  <span className="text-[10px] text-muted-foreground font-bold uppercase block">
                     Contact Details
                   </span>
-                  <p className="font-bold text-[#1E293B]">{currentConv.customerName}</p>
-                  <p className="text-[#635BDB] font-medium">{currentConv.username}</p>
-                  <p className="text-[#64748B]">{currentConv.customer?.city || "India"}</p>
+                  <p className="font-bold text-foreground">{currentConv.customerName}</p>
+                  <p className="text-primary font-medium">{currentConv.username}</p>
+                  <p className="text-muted-foreground">{currentConv.customer?.city || "India"}</p>
                 </div>
 
                 {/* Tags */}
                 <div className="space-y-1.5">
-                  <span className="text-[10px] text-[#94A3B8] font-bold uppercase block">
+                  <span className="text-[10px] text-muted-foreground font-bold uppercase block">
                     Tags
                   </span>
                   <div className="flex flex-wrap gap-1">
@@ -500,7 +497,7 @@ export default function InboxPage() {
 
                 {/* Products Interacted With */}
                 <div className="space-y-1.5">
-                  <span className="text-[10px] text-[#94A3B8] font-bold uppercase block">
+                  <span className="text-[10px] text-muted-foreground font-bold uppercase block">
                     Products of Interest
                   </span>
                   <div className="space-y-1.5">
@@ -508,12 +505,12 @@ export default function InboxPage() {
                       <Link
                         key={p.id}
                         href={`/products/${p.id}`}
-                        className="p-2 rounded-[6px] border border-[#E2E8F0] bg-[#F8FAFC] hover:bg-white hover:border-[#635BDB] flex items-center justify-between text-xs transition-colors group"
+                        className="p-2 rounded-[6px] border border-border bg-muted/40 hover:bg-card hover:border-primary flex items-center justify-between text-xs transition-colors group"
                       >
-                        <span className="truncate max-w-[140px] font-medium text-[#1E293B] group-hover:text-[#635BDB]">
+                        <span className="truncate max-w-[140px] font-medium text-foreground group-hover:text-primary">
                           {p.name}
                         </span>
-                        <span className="font-bold text-[#1E293B]">{formatINR(p.price)}</span>
+                        <span className="font-bold text-foreground">{formatINR(p.price)}</span>
                       </Link>
                     ))}
                   </div>
@@ -521,7 +518,7 @@ export default function InboxPage() {
 
                 {/* Recent Automation Activity */}
                 <div className="space-y-1.5">
-                  <span className="text-[10px] text-[#94A3B8] font-bold uppercase block">
+                  <span className="text-[10px] text-muted-foreground font-bold uppercase block">
                     Recent Automation Logs
                   </span>
                   <div className="space-y-1.5 text-xs">
@@ -529,12 +526,12 @@ export default function InboxPage() {
                       <Link
                         key={ra.id}
                         href={`/automations/${ra.automationId}`}
-                        className="p-2 rounded-[6px] border border-[#E2E8F0] bg-white hover:border-[#635BDB] space-y-1 block transition-colors group"
+                        className="p-2 rounded-[6px] border border-border bg-card hover:border-primary space-y-1 block transition-colors group"
                       >
-                        <span className="font-semibold text-[#1E293B] group-hover:text-[#635BDB] block truncate">
+                        <span className="font-semibold text-foreground group-hover:text-primary block truncate">
                           {ra.automationName}
                         </span>
-                        <div className="flex items-center justify-between text-[10px] text-[#64748B]">
+                        <div className="flex items-center justify-between text-[10px] text-muted-foreground">
                           <span>{formatDate(ra.sentTime, "dd MMM")}</span>
                           <StatusBadge status={ra.deliveryStatus} />
                         </div>

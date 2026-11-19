@@ -15,6 +15,7 @@ import {
 import { Suspense } from "react";
 import { AppBreadcrumb } from "./app-breadcrumb";
 import { GlobalSearchDialog } from "./global-search-dialog";
+import { ThemeToggle } from "./theme-toggle";
 import { useUIStore } from "@/store/ui-store";
 import { Button } from "@/components/ui/button";
 import {
@@ -61,17 +62,16 @@ export function AppHeader() {
     },
   ];
 
-
   return (
     <>
-      <header className="sticky top-0 z-20 flex h-16 w-full items-center justify-between border-b border-[#E2E8F0] bg-white px-4 md:px-6 select-none">
+      <header className="sticky top-0 z-20 flex h-16 w-full items-center justify-between border-b border-border bg-card px-4 md:px-6 select-none">
         {/* Left: Mobile Menu Trigger + Breadcrumb */}
         <div className="flex items-center gap-3">
           <Button
             variant="ghost"
             size="icon"
             onClick={() => setMobileSidebarOpen(true)}
-            className="md:hidden h-8 w-8 text-[#1E293B]"
+            className="md:hidden h-8 w-8 text-foreground"
             aria-label="Open mobile menu"
           >
             <Menu className="h-5 w-5" />
@@ -90,11 +90,11 @@ export function AppHeader() {
           <Button
             variant="outline"
             onClick={() => setGlobalSearchOpen(true)}
-            className="h-8 px-3 text-xs text-[#64748B] hover:text-[#1E293B] gap-2 border-[#E2E8F0] bg-[#F8FAFC] hidden sm:flex items-center"
+            className="h-8 px-3 text-xs text-muted-foreground hover:text-foreground gap-2 border-border bg-muted hidden sm:flex items-center"
           >
-            <Search className="h-3.5 w-3.5 text-[#94A3B8]" />
+            <Search className="h-3.5 w-3.5 text-muted-foreground" />
             <span>Search anything...</span>
-            <kbd className="pointer-events-none hidden h-4 select-none items-center gap-1 rounded bg-white px-1.5 font-mono text-[10px] font-medium text-[#94A3B8] border border-[#E2E8F0] sm:flex">
+            <kbd className="pointer-events-none hidden h-4 select-none items-center gap-1 rounded bg-card px-1.5 font-mono text-[10px] font-medium text-muted-foreground border border-border sm:flex">
               ⌘K
             </kbd>
           </Button>
@@ -103,12 +103,14 @@ export function AppHeader() {
             variant="ghost"
             size="icon"
             onClick={() => setGlobalSearchOpen(true)}
-            className="sm:hidden h-8 w-8 text-[#64748B]"
+            className="sm:hidden h-8 w-8 text-muted-foreground hover:text-foreground"
             aria-label="Search"
           >
             <Search className="h-4 w-4" />
           </Button>
 
+          {/* Theme Selector Toggle */}
+          <ThemeToggle />
 
           {/* Notifications Dropdown */}
           <DropdownMenu>
@@ -116,19 +118,19 @@ export function AppHeader() {
               <Button
                 variant="ghost"
                 size="icon"
-                className="h-8 w-8 text-[#64748B] hover:text-[#1E293B] relative"
+                className="h-8 w-8 text-muted-foreground hover:text-foreground relative"
                 aria-label="Notifications"
               >
                 <Bell className="h-4 w-4" />
-                <span className="absolute top-1.5 right-1.5 h-2 w-2 rounded-full bg-[#635BDB]" />
+                <span className="absolute top-1.5 right-1.5 h-2 w-2 rounded-full bg-primary" />
               </Button>
             </DropdownMenuTrigger>
             <DropdownMenuContent align="end" className="w-80 p-2">
               <div className="flex items-center justify-between px-2 py-1.5">
-                <DropdownMenuLabel className="p-0 text-xs font-bold text-[#1E293B]">
+                <DropdownMenuLabel className="p-0 text-xs font-bold text-foreground">
                   Notifications
                 </DropdownMenuLabel>
-                <span className="text-[10px] text-[#635BDB] font-medium cursor-pointer hover:underline">
+                <span className="text-[10px] text-primary font-medium cursor-pointer hover:underline">
                   Mark all read
                 </span>
               </div>
@@ -138,19 +140,18 @@ export function AppHeader() {
                   <Link
                     key={n.id}
                     href={n.href}
-                    className="p-2 rounded-[6px] hover:bg-[#F8FAFC] transition-colors cursor-pointer text-xs block"
+                    className="p-2 rounded-[6px] hover:bg-muted transition-colors cursor-pointer text-xs block"
                   >
                     <div className="flex items-center justify-between">
-                      <span className="font-semibold text-[#1E293B]">{n.title}</span>
-                      <span className="text-[10px] text-[#94A3B8]">{n.time}</span>
+                      <span className="font-semibold text-foreground">{n.title}</span>
+                      <span className="text-[10px] text-muted-foreground">{n.time}</span>
                     </div>
-                    <p className="text-[11px] text-[#64748B] mt-0.5">{n.desc}</p>
+                    <p className="text-[11px] text-muted-foreground mt-0.5">{n.desc}</p>
                   </Link>
                 ))}
               </div>
             </DropdownMenuContent>
           </DropdownMenu>
-
 
           {/* User Avatar Dropdown */}
           <DropdownMenu>
@@ -158,11 +159,11 @@ export function AppHeader() {
               <Button
                 variant="ghost"
                 size="icon"
-                className="h-8 w-8 rounded-full p-0 ring-offset-white focus-visible:ring-2 focus-visible:ring-[#635BDB]"
+                className="h-8 w-8 rounded-full p-0 ring-offset-background focus-visible:ring-2 focus-visible:ring-ring"
                 aria-label="User profile"
               >
-                <Avatar className="h-8 w-8 border border-[#E2E8F0]">
-                  <AvatarFallback className="bg-[#635BDB] text-white text-xs font-bold">
+                <Avatar className="h-8 w-8 border border-border">
+                  <AvatarFallback className="bg-primary text-primary-foreground text-xs font-bold">
                     {SITE_CONFIG.user.avatar}
                   </AvatarFallback>
                 </Avatar>
@@ -170,26 +171,26 @@ export function AppHeader() {
             </DropdownMenuTrigger>
             <DropdownMenuContent align="end" className="w-56 p-1">
               <div className="px-2.5 py-2">
-                <p className="text-xs font-bold text-[#1E293B]">{SITE_CONFIG.user.name}</p>
-                <p className="text-[11px] text-[#64748B] truncate">{SITE_CONFIG.user.email}</p>
+                <p className="text-xs font-bold text-foreground">{SITE_CONFIG.user.name}</p>
+                <p className="text-[11px] text-muted-foreground truncate">{SITE_CONFIG.user.email}</p>
               </div>
               <DropdownMenuSeparator />
               <DropdownMenuItem asChild>
                 <Link href="/settings" className="flex items-center gap-2 cursor-pointer text-xs">
-                  <User className="h-3.5 w-3.5 text-[#64748B]" />
+                  <User className="h-3.5 w-3.5 text-muted-foreground" />
                   <span>My Profile</span>
                 </Link>
               </DropdownMenuItem>
               <DropdownMenuItem asChild>
                 <Link href="/settings" className="flex items-center gap-2 cursor-pointer text-xs">
-                  <Settings className="h-3.5 w-3.5 text-[#64748B]" />
+                  <Settings className="h-3.5 w-3.5 text-muted-foreground" />
                   <span>Store Settings</span>
                 </Link>
               </DropdownMenuItem>
               <DropdownMenuSeparator />
               <DropdownMenuItem
                 onClick={() => toast.info("Simulated logout session")}
-                className="flex items-center gap-2 cursor-pointer text-xs text-red-600 focus:text-red-600 focus:bg-red-50"
+                className="flex items-center gap-2 cursor-pointer text-xs text-destructive focus:text-destructive focus:bg-destructive-soft"
               >
                 <LogOut className="h-3.5 w-3.5" />
                 <span>Log out</span>

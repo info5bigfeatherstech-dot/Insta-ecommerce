@@ -1,14 +1,16 @@
 "use client";
 
 import * as React from "react";
+import { Suspense } from "react";
 import Link from "next/link";
-import { useRouter } from "next/navigation";
+import { useRouter, useSearchParams } from "next/navigation";
 import { useCustomers } from "@/hooks/use-customers";
 import { useListFilterStore } from "@/store/list-filter-store";
 import { PageHeader } from "@/components/shared/page-header";
 import { DataTable } from "@/components/shared/data-table";
 import { FilterDropdown } from "@/components/shared/filter-dropdown";
 import { StatusBadge } from "@/components/shared/status-badge";
+import { LoadingState } from "@/components/shared/loading-state";
 import { Avatar, AvatarFallback } from "@/components/ui/avatar";
 import { Card } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
@@ -27,25 +29,41 @@ import {
   RotateCcw,
   Eye,
   ExternalLink,
+  Layers,
+  X,
 } from "lucide-react";
 import { db } from "@/data/db";
 
-export default function CustomersPage() {
+function CustomersContent() {
   const router = useRouter();
+  const searchParams = useSearchParams();
+  const segmentParam = searchParams?.get("segment");
 
   // Persistent list filter state
   const { customers: filterState, setCustomersFilter } = useListFilterStore();
-  const { search, status, tag, page } = filterState;
+  const { search, status, tag, segment = "all", page } = filterState;
+
+  // Sync segment query param from URL if present
+  React.useEffect(() => {
+    if (segmentParam && segmentParam !== segment) {
+      setCustomersFilter({ segment: segmentParam, page: 1 });
+    }
+  }, [segmentParam, segment, setCustomersFilter]);
 
   const { data, isLoading } = useCustomers({
     search,
     status,
     tag,
+    segment,
     page,
     limit: 10,
   });
 
   const allTags = db.state.tags;
+  const allSegments = db.state.segments;
+  const activeSegment = segment && segment !== "all"
+    ? allSegments.find((s) => s.id === segment)
+    : null;
 
   // Calculate live metrics from database
   const stats = React.useMemo(() => {
@@ -67,7 +85,7 @@ export default function CustomersPage() {
         const initials = getInitials(val);
         return (
           <div className="flex items-center gap-3">
-            <Avatar className="h-9 w-9 border border-[#E2E8F0]">
+            <Avatar className="h-9 w-9 border border-border">
               <AvatarFallback
                 style={{
                   backgroundColor: palette.bg,
@@ -80,10 +98,10 @@ export default function CustomersPage() {
               </AvatarFallback>
             </Avatar>
             <div>
-              <span className="font-semibold text-xs text-[#1E293B] block hover:text-[#635BDB]">
+              <span className="font-semibold text-xs text-foreground block hover:text-primary">
                 {val}
               </span>
-              <span className="text-[10px] text-[#635BDB] font-medium block">
+              <span className="text-[10px] text-primary font-medium block">
                 {row.username}
               </span>
             </div>
@@ -94,13 +112,13 @@ export default function CustomersPage() {
     {
       key: "instagramUserId",
       label: "Instagram ID",
-      render: (val) => <span className="font-mono text-[10px] text-[#64748B]">{val}</span>,
+      render: (val) => <span className="font-mono text-[10px] text-muted-foreground">{val}</span>,
     },
     {
       key: "sourceReel",
       label: "Source Reel",
       render: (reel) => (
-        <span className="text-xs text-[#64748B] truncate max-w-[140px] block" title={reel?.caption}>
+        <span className="text-xs text-muted-foreground truncate max-w-[140px] block" title={reel?.caption}>
           {reel ? reel.instagramPostId : "Direct / Search"}
         </span>
       ),
@@ -124,7 +142,7 @@ export default function CustomersPage() {
             );
           })}
           {(row.tags || []).length > 2 && (
-            <span className="text-[10px] text-[#64748B] font-semibold bg-[#F1F5F9] px-1 rounded">
+            <span className="text-[10px] text-muted-foreground font-semibold bg-muted px-1 rounded">
               +{row.tags.length - 2}
             </span>
           )}
@@ -135,13 +153,13 @@ export default function CustomersPage() {
       key: "totalMessages",
       label: "DMs Exchanged",
       sortable: true,
-      render: (val) => <span className="text-xs font-semibold text-[#1E293B]">{val}</span>,
+      render: (val) => <span className="text-xs font-semibold text-foreground">{val}</span>,
     },
     {
       key: "lastInteraction",
       label: "Last Seen",
       sortable: true,
-      render: (val) => <span className="text-xs text-[#64748B]">{formatRelativeTime(val)}</span>,
+      render: (val) => <span className="text-xs text-muted-foreground">{formatRelativeTime(val)}</span>,
     },
     {
       key: "status",
@@ -158,7 +176,7 @@ export default function CustomersPage() {
             variant="ghost"
             size="sm"
             onClick={() => router.push(`/customers/${row.id}`)}
-            className="h-7 px-2.5 text-xs text-[#635BDB] hover:bg-[#EEF2FF] gap-1 font-semibold"
+            className="h-7 px-2.5 text-xs text-primary hover:bg-primary-soft gap-1 font-semibold"
           >
             <Eye className="h-3.5 w-3.5" />
             <span>View Profile</span>
@@ -177,38 +195,73 @@ export default function CustomersPage() {
 
       {/* 4 Stats Cards */}
       <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">
-        <Card className="p-4 border-[#E2E8F0]">
-          <div className="flex items-center justify-between text-xs text-[#64748B]">
+        <Card className="p-4 border-border">
+          <div className="flex items-center justify-between text-xs text-muted-foreground">
             <span>Total Contacts</span>
-            <Users className="h-4 w-4 text-[#635BDB]" />
+            <Users className="h-4 w-4 text-primary" />
           </div>
-          <p className="text-2xl font-bold text-[#1E293B] mt-1.5">{stats.total}</p>
+          <p className="text-2xl font-bold text-foreground mt-1.5">{stats.total}</p>
         </Card>
 
-        <Card className="p-4 border-[#E2E8F0]">
-          <div className="flex items-center justify-between text-xs text-indigo-600">
+        <Card className="p-4 border-border">
+          <div className="flex items-center justify-between text-xs text-primary">
             <span>New Leads</span>
             <UserPlus className="h-4 w-4" />
           </div>
-          <p className="text-2xl font-bold text-indigo-700 mt-1.5">{stats.new}</p>
+          <p className="text-2xl font-bold text-primary mt-1.5">{stats.new}</p>
         </Card>
 
-        <Card className="p-4 border-[#E2E8F0]">
-          <div className="flex items-center justify-between text-xs text-emerald-600">
+        <Card className="p-4 border-border">
+          <div className="flex items-center justify-between text-xs text-success">
             <span>Active Shoppers</span>
             <Activity className="h-4 w-4" />
           </div>
-          <p className="text-2xl font-bold text-emerald-700 mt-1.5">{stats.active}</p>
+          <p className="text-2xl font-bold text-success mt-1.5">{stats.active}</p>
         </Card>
 
-        <Card className="p-4 border-[#E2E8F0]">
-          <div className="flex items-center justify-between text-xs text-blue-600">
+        <Card className="p-4 border-border">
+          <div className="flex items-center justify-between text-xs text-info">
             <span>Returning Buyers</span>
             <RotateCcw className="h-4 w-4" />
           </div>
-          <p className="text-2xl font-bold text-blue-700 mt-1.5">{stats.returning}</p>
+          <p className="text-2xl font-bold text-info mt-1.5">{stats.returning}</p>
         </Card>
       </div>
+
+      {/* Active Segment Banner */}
+      {activeSegment && (
+        <div className="flex items-center justify-between gap-3 p-3.5 rounded-lg border border-primary/30 bg-primary-soft/40 text-xs">
+          <div className="flex items-center gap-2.5">
+            <span
+              className="h-2.5 w-2.5 rounded-full shrink-0"
+              style={{ backgroundColor: activeSegment.color || "var(--primary)" }}
+            />
+            <div>
+              <span className="font-semibold text-foreground">
+                Active Dynamic Segment: {activeSegment.name}
+              </span>
+              <span className="text-muted-foreground ml-2">
+                ({data?.pagination?.totalRecords ?? 0} matching contacts)
+              </span>
+              <p className="text-[11px] text-muted-foreground line-clamp-1 mt-0.5">
+                {activeSegment.description}
+              </p>
+            </div>
+          </div>
+          <Button
+            variant="ghost"
+            size="sm"
+            onClick={() => {
+              setCustomersFilter({ segment: "all", page: 1 });
+              router.replace("/customers");
+            }}
+            className="h-7 px-2.5 text-xs gap-1.5 text-muted-foreground hover:text-foreground shrink-0"
+          >
+            <X className="h-3.5 w-3.5" />
+            <span>Clear Segment</span>
+          </Button>
+        </div>
+      )}
 
       {/* Customers DataTable */}
       <DataTable
@@ -222,6 +275,22 @@ export default function CustomersPage() {
         exportFilename="customers_list"
         filters={
           <div className="flex items-center gap-2">
+            <FilterDropdown
+              label="Segment"
+              value={segment}
+              onChange={(val) => {
+                setCustomersFilter({ segment: val, page: 1 });
+                if (val === "all") {
+                  router.replace("/customers");
+                } else {
+                  router.replace(`/customers?segment=${val}`);
+                }
+              }}
+              options={[
+                { value: "all", label: "All Segments" },
+                ...allSegments.map((s) => ({ value: s.id, label: s.name })),
+              ]}
+            />
             <FilterDropdown
               label="Status"
               value={status}
@@ -253,5 +322,13 @@ export default function CustomersPage() {
         }}
       />
     </div>
+  );
+}
+
+export default function CustomersPage() {
+  return (
+    <Suspense fallback={<LoadingState message="Loading customer directory..." />}>
+      <CustomersContent />
+    </Suspense>
   );
 }

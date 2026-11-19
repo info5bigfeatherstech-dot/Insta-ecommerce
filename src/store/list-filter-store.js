@@ -37,6 +37,7 @@ export const useListFilterStore = create((set) => ({
     search: "",
     status: "all",
     tag: "all",
+    segment: "all",
     page: 1,
   },
   setCustomersFilter: (filter) =>

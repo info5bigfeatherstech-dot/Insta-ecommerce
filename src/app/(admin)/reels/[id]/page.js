@@ -3,6 +3,7 @@
 import * as React from "react";
 import { Suspense } from "react";
 import Link from "next/link";
+import Image from "next/image";
 import { useParams, useRouter, useSearchParams } from "next/navigation";
 import { useReel, useAssignAutomationToReel } from "@/hooks/use-reels";
 import { DetailPageHeader } from "@/components/shared/detail-page-header";
@@ -52,26 +53,19 @@ function ReelDetailContent() {
   const searchParams = useSearchParams();
   const id = params?.id;
 
-  const defaultTab = searchParams.get("tab") || "overview";
-  const [activeTab, setActiveTab] = React.useState(defaultTab);
+  const [localTab, setLocalTab] = React.useState("overview");
+  const activeTab = searchParams.get("tab") || localTab;
 
-  React.useEffect(() => {
-    const tabParam = searchParams.get("tab");
-    if (tabParam) {
-      setActiveTab(tabParam);
-    }
-  }, [searchParams]);
+  const handleTabChange = (newTab) => {
+    setLocalTab(newTab);
+    router.replace(`/reels/${id}?tab=${newTab}`, { scroll: false });
+  };
 
   const { data: reel, isLoading } = useReel(id);
   const assignMutation = useAssignAutomationToReel();
 
-  const [assignedAutomationId, setAssignedAutomationId] = React.useState("");
-
-  React.useEffect(() => {
-    if (reel) {
-      setAssignedAutomationId(reel.automationId || "none");
-    }
-  }, [reel]);
+  const [optimisticAutomationId, setOptimisticAutomationId] = React.useState(null);
+  const currentAutomationId = optimisticAutomationId ?? (reel?.automationId || "none");
 
   if (isLoading) {
     return <LoadingState text="Loading Reel details & triggers..." />;
@@ -91,8 +85,12 @@ function ReelDetailContent() {
 
   const handleAssignAutomation = async (autoId) => {
     const targetId = autoId === "none" ? null : autoId;
-    setAssignedAutomationId(autoId);
-    await assignMutation.mutateAsync({ reelId: reel.id, automationId: targetId });
+    setOptimisticAutomationId(autoId);
+    try {
+      await assignMutation.mutateAsync({ reelId: reel.id, automationId: targetId });
+    } finally {
+      setOptimisticAutomationId(null);
+    }
   };
 
   const automationsList = db.state.automations;
@@ -120,7 +118,7 @@ function ReelDetailContent() {
             <a href={reel.postUrl} target="_blank" rel="noreferrer">
               <Instagram className="h-3.5 w-3.5" />
               <span>View on Instagram</span>
-              <ExternalLink className="h-3 w-3 text-[#94A3B8]" />
+              <ExternalLink className="h-3 w-3 text-muted-foreground" />
             </a>
           </Button>
         }
@@ -130,19 +128,19 @@ function ReelDetailContent() {
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
         {/* Main Column (2 spans) */}
         <div className="lg:col-span-2 space-y-6">
-          <Tabs value={activeTab} onValueChange={setActiveTab} className="w-full space-y-4">
-            <div className="bg-white p-1 rounded-[10px] border border-[#E2E8F0] shadow-2xs">
-              <TabsList className="bg-[#F1F5F9] p-0.5 rounded-[8px] h-9 w-full justify-start overflow-x-auto">
+          <Tabs value={activeTab} onValueChange={handleTabChange} className="w-full space-y-4">
+            <div className="bg-card p-1 rounded-[10px] border border-border shadow-2xs">
+              <TabsList className="bg-muted p-0.5 rounded-[8px] h-9 w-full justify-start overflow-x-auto">
                 <TabsTrigger value="overview" className="text-xs">
                   <Film className="h-3.5 w-3.5 mr-1" />
                   Overview
                 </TabsTrigger>
                 <TabsTrigger value="trigger" className="text-xs">
-                  <Zap className="h-3.5 w-3.5 mr-1 text-[#635BDB]" />
+                  <Zap className="h-3.5 w-3.5 mr-1 text-primary" />
                   Comment Trigger
                 </TabsTrigger>
                 <TabsTrigger value="simulator" className="text-xs">
-                  <PlayCircle className="h-3.5 w-3.5 mr-1 text-emerald-600" />
+                  <PlayCircle className="h-3.5 w-3.5 mr-1 text-success" />
                   Test Simulator
                 </TabsTrigger>
                 <TabsTrigger value="comments" className="text-xs">
@@ -159,10 +157,17 @@ function ReelDetailContent() {
             {/* Tab 1: Overview */}
             <TabsContent value="overview" className="m-0 focus-visible:outline-none space-y-6">
               {/* Media Preview Card */}
-              <Card className="border-[#E2E8F0] overflow-hidden">
-                <div className="aspect-[16/9] w-full bg-[#1E293B] relative flex items-center justify-center">
-                  <img src={placeholder} alt={reel.caption} className="h-full w-full object-cover" />
-                  <div className="absolute top-3 left-3 bg-black/60 backdrop-blur-xs text-white text-xs px-2.5 py-1 rounded-full flex items-center gap-1.5 font-medium">
+              <Card className="border-border overflow-hidden">
+                <div className="aspect-[16/9] w-full bg-muted relative flex items-center justify-center">
+                  <Image
+                    src={placeholder}
+                    alt={reel.caption}
+                    fill
+                    unoptimized
+                    sizes="(max-width: 768px) 100vw, 66vw"
+                    className="object-cover"
+                  />
+                  <div className="absolute top-3 left-3 bg-foreground/80 backdrop-blur-xs text-background text-xs px-2.5 py-1 rounded-full flex items-center gap-1.5 font-medium">
                     <Instagram className="h-3.5 w-3.5" />
                     <span>Post ID: {reel.instagramPostId}</span>
                   </div>
@@ -170,17 +175,17 @@ function ReelDetailContent() {
                     href={reel.postUrl}
                     target="_blank"
                     rel="noreferrer"
-                    className="absolute bottom-3 right-3 bg-white/90 backdrop-blur-xs text-[#1E293B] hover:text-[#635BDB] px-3 py-1.5 rounded-[6px] text-xs font-semibold shadow-xs flex items-center gap-1.5 transition-colors"
+                    className="absolute bottom-3 right-3 bg-card/90 backdrop-blur-xs text-foreground hover:text-primary px-3 py-1.5 rounded-[6px] text-xs font-semibold shadow-xs flex items-center gap-1.5 transition-colors"
                   >
                     <span>View Reel on Instagram</span>
                     <ExternalLink className="h-3.5 w-3.5" />
                   </a>
                 </div>
                 <CardContent className="p-5 space-y-3">
-                  <h4 className="text-xs font-bold uppercase tracking-wider text-[#94A3B8]">
+                  <h4 className="text-xs font-bold uppercase tracking-wider text-muted-foreground">
                     Caption &amp; Call To Action Hook
                   </h4>
-                  <p className="text-xs text-[#1E293B] leading-relaxed p-3.5 rounded-[10px] border border-[#E2E8F0] bg-[#F8FAFC]">
+                  <p className="text-xs text-foreground leading-relaxed p-3.5 rounded-[10px] border border-border bg-muted/40">
                     {reel.caption}
                   </p>
                 </CardContent>
@@ -188,47 +193,47 @@ function ReelDetailContent() {
 
               {/* Attribution Metrics Grid */}
               <div className="grid grid-cols-2 sm:grid-cols-4 gap-3 text-xs">
-                <div className="p-4 rounded-[10px] bg-white border border-[#E2E8F0]">
-                  <span className="text-[10px] text-[#64748B] block">Triggers</span>
-                  <span className="text-lg font-bold text-[#1E293B] mt-0.5 block">
+                <div className="p-4 rounded-[10px] bg-card border border-border">
+                  <span className="text-[10px] text-muted-foreground block">Triggers</span>
+                  <span className="text-lg font-bold text-foreground mt-0.5 block">
                     {formatNumber(reel.triggerCount)}
                   </span>
                 </div>
-                <div className="p-4 rounded-[10px] bg-white border border-[#E2E8F0]">
-                  <span className="text-[10px] text-[#64748B] block">DMs Sent</span>
-                  <span className="text-lg font-bold text-[#1E293B] mt-0.5 block">
+                <div className="p-4 rounded-[10px] bg-card border border-border">
+                  <span className="text-[10px] text-muted-foreground block">DMs Sent</span>
+                  <span className="text-lg font-bold text-foreground mt-0.5 block">
                     {formatNumber(reel.dmsSent)}
                   </span>
                 </div>
-                <div className="p-4 rounded-[10px] bg-white border border-[#E2E8F0]">
-                  <span className="text-[10px] text-[#64748B] block">Link Clicks</span>
-                  <span className="text-lg font-bold text-[#635BDB] mt-0.5 block">
+                <div className="p-4 rounded-[10px] bg-card border border-border">
+                  <span className="text-[10px] text-muted-foreground block">Link Clicks</span>
+                  <span className="text-lg font-bold text-primary mt-0.5 block">
                     {formatNumber(reel.linkClicks)}
                   </span>
                 </div>
-                <div className="p-4 rounded-[10px] bg-white border border-[#E2E8F0]">
-                  <span className="text-[10px] text-[#64748B] block">Conversions</span>
-                  <span className="text-lg font-bold text-emerald-600 mt-0.5 block">
+                <div className="p-4 rounded-[10px] bg-card border border-border">
+                  <span className="text-[10px] text-muted-foreground block">Conversions</span>
+                  <span className="text-lg font-bold text-success mt-0.5 block">
                     {reel.conversions} orders
                   </span>
                 </div>
               </div>
 
               {/* Assign Automation Workflow Card */}
-              <Card className="border-[#C7D2FE] bg-[#EEF2FF]/40">
-                <CardHeader className="p-4 pb-2 border-b border-[#C7D2FE]/60">
-                  <CardTitle className="text-xs font-bold text-[#635BDB] flex items-center gap-1.5">
+              <Card className="border-primary/40 bg-primary-soft/40">
+                <CardHeader className="p-4 pb-2 border-b border-primary/20">
+                  <CardTitle className="text-xs font-bold text-primary flex items-center gap-1.5">
                     <Zap className="h-4 w-4" />
                     <span>Assign Automation Workflow</span>
                   </CardTitle>
                 </CardHeader>
                 <CardContent className="p-4 space-y-3">
                   <Select
-                    value={assignedAutomationId}
+                    value={currentAutomationId}
                     onValueChange={handleAssignAutomation}
                     disabled={assignMutation.isPending}
                   >
-                    <SelectTrigger className="h-9 bg-white text-xs">
+                    <SelectTrigger className="h-9 bg-card text-xs">
                       <SelectValue placeholder="Select an automation workflow..." />
                     </SelectTrigger>
                     <SelectContent>
@@ -240,7 +245,7 @@ function ReelDetailContent() {
                       ))}
                     </SelectContent>
                   </Select>
-                  <p className="text-[11px] text-[#64748B]">
+                  <p className="text-[11px] text-muted-foreground">
                     Selecting an automation binds this Reel to an existing workflow rule, or configure custom keywords directly in the Comment Trigger tab.
                   </p>
                 </CardContent>
@@ -264,37 +269,37 @@ function ReelDetailContent() {
 
             {/* Tab 5: Activity History */}
             <TabsContent value="activity" className="m-0 focus-visible:outline-none space-y-3">
-              <Card className="border-[#E2E8F0]">
-                <CardHeader className="p-5 pb-3 border-b border-[#F1F5F9]">
-                  <CardTitle className="text-sm font-bold text-[#1E293B]">
+              <Card className="border-border">
+                <CardHeader className="p-5 pb-3 border-b border-border/60">
+                  <CardTitle className="text-sm font-bold text-foreground">
                     Recent DM Automation Activity
                   </CardTitle>
                 </CardHeader>
-                <CardContent className="p-0 divide-y divide-[#F1F5F9]">
+                <CardContent className="p-0 divide-y divide-border/60">
                   {!reel.activity || reel.activity.length === 0 ? (
-                    <div className="p-6 text-center text-xs text-[#64748B]">
+                    <div className="p-6 text-center text-xs text-muted-foreground">
                       No recent DM activity recorded for this Reel yet.
                     </div>
                   ) : (
                     reel.activity.map((act) => (
                       <div key={act.id} className="p-4 flex items-center justify-between text-xs gap-3">
                         <div className="min-w-0">
-                          <span className="font-bold text-[#1E293B] block truncate">
+                          <span className="font-bold text-foreground block truncate">
                             {act.username}
                           </span>
-                          <span className="text-[11px] text-[#64748B] line-clamp-1">
+                          <span className="text-[11px] text-muted-foreground line-clamp-1">
                             {act.message}
                           </span>
                         </div>
                         <div className="text-right shrink-0 space-y-1">
-                          <span className="text-[10px] text-[#94A3B8] block">
+                          <span className="text-[10px] text-muted-foreground block">
                             {formatRelativeTime(act.sentTime)}
                           </span>
                           <span
                             className={`inline-block px-2 py-0.5 rounded text-[10px] font-bold ${
                               act.clickStatus === "clicked"
-                                ? "bg-emerald-50 text-emerald-700"
-                                : "bg-[#EEF2FF] text-[#635BDB]"
+                                ? "bg-success-soft text-success"
+                                : "bg-primary-soft text-primary"
                             }`}
                           >
                             {act.clickStatus === "clicked" ? "Link Clicked" : "Delivered"}
@@ -312,76 +317,76 @@ function ReelDetailContent() {
         {/* Sidebar Summary Column (1 span) */}
         <div className="space-y-6">
           {/* Conversion Funnel Card */}
-          <Card className="border-[#E2E8F0]">
-            <CardHeader className="p-4 pb-2 border-b border-[#F1F5F9]">
-              <CardTitle className="text-xs font-bold uppercase tracking-wider text-[#94A3B8] flex items-center gap-1.5">
-                <TrendingUp className="h-3.5 w-3.5 text-[#635BDB]" />
+          <Card className="border-border">
+            <CardHeader className="p-4 pb-2 border-b border-border/60">
+              <CardTitle className="text-xs font-bold uppercase tracking-wider text-muted-foreground flex items-center gap-1.5">
+                <TrendingUp className="h-3.5 w-3.5 text-primary" />
                 <span>Conversion Funnel</span>
               </CardTitle>
             </CardHeader>
             <CardContent className="p-4 space-y-3">
               <div className="flex justify-between items-center text-xs">
-                <span className="text-[#64748B]">Click-Through Rate (CTR)</span>
-                <span className="font-bold text-[#635BDB]">{ctr}%</span>
+                <span className="text-muted-foreground">Click-Through Rate (CTR)</span>
+                <span className="font-bold text-primary">{ctr}%</span>
               </div>
-              <div className="w-full bg-[#F1F5F9] h-2 rounded-full overflow-hidden">
-                <div className="bg-[#635BDB] h-full rounded-full" style={{ width: `${Math.min(ctr, 100)}%` }} />
+              <div className="w-full bg-muted h-2 rounded-full overflow-hidden">
+                <div className="bg-primary h-full rounded-full" style={{ width: `${Math.min(ctr, 100)}%` }} />
               </div>
 
               <div className="flex justify-between items-center text-xs pt-1">
-                <span className="text-[#64748B]">Order Conversion Rate</span>
-                <span className="font-bold text-emerald-600">{convRate}%</span>
+                <span className="text-muted-foreground">Order Conversion Rate</span>
+                <span className="font-bold text-success">{convRate}%</span>
               </div>
-              <div className="w-full bg-[#F1F5F9] h-2 rounded-full overflow-hidden">
-                <div className="bg-emerald-500 h-full rounded-full" style={{ width: `${Math.min(convRate, 100)}%` }} />
+              <div className="w-full bg-muted h-2 rounded-full overflow-hidden">
+                <div className="bg-success h-full rounded-full" style={{ width: `${Math.min(convRate, 100)}%` }} />
               </div>
             </CardContent>
           </Card>
 
           {/* Trigger Summary Card */}
-          <Card className="border-[#E2E8F0]">
-            <CardHeader className="p-4 pb-2 border-b border-[#F1F5F9]">
-              <CardTitle className="text-xs font-bold uppercase tracking-wider text-[#94A3B8] flex items-center gap-1.5">
-                <Zap className="h-3.5 w-3.5 text-[#635BDB]" />
+          <Card className="border-border">
+            <CardHeader className="p-4 pb-2 border-b border-border/60">
+              <CardTitle className="text-xs font-bold uppercase tracking-wider text-muted-foreground flex items-center gap-1.5">
+                <Zap className="h-3.5 w-3.5 text-primary" />
                 <span>Trigger Settings</span>
               </CardTitle>
             </CardHeader>
             <CardContent className="p-4 space-y-3 text-xs">
               <div>
-                <span className="text-[10px] text-[#64748B] block mb-1">Active Comment Keywords</span>
+                <span className="text-[10px] text-muted-foreground block mb-1">Active Comment Keywords</span>
                 <div className="flex flex-wrap gap-1">
                   {reel.triggerKeywords && reel.triggerKeywords.length > 0 ? (
                     reel.triggerKeywords.map((kw) => (
                       <span
                         key={kw}
-                        className="inline-flex items-center px-2 py-0.5 rounded text-[10px] font-bold bg-[#EEF2FF] text-[#635BDB] border border-[#C7D2FE]/60"
+                        className="inline-flex items-center px-2 py-0.5 rounded text-[10px] font-bold bg-primary-soft text-primary border border-primary/30"
                       >
                         {kw}
                       </span>
                     ))
                   ) : (
-                    <span className="text-[#94A3B8]">No keywords set</span>
+                    <span className="text-muted-foreground">No keywords set</span>
                   )}
                 </div>
               </div>
 
-              <div className="flex justify-between items-center text-[#64748B] pt-2 border-t border-[#F1F5F9]">
+              <div className="flex justify-between items-center text-muted-foreground pt-2 border-t border-border/60">
                 <span>Match Type</span>
-                <span className="font-semibold text-[#1E293B] capitalize">
+                <span className="font-semibold text-foreground capitalize">
                   {reel.matchType || "contains"}
                 </span>
               </div>
 
-              <div className="flex justify-between items-center text-[#64748B]">
+              <div className="flex justify-between items-center text-muted-foreground">
                 <span>Once Per User</span>
-                <span className="font-semibold text-[#1E293B]">
+                <span className="font-semibold text-foreground">
                   {reel.sendOncePerUser !== false ? "Enabled" : "Disabled"}
                 </span>
               </div>
 
-              <div className="flex justify-between items-center text-[#64748B]">
+              <div className="flex justify-between items-center text-muted-foreground">
                 <span>Public Reply</span>
-                <span className="font-semibold text-[#1E293B]">
+                <span className="font-semibold text-foreground">
                   {reel.publicReplyEnabled ? "Active" : "Disabled"}
                 </span>
               </div>
@@ -390,7 +395,7 @@ function ReelDetailContent() {
                 <Button
                   variant="outline"
                   size="sm"
-                  onClick={() => setActiveTab("trigger")}
+                  onClick={() => handleTabChange("trigger")}
                   className="w-full text-xs h-8"
                 >
                   Configure Trigger
@@ -401,19 +406,19 @@ function ReelDetailContent() {
 
           {/* Linked Product Card */}
           {reel.product && (
-            <Card className="border-[#E2E8F0]">
-              <CardHeader className="p-4 pb-2 border-b border-[#F1F5F9]">
-                <CardTitle className="text-xs font-bold uppercase tracking-wider text-[#94A3B8] flex items-center gap-1.5">
-                  <ShoppingBag className="h-3.5 w-3.5 text-[#635BDB]" />
+            <Card className="border-border">
+              <CardHeader className="p-4 pb-2 border-b border-border/60">
+                <CardTitle className="text-xs font-bold uppercase tracking-wider text-muted-foreground flex items-center gap-1.5">
+                  <ShoppingBag className="h-3.5 w-3.5 text-primary" />
                   <span>Featured Product</span>
                 </CardTitle>
               </CardHeader>
               <CardContent className="p-4 space-y-2 text-xs">
                 <div className="flex items-center justify-between">
-                  <span className="font-bold text-[#1E293B] text-sm">{reel.product.name}</span>
-                  <span className="font-bold text-[#635BDB]">{formatINR(reel.product.price)}</span>
+                  <span className="font-bold text-foreground text-sm">{reel.product.name}</span>
+                  <span className="font-bold text-primary">{formatINR(reel.product.price)}</span>
                 </div>
-                <p className="text-[11px] text-[#64748B]">SKU: {reel.product.sku}</p>
+                <p className="text-[11px] text-muted-foreground">SKU: {reel.product.sku}</p>
                 <div className="pt-2">
                   <Button variant="outline" size="sm" asChild className="w-full text-xs h-8">
                     <Link href={`/products/${reel.product.id}`}>View Product Details</Link>
@@ -425,16 +430,16 @@ function ReelDetailContent() {
 
           {/* Linked Automation Workflow Card */}
           {reel.automation && (
-            <Card className="border-[#E2E8F0]">
-              <CardHeader className="p-4 pb-2 border-b border-[#F1F5F9]">
-                <CardTitle className="text-xs font-bold uppercase tracking-wider text-[#94A3B8] flex items-center gap-1.5">
-                  <Zap className="h-3.5 w-3.5 text-[#635BDB]" />
+            <Card className="border-border">
+              <CardHeader className="p-4 pb-2 border-b border-border/60">
+                <CardTitle className="text-xs font-bold uppercase tracking-wider text-muted-foreground flex items-center gap-1.5">
+                  <Zap className="h-3.5 w-3.5 text-primary" />
                   <span>Linked Automation</span>
                 </CardTitle>
               </CardHeader>
               <CardContent className="p-4 space-y-2 text-xs">
-                <p className="font-bold text-[#1E293B]">{reel.automation.name}</p>
-                <p className="text-[11px] text-[#64748B]">
+                <p className="font-bold text-foreground">{reel.automation.name}</p>
+                <p className="text-[11px] text-muted-foreground">
                   Executions: {formatNumber(reel.automation.executions)} • Messages: {formatNumber(reel.automation.messagesSent)}
                 </p>
                 <div className="pt-2">

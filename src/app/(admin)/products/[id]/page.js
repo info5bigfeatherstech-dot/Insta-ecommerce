@@ -3,6 +3,7 @@
 import * as React from "react";
 import { Suspense } from "react";
 import Link from "next/link";
+import Image from "next/image";
 import { useParams, useRouter } from "next/navigation";
 import { useProduct, useUpdateProduct, useDeleteProduct } from "@/hooks/use-products";
 import { DetailPageHeader } from "@/components/shared/detail-page-header";
@@ -104,7 +105,7 @@ function ProductDetailContent() {
               variant="outline"
               size="sm"
               onClick={() => setDeleteConfirmOpen(true)}
-              className="h-8 text-xs font-semibold gap-1.5 text-rose-600 hover:text-rose-700 hover:bg-rose-50 border-rose-200"
+              className="h-8 text-xs font-semibold gap-1.5 text-destructive hover:bg-destructive-soft border-border"
             >
               <Trash2 className="h-3.5 w-3.5" />
               <span>Delete</span>
@@ -118,36 +119,39 @@ function ProductDetailContent() {
         {/* Main Column (2 spans) */}
         <div className="lg:col-span-2 space-y-6">
           {/* Product Overview Card */}
-          <Card className="border-[#E2E8F0] overflow-hidden">
+          <Card className="border-border overflow-hidden">
             <div className="grid grid-cols-1 md:grid-cols-2 gap-6 p-6">
-              <div className="aspect-square w-full rounded-[10px] overflow-hidden border border-[#E2E8F0] bg-[#F8FAFC] flex items-center justify-center">
-                <img
+              <div className="aspect-square w-full rounded-[10px] overflow-hidden border border-border bg-muted/40 flex items-center justify-center relative">
+                <Image
                   src={placeholder}
                   alt={product.name}
-                  className="h-full w-full object-cover"
+                  fill
+                  unoptimized
+                  sizes="(max-width: 768px) 100vw, 50vw"
+                  className="object-cover"
                 />
               </div>
               <div className="space-y-4 flex flex-col justify-between">
                 <div className="space-y-2">
                   <div className="flex items-center gap-2">
-                    <span className="text-xs font-bold uppercase tracking-wider text-[#635BDB] bg-[#EEF2FF] px-2 py-0.5 rounded">
+                    <span className="text-xs font-bold uppercase tracking-wider text-primary bg-primary-soft px-2 py-0.5 rounded">
                       {product.categoryName}
                     </span>
-                    <span className="text-xs text-[#94A3B8]">SKU: {product.sku}</span>
+                    <span className="text-xs text-muted-foreground">SKU: {product.sku}</span>
                   </div>
-                  <h2 className="text-xl font-bold text-[#1E293B]">{product.name}</h2>
-                  <p className="text-xs text-[#64748B] leading-relaxed">
+                  <h2 className="text-xl font-bold text-foreground">{product.name}</h2>
+                  <p className="text-xs text-muted-foreground leading-relaxed">
                     {product.description || "Premium catalog item optimized for Instagram direct message conversion funnels."}
                   </p>
                 </div>
 
-                <div className="pt-3 border-t border-[#F1F5F9] space-y-2">
+                <div className="pt-3 border-t border-border/60 space-y-2">
                   <div className="flex items-baseline gap-2">
-                    <span className="text-2xl font-bold text-[#1E293B]">
+                    <span className="text-2xl font-bold text-foreground">
                       {formatINR(product.price)}
                     </span>
                     {product.compareAtPrice > product.price && (
-                      <span className="text-sm text-[#94A3B8] line-through">
+                      <span className="text-sm text-muted-foreground line-through">
                         {formatINR(product.compareAtPrice)}
                       </span>
                     )}
@@ -156,7 +160,7 @@ function ProductDetailContent() {
                     href={product.productUrl}
                     target="_blank"
                     rel="noreferrer"
-                    className="inline-flex items-center gap-1.5 text-xs font-semibold text-[#635BDB] hover:underline"
+                    className="inline-flex items-center gap-1.5 text-xs font-semibold text-primary hover:underline"
                   >
                     <span>View Product on Storefront</span>
                     <ExternalLink className="h-3.5 w-3.5" />
@@ -167,21 +171,21 @@ function ProductDetailContent() {
           </Card>
 
           {/* Connected Instagram Reels Card */}
-          <Card className="border-[#E2E8F0]">
-            <CardHeader className="p-5 pb-3 border-b border-[#F1F5F9] flex flex-row items-center justify-between">
+          <Card className="border-border">
+            <CardHeader className="p-5 pb-3 border-b border-border/60 flex flex-row items-center justify-between">
               <div>
-                <CardTitle className="text-base font-bold text-[#1E293B] flex items-center gap-2">
-                  <Film className="h-4 w-4 text-[#635BDB]" />
+                <CardTitle className="text-base font-bold text-foreground flex items-center gap-2">
+                  <Film className="h-4 w-4 text-primary" />
                   <span>Featured Instagram Reels ({product.linkedReels?.length || 0})</span>
                 </CardTitle>
-                <p className="text-xs text-[#64748B]">
+                <p className="text-xs text-muted-foreground">
                   Reels actively driving DM comment traffic to this product
                 </p>
               </div>
             </CardHeader>
-            <CardContent className="p-0 divide-y divide-[#F1F5F9]">
+            <CardContent className="p-0 divide-y divide-border/60">
               {!product.linkedReels || product.linkedReels.length === 0 ? (
-                <div className="p-6 text-center text-xs text-[#64748B]">
+                <div className="p-6 text-center text-xs text-muted-foreground">
                   No Reels are currently linked to this product. Assign this product in Reels &amp; Posts.
                 </div>
               ) : (
@@ -195,24 +199,27 @@ function ProductDetailContent() {
                   return (
                     <div key={reel.id} className="p-4 sm:p-5 flex items-center justify-between gap-4">
                       <div className="flex items-center gap-3 min-w-0">
-                        <img
+                        <Image
                           src={reelPlaceholder}
                           alt={reel.caption}
-                          className="h-12 w-9 rounded-[6px] object-cover shrink-0 border border-[#E2E8F0]"
+                          width={36}
+                          height={48}
+                          unoptimized
+                          className="h-12 w-9 rounded-[6px] object-cover shrink-0 border border-border"
                         />
                         <div className="min-w-0">
                           <Link
                             href={`/reels/${reel.id}`}
-                            className="font-bold text-xs text-[#1E293B] hover:text-[#635BDB] truncate block"
+                            className="font-bold text-xs text-foreground hover:text-primary truncate block"
                           >
                             {reel.caption}
                           </Link>
                           <div className="flex items-center gap-2 mt-1">
-                            <span className="text-[10px] text-[#64748B]">
+                            <span className="text-[10px] text-muted-foreground">
                               Post: {reel.instagramPostId}
                             </span>
                             {reel.triggerKeywords && reel.triggerKeywords.length > 0 && (
-                              <span className="text-[10px] font-bold text-[#635BDB] bg-[#EEF2FF] px-1.5 py-0.2 rounded">
+                              <span className="text-[10px] font-bold text-primary bg-primary-soft px-1.5 py-0.2 rounded">
                                 Keyword: {reel.triggerKeywords.join(", ")}
                               </span>
                             )}
@@ -222,18 +229,18 @@ function ProductDetailContent() {
 
                       <div className="flex items-center gap-4 shrink-0 text-right">
                         <div>
-                          <span className="text-[10px] text-[#64748B] block">Triggers</span>
-                          <span className="font-bold text-xs text-[#1E293B]">
+                          <span className="text-[10px] text-muted-foreground block">Triggers</span>
+                          <span className="font-bold text-xs text-foreground">
                             {formatNumber(reel.triggerCount)}
                           </span>
                         </div>
                         <div>
-                          <span className="text-[10px] text-[#64748B] block">Clicks</span>
-                          <span className="font-bold text-xs text-[#635BDB]">
+                          <span className="text-[10px] text-muted-foreground block">Clicks</span>
+                          <span className="font-bold text-xs text-primary">
                             {formatNumber(reel.linkClicks)}
                           </span>
                         </div>
-                        <Button variant="ghost" size="sm" asChild className="h-7 text-xs font-semibold text-[#635BDB]">
+                        <Button variant="ghost" size="sm" asChild className="h-7 text-xs font-semibold text-primary">
                           <Link href={`/reels/${reel.id}`}>View Reel</Link>
                         </Button>
                       </div>
@@ -245,16 +252,16 @@ function ProductDetailContent() {
           </Card>
 
           {/* Connected Automations Card */}
-          <Card className="border-[#E2E8F0]">
-            <CardHeader className="p-5 pb-3 border-b border-[#F1F5F9]">
-              <CardTitle className="text-base font-bold text-[#1E293B] flex items-center gap-2">
-                <Zap className="h-4 w-4 text-[#635BDB]" />
+          <Card className="border-border">
+            <CardHeader className="p-5 pb-3 border-b border-border/60">
+              <CardTitle className="text-base font-bold text-foreground flex items-center gap-2">
+                <Zap className="h-4 w-4 text-primary" />
                 <span>Automated DM Workflows ({product.linkedAutomations?.length || 0})</span>
               </CardTitle>
             </CardHeader>
-            <CardContent className="p-0 divide-y divide-[#F1F5F9]">
+            <CardContent className="p-0 divide-y divide-border/60">
               {!product.linkedAutomations || product.linkedAutomations.length === 0 ? (
-                <div className="p-6 text-center text-xs text-[#64748B]">
+                <div className="p-6 text-center text-xs text-muted-foreground">
                   No active automations attached to this product yet.
                 </div>
               ) : (
@@ -263,23 +270,23 @@ function ProductDetailContent() {
                     <div>
                       <Link
                         href={`/automations/${auto.id}`}
-                        className="font-bold text-xs text-[#1E293B] hover:text-[#635BDB] block"
+                        className="font-bold text-xs text-foreground hover:text-primary block"
                       >
                         {auto.name}
                       </Link>
-                      <span className="text-[10px] text-[#64748B]">
+                      <span className="text-[10px] text-muted-foreground">
                         Trigger keyword: &quot;{auto.triggerKeyword || auto.triggerKeywords?.[0] || "BUY"}&quot;
                       </span>
                     </div>
 
                     <div className="flex items-center gap-3 shrink-0">
                       <div className="text-right">
-                        <span className="text-[10px] text-[#64748B] block">Executions</span>
-                        <span className="font-bold text-xs text-[#1E293B]">
+                        <span className="text-[10px] text-muted-foreground block">Executions</span>
+                        <span className="font-bold text-xs text-foreground">
                           {formatNumber(auto.executions)}
                         </span>
                       </div>
-                      <Button variant="ghost" size="sm" asChild className="h-7 text-xs font-semibold text-[#635BDB]">
+                      <Button variant="ghost" size="sm" asChild className="h-7 text-xs font-semibold text-primary">
                         <Link href={`/automations/${auto.id}`}>Configure</Link>
                       </Button>
                     </div>
@@ -293,34 +300,34 @@ function ProductDetailContent() {
         {/* Sidebar Column (1 span) */}
         <div className="space-y-6">
           {/* Inventory & Pricing Card */}
-          <Card className="border-[#E2E8F0]">
-            <CardHeader className="p-4 pb-2 border-b border-[#F1F5F9]">
-              <CardTitle className="text-xs font-bold uppercase tracking-wider text-[#94A3B8]">
+          <Card className="border-border">
+            <CardHeader className="p-4 pb-2 border-b border-border/60">
+              <CardTitle className="text-xs font-bold uppercase tracking-wider text-muted-foreground">
                 Inventory &amp; Pricing
               </CardTitle>
             </CardHeader>
             <CardContent className="p-4 space-y-3 text-xs">
-              <div className="flex justify-between items-center text-[#64748B]">
+              <div className="flex justify-between items-center text-muted-foreground">
                 <span>Unit Price</span>
-                <span className="font-bold text-[#1E293B] text-sm">{formatINR(product.price)}</span>
+                <span className="font-bold text-foreground text-sm">{formatINR(product.price)}</span>
               </div>
-              <div className="flex justify-between items-center text-[#64748B]">
+              <div className="flex justify-between items-center text-muted-foreground">
                 <span>Compare-at Price</span>
                 <span>{formatINR(product.compareAtPrice)}</span>
               </div>
-              <div className="flex justify-between items-center text-[#64748B]">
+              <div className="flex justify-between items-center text-muted-foreground">
                 <span>Stock On Hand</span>
-                <span className="font-semibold text-[#1E293B]">{product.stock} units</span>
+                <span className="font-semibold text-foreground">{product.stock} units</span>
               </div>
-              <div className="flex justify-between items-center text-[#64748B]">
+              <div className="flex justify-between items-center text-muted-foreground">
                 <span>Stock Status</span>
                 <span
                   className={`px-2 py-0.5 rounded text-[10px] font-bold ${
                     product.stock > 10
-                      ? "bg-emerald-50 text-emerald-700"
+                      ? "bg-success-soft text-success"
                       : product.stock > 0
-                      ? "bg-amber-50 text-amber-700"
-                      : "bg-rose-50 text-rose-700"
+                      ? "bg-warning-soft text-warning"
+                      : "bg-destructive-soft text-destructive"
                   }`}
                 >
                   {product.stock > 10 ? "In Stock" : product.stock > 0 ? "Low Stock" : "Out of Stock"}
@@ -330,36 +337,36 @@ function ProductDetailContent() {
           </Card>
 
           {/* Attributed Performance Card */}
-          <Card className="border-[#E2E8F0]">
-            <CardHeader className="p-4 pb-2 border-b border-[#F1F5F9]">
-              <CardTitle className="text-xs font-bold uppercase tracking-wider text-[#94A3B8] flex items-center gap-1.5">
-                <TrendingUp className="h-3.5 w-3.5 text-[#635BDB]" />
+          <Card className="border-border">
+            <CardHeader className="p-4 pb-2 border-b border-border/60">
+              <CardTitle className="text-xs font-bold uppercase tracking-wider text-muted-foreground flex items-center gap-1.5">
+                <TrendingUp className="h-3.5 w-3.5 text-primary" />
                 <span>Attributed Funnel Stats</span>
               </CardTitle>
             </CardHeader>
             <CardContent className="p-4 space-y-3">
               <div className="grid grid-cols-2 gap-3 text-xs">
-                <div className="p-3 rounded-[8px] bg-[#F8FAFC] border border-[#E2E8F0]">
-                  <span className="text-[10px] text-[#64748B] block">DMs Dispatched</span>
-                  <span className="text-base font-bold text-[#1E293B]">
+                <div className="p-3 rounded-[8px] bg-muted/40 border border-border">
+                  <span className="text-[10px] text-muted-foreground block">DMs Dispatched</span>
+                  <span className="text-base font-bold text-foreground">
                     {formatNumber(product.messagesSent)}
                   </span>
                 </div>
-                <div className="p-3 rounded-[8px] bg-[#F8FAFC] border border-[#E2E8F0]">
-                  <span className="text-[10px] text-[#64748B] block">Store Clicks</span>
-                  <span className="text-base font-bold text-[#635BDB]">
+                <div className="p-3 rounded-[8px] bg-muted/40 border border-border">
+                  <span className="text-[10px] text-muted-foreground block">Store Clicks</span>
+                  <span className="text-base font-bold text-primary">
                     {formatNumber(product.linkClicks)}
                   </span>
                 </div>
-                <div className="p-3 rounded-[8px] bg-[#F8FAFC] border border-[#E2E8F0]">
-                  <span className="text-[10px] text-[#64748B] block">Completed Orders</span>
-                  <span className="text-base font-bold text-emerald-600">
+                <div className="p-3 rounded-[8px] bg-muted/40 border border-border">
+                  <span className="text-[10px] text-muted-foreground block">Completed Orders</span>
+                  <span className="text-base font-bold text-success">
                     {product.ordersCount || 0}
                   </span>
                 </div>
-                <div className="p-3 rounded-[8px] bg-[#F8FAFC] border border-[#E2E8F0]">
-                  <span className="text-[10px] text-[#64748B] block">Attributed Revenue</span>
-                  <span className="text-base font-bold text-[#1E293B]">
+                <div className="p-3 rounded-[8px] bg-muted/40 border border-border">
+                  <span className="text-[10px] text-muted-foreground block">Attributed Revenue</span>
+                  <span className="text-base font-bold text-foreground">
                     {formatINR(product.revenue || 0)}
                   </span>
                 </div>
@@ -368,9 +375,9 @@ function ProductDetailContent() {
           </Card>
 
           {/* Quick Actions */}
-          <Card className="border-[#E2E8F0]">
-            <CardHeader className="p-4 pb-2 border-b border-[#F1F5F9]">
-              <CardTitle className="text-xs font-bold uppercase tracking-wider text-[#94A3B8]">
+          <Card className="border-border">
+            <CardHeader className="p-4 pb-2 border-b border-border/60">
+              <CardTitle className="text-xs font-bold uppercase tracking-wider text-muted-foreground">
                 Catalog Actions
               </CardTitle>
             </CardHeader>

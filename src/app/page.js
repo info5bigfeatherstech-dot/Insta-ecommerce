@@ -12,9 +12,9 @@ export default function HomePage() {
   }, [router]);
 
   return (
-    <div className="flex min-h-screen items-center justify-center bg-[#F8FAFC]">
-      <div className="flex items-center gap-3 text-sm text-[#64748B]">
-        <div className="h-4 w-4 animate-spin rounded-full border-2 border-[#635BDB] border-t-transparent" />
+    <div className="flex min-h-screen items-center justify-center bg-background">
+      <div className="flex items-center gap-3 text-sm text-muted-foreground">
+        <div className="h-4 w-4 animate-spin rounded-full border-2 border-primary border-t-transparent" />
         <span>Redirecting to command center...</span>
       </div>
     </div>

@@ -25,42 +25,42 @@ export function MessagePreview({
     .replace(/\{\{product_url\}\}/g, productUrl);
 
   return (
-    <div className="w-full max-w-[340px] mx-auto rounded-[24px] border-4 border-[#1E293B] bg-white shadow-xl overflow-hidden flex flex-col font-sans">
+    <div className="w-full max-w-[340px] mx-auto rounded-[24px] border-4 border-foreground/80 dark:border-border bg-card shadow-xl overflow-hidden flex flex-col font-sans">
       {/* Smartphone Notch & Status Bar */}
-      <div className="h-6 bg-[#1E293B] text-white flex items-center justify-between px-5 text-[10px] font-medium">
+      <div className="h-6 bg-foreground text-background flex items-center justify-between px-5 text-[10px] font-medium">
         <span>9:41</span>
-        <div className="w-16 h-3 bg-black rounded-full" />
+        <div className="w-16 h-3 bg-background/20 rounded-full" />
         <div className="flex items-center gap-1">
           <span className="text-[9px]">5G</span>
-          <div className="w-4 h-2 border border-white rounded-[2px]" />
+          <div className="w-4 h-2 border border-background/60 rounded-[2px]" />
         </div>
       </div>
 
       {/* Instagram DM Header */}
-      <div className="p-3 border-b border-[#E2E8F0] bg-white flex items-center gap-2.5">
-        <Avatar className="h-7 w-7 border border-[#E2E8F0]">
-          <AvatarFallback className="bg-[#635BDB] text-white font-bold text-[10px]">
+      <div className="p-3 border-b border-border bg-card flex items-center gap-2.5">
+        <Avatar className="h-7 w-7 border border-border">
+          <AvatarFallback className="bg-primary text-primary-foreground font-bold text-[10px]">
             US
           </AvatarFallback>
         </Avatar>
         <div className="flex-1 min-w-0">
           <div className="flex items-center gap-1">
-            <span className="text-xs font-bold text-[#1E293B] truncate">
+            <span className="text-xs font-bold text-foreground truncate">
               {SITE_CONFIG.instagramHandle.replace("@", "")}
             </span>
-            <span className="h-2 w-2 rounded-full bg-emerald-500" />
+            <span className="h-2 w-2 rounded-full bg-success" />
           </div>
-          <p className="text-[9px] text-[#64748B]">Active now • Automated DM</p>
+          <p className="text-[9px] text-muted-foreground">Active now • Automated DM</p>
         </div>
       </div>
 
       {/* Chat Area */}
-      <div className="flex-1 bg-[#F8FAFC] p-3 space-y-3 min-h-[280px] max-h-[340px] overflow-y-auto text-xs">
+      <div className="flex-1 bg-muted/40 p-3 space-y-3 min-h-[280px] max-h-[340px] overflow-y-auto text-xs">
         {/* User Incoming Keyword Trigger Bubble */}
         <div className="flex justify-end">
-          <div className="bg-[#635BDB] text-white rounded-[16px] rounded-br-[4px] px-3 py-2 max-w-[80%] shadow-xs">
+          <div className="bg-primary text-primary-foreground rounded-[16px] rounded-br-[4px] px-3 py-2 max-w-[80%] shadow-xs">
             <p className="font-medium text-xs">{triggerKeyword || "GOLD"}</p>
-            <div className="flex items-center justify-end gap-1 mt-0.5 text-[9px] text-white/80">
+            <div className="flex items-center justify-end gap-1 mt-0.5 text-[9px] text-primary-foreground/80">
               <span>9:41 AM</span>
               <CheckCheck className="h-2.5 w-2.5" />
             </div>
@@ -69,12 +69,12 @@ export function MessagePreview({
 
         {/* Automated Outgoing DM Bubble */}
         <div className="flex justify-start items-end gap-1.5">
-          <Avatar className="h-5 w-5 mb-1 shrink-0">
-            <AvatarFallback className="bg-[#635BDB] text-white text-[8px] font-bold">
+          <Avatar className="h-5 w-5 mb-1 shrink-0 border border-border">
+            <AvatarFallback className="bg-primary text-primary-foreground text-[8px] font-bold">
               US
             </AvatarFallback>
           </Avatar>
-          <div className="bg-white border border-[#E2E8F0] text-[#1E293B] rounded-[16px] rounded-bl-[4px] p-3 max-w-[85%] shadow-xs space-y-2.5">
+          <div className="bg-card border border-border text-card-foreground rounded-[16px] rounded-bl-[4px] p-3 max-w-[85%] shadow-xs space-y-2.5">
             <p className="text-xs leading-relaxed whitespace-pre-wrap">
               {renderedMessage || "Hello! Here is your personalized link..."}
             </p>
@@ -83,14 +83,14 @@ export function MessagePreview({
             <div className="pt-1">
               <button
                 type="button"
-                className="w-full bg-[#635BDB] hover:bg-[#5349C9] text-white font-semibold py-2 px-3 rounded-[8px] text-xs flex items-center justify-center gap-1.5 shadow-xs transition-colors"
+                className="w-full bg-primary hover:bg-primary-hover text-primary-foreground font-semibold py-2 px-3 rounded-[8px] text-xs flex items-center justify-center gap-1.5 shadow-xs transition-colors cursor-pointer"
               >
                 <span>{buttonText || "Shop Now"}</span>
                 <ExternalLink className="h-3 w-3" />
               </button>
             </div>
 
-            <div className="flex items-center justify-between text-[9px] text-[#94A3B8] pt-1 border-t border-[#F1F5F9]">
+            <div className="flex items-center justify-between text-[9px] text-muted-foreground pt-1 border-t border-border">
               <span>Automated response</span>
               <span>Delivered</span>
             </div>
@@ -103,7 +103,7 @@ export function MessagePreview({
             {quickReplies.map((qr, i) => (
               <span
                 key={i}
-                className="inline-block bg-white border border-[#635BDB]/40 text-[#635BDB] text-[10px] font-medium px-2.5 py-1 rounded-full shadow-2xs"
+                className="inline-block bg-card border border-primary/40 text-primary text-[10px] font-medium px-2.5 py-1 rounded-full shadow-2xs"
               >
                 {qr}
               </span>
@@ -113,7 +113,7 @@ export function MessagePreview({
       </div>
 
       {/* Simulation note footer */}
-      <div className="p-2.5 bg-[#EEF2FF] border-t border-[#C7D2FE]/60 flex items-center gap-1.5 text-[10px] text-[#635BDB]">
+      <div className="p-2.5 bg-primary-soft border-t border-primary/20 flex items-center gap-1.5 text-[10px] text-primary">
         <AlertCircle className="h-3.5 w-3.5 shrink-0" />
         <span>Frontend simulation preview • Zero live API calls</span>
       </div>

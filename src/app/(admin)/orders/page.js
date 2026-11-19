@@ -59,7 +59,7 @@ export default function OrdersPage() {
         <Link
           href={`/orders/${row.id}`}
           onClick={(e) => e.stopPropagation()}
-          className="font-semibold text-xs text-[#1E293B] hover:text-[#635BDB] hover:underline"
+          className="font-semibold text-xs text-foreground hover:text-primary hover:underline"
         >
           {val}
         </Link>
@@ -71,8 +71,8 @@ export default function OrdersPage() {
       sortable: true,
       render: (val, row) => (
         <div>
-          <span className="font-medium text-xs text-[#1E293B] block">{val}</span>
-          <span className="text-[10px] text-[#64748B] block">{row.instagramUsername}</span>
+          <span className="font-medium text-xs text-foreground block">{val}</span>
+          <span className="text-[10px] text-muted-foreground block">{row.instagramUsername}</span>
         </div>
       ),
     },
@@ -85,7 +85,7 @@ export default function OrdersPage() {
           <div className="max-w-[180px] truncate text-xs" title={items.map((i) => i.productName).join(", ")}>
             <span>{items[0].productName}</span>
             {items.length > 1 && (
-              <span className="text-[10px] text-[#635BDB] ml-1 font-semibold">
+              <span className="text-[10px] text-primary ml-1 font-semibold">
                 +{items.length - 1} more
               </span>
             )}
@@ -97,13 +97,13 @@ export default function OrdersPage() {
       key: "createdAt",
       label: "Date",
       sortable: true,
-      render: (val) => <span className="text-xs text-[#64748B]">{formatDate(val, "dd MMM yyyy")}</span>,
+      render: (val) => <span className="text-xs text-muted-foreground">{formatDate(val, "dd MMM yyyy")}</span>,
     },
     {
       key: "totalAmount",
       label: "Amount",
       sortable: true,
-      render: (val) => <span className="font-semibold text-xs text-[#1E293B]">{formatINR(val)}</span>,
+      render: (val) => <span className="font-semibold text-xs text-foreground">{formatINR(val)}</span>,
     },
     {
       key: "paymentStatus",
@@ -125,7 +125,7 @@ export default function OrdersPage() {
             variant="ghost"
             size="sm"
             asChild
-            className="h-7 px-2.5 text-xs text-[#635BDB] hover:bg-[#EEF2FF] gap-1"
+            className="h-7 px-2.5 text-xs text-primary hover:bg-primary-soft gap-1"
           >
             <Link href={`/orders/${row.id}`} onClick={(e) => e.stopPropagation()}>
               <Eye className="h-3.5 w-3.5" />
@@ -146,52 +146,52 @@ export default function OrdersPage() {
 
       {/* 6 Stats Cards */}
       <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-6 gap-3">
-        <Card className="p-4 border-[#E2E8F0]">
-          <div className="flex items-center justify-between text-xs text-[#64748B]">
+        <Card className="p-4 border-border">
+          <div className="flex items-center justify-between text-xs text-muted-foreground">
             <span>Total Orders</span>
-            <ShoppingCart className="h-4 w-4 text-[#635BDB]" />
+            <ShoppingCart className="h-4 w-4 text-primary" />
           </div>
-          <p className="text-xl font-bold text-[#1E293B] mt-1.5">{stats.total}</p>
+          <p className="text-xl font-bold text-foreground mt-1.5">{stats.total}</p>
         </Card>
 
-        <Card className="p-4 border-[#E2E8F0]">
-          <div className="flex items-center justify-between text-xs text-amber-600">
+        <Card className="p-4 border-border">
+          <div className="flex items-center justify-between text-xs text-warning">
             <span>Pending</span>
             <Clock className="h-4 w-4" />
           </div>
-          <p className="text-xl font-bold text-amber-700 mt-1.5">{stats.pending}</p>
+          <p className="text-xl font-bold text-warning mt-1.5">{stats.pending}</p>
         </Card>
 
-        <Card className="p-4 border-[#E2E8F0]">
-          <div className="flex items-center justify-between text-xs text-blue-600">
+        <Card className="p-4 border-border">
+          <div className="flex items-center justify-between text-xs text-info">
             <span>Processing</span>
             <Package className="h-4 w-4" />
           </div>
-          <p className="text-xl font-bold text-blue-700 mt-1.5">{stats.processing}</p>
+          <p className="text-xl font-bold text-info mt-1.5">{stats.processing}</p>
         </Card>
 
-        <Card className="p-4 border-[#E2E8F0]">
-          <div className="flex items-center justify-between text-xs text-purple-600">
+        <Card className="p-4 border-border">
+          <div className="flex items-center justify-between text-xs text-primary">
             <span>Shipped</span>
             <Truck className="h-4 w-4" />
           </div>
-          <p className="text-xl font-bold text-purple-700 mt-1.5">{stats.shipped}</p>
+          <p className="text-xl font-bold text-primary mt-1.5">{stats.shipped}</p>
         </Card>
 
-        <Card className="p-4 border-[#E2E8F0]">
-          <div className="flex items-center justify-between text-xs text-emerald-600">
+        <Card className="p-4 border-border">
+          <div className="flex items-center justify-between text-xs text-success">
             <span>Delivered</span>
             <CheckCircle2 className="h-4 w-4" />
           </div>
-          <p className="text-xl font-bold text-emerald-700 mt-1.5">{stats.delivered}</p>
+          <p className="text-xl font-bold text-success mt-1.5">{stats.delivered}</p>
         </Card>
 
-        <Card className="p-4 border-[#E2E8F0]">
-          <div className="flex items-center justify-between text-xs text-rose-600">
+        <Card className="p-4 border-border">
+          <div className="flex items-center justify-between text-xs text-destructive">
             <span>Cancelled</span>
             <XCircle className="h-4 w-4" />
           </div>
-          <p className="text-xl font-bold text-rose-700 mt-1.5">{stats.cancelled}</p>
+          <p className="text-xl font-bold text-destructive mt-1.5">{stats.cancelled}</p>
         </Card>
       </div>
 

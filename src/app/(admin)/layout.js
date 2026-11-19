@@ -31,9 +31,9 @@ export default function AdminLayout({ children }) {
   const sidebarCollapsed = useUIStore((s) => s.sidebarCollapsed);
 
   return (
-    <div className="min-h-screen bg-[#F8FAFC] flex flex-col antialiased">
+    <div className="min-h-screen bg-background text-foreground flex flex-col antialiased">
       {/* Desktop Fixed Sidebar */}
-      <Suspense fallback={<aside className="fixed inset-y-0 left-0 z-30 hidden md:flex w-[250px] bg-white border-r border-[#E2E8F0]" />}>
+      <Suspense fallback={<aside className="fixed inset-y-0 left-0 z-30 hidden md:flex w-[250px] bg-sidebar border-r border-sidebar-border" />}>
         <AppSidebar />
       </Suspense>
 
@@ -49,7 +49,7 @@ export default function AdminLayout({ children }) {
           sidebarCollapsed ? "md:pl-[68px]" : "md:pl-[250px]"
         )}
       >
-        <Suspense fallback={<header className="sticky top-0 z-20 h-16 w-full border-b border-[#E2E8F0] bg-white" />}>
+        <Suspense fallback={<header className="sticky top-0 z-20 h-16 w-full border-b border-border bg-card" />}>
           <AppHeader />
         </Suspense>
 

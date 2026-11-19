@@ -1,6 +1,98 @@
 @import "tailwindcss";
 
+@custom-variant dark (&:is(.dark *));
+
+@theme {
+  --color-background: var(--background);
+  --color-foreground: var(--foreground);
+  --color-card: var(--card);
+  --color-card-foreground: var(--card-foreground);
+  --color-popover: var(--popover);
+  --color-popover-foreground: var(--popover-foreground);
+  --color-primary: var(--primary);
+  --color-primary-foreground: var(--primary-foreground);
+  --color-primary-hover: var(--primary-hover);
+  --color-primary-soft: var(--primary-soft);
+  --color-secondary: var(--secondary);
+  --color-secondary-foreground: var(--secondary-foreground);
+  --color-muted: var(--muted);
+  --color-muted-foreground: var(--muted-foreground);
+  --color-accent: var(--accent);
+  --color-accent-foreground: var(--accent-foreground);
+  --color-destructive: var(--destructive);
+  --color-destructive-foreground: var(--destructive-foreground);
+  --color-destructive-soft: var(--destructive-soft);
+  --color-destructive-border: var(--destructive-border);
+  --color-destructive-text: var(--destructive-text);
+  --color-success: var(--success);
+  --color-success-foreground: var(--success-foreground);
+  --color-success-soft: var(--success-soft);
+  --color-success-border: var(--success-border);
+  --color-success-text: var(--success-text);
+  --color-warning: var(--warning);
+  --color-warning-foreground: var(--warning-foreground);
+  --color-warning-soft: var(--warning-soft);
+  --color-warning-border: var(--warning-border);
+  --color-warning-text: var(--warning-text);
+  --color-info: var(--info);
+  --color-info-foreground: var(--info-foreground);
+  --color-info-soft: var(--info-soft);
+  --color-info-border: var(--info-border);
+  --color-info-text: var(--info-text);
+  --color-border: var(--border);
+  --color-input: var(--input);
+  --color-ring: var(--ring);
+
+  /* Sidebar Tokens */
+  --color-sidebar: var(--sidebar-bg);
+  --color-sidebar-border: var(--sidebar-border);
+  --color-sidebar-text: var(--sidebar-text);
+  --color-sidebar-icon: var(--sidebar-icon);
+  --color-sidebar-section: var(--sidebar-section);
+  --color-sidebar-hover: var(--sidebar-hover);
+  --color-sidebar-active: var(--sidebar-active-bg);
+  --color-sidebar-active-text: var(--sidebar-active-text);
+  --color-sidebar-accent-bar: var(--sidebar-accent-bar);
+  --color-sidebar-badge-bg: var(--sidebar-badge-bg);
+  --color-sidebar-badge-text: var(--sidebar-badge-text);
+  --color-sidebar-badge-active-bg: var(--sidebar-badge-active-bg);
+  --color-sidebar-badge-active-text: var(--sidebar-badge-active-text);
+  --color-sidebar-profile-bg: var(--sidebar-profile-bg);
+  --color-sidebar-profile-border: var(--sidebar-profile-border);
+
+  /* Charts */
+  --color-chart-1: var(--chart-1);
+  --color-chart-2: var(--chart-2);
+  --color-chart-3: var(--chart-3);
+  --color-chart-4: var(--chart-4);
+  --color-chart-5: var(--chart-5);
+  --color-chart-6: var(--chart-6);
+
+  /* Canvas */
+  --color-canvas-bg: var(--canvas-bg);
+  --color-canvas-dots: var(--canvas-dots);
+  --color-canvas-node-bg: var(--canvas-node-bg);
+  --color-canvas-node-border: var(--canvas-node-border);
+  --color-canvas-node-text: var(--canvas-node-text);
+  --color-canvas-node-subtitle: var(--canvas-node-subtitle);
+  --color-canvas-node-toolbar-bg: var(--canvas-node-toolbar-bg);
+  --color-canvas-node-toolbar-border: var(--canvas-node-toolbar-border);
+  --color-canvas-edge-default: var(--canvas-edge-default);
+  --color-canvas-edge-true: var(--canvas-edge-true);
+  --color-canvas-edge-false: var(--canvas-edge-false);
+
+  /* Tooltip */
+  --color-tooltip: var(--tooltip-bg);
+  --color-tooltip-foreground: var(--tooltip-foreground);
+
+  /* Overlay */
+  --color-overlay: var(--overlay);
+}
+
 :root {
+  color-scheme: light;
+
+  /* Base & Surfaces */
   --background: #F8FAFC;
   --foreground: #1E293B;
   
@@ -10,11 +102,13 @@
   --popover: #FFFFFF;
   --popover-foreground: #1E293B;
   
+  /* Primary & Brand */
   --primary: #635BDB;
   --primary-foreground: #FFFFFF;
-  --primary-light: #EEF2FF;
   --primary-hover: #5349C9;
+  --primary-soft: #EEF2FF;
   
+  /* Secondary & Muted */
   --secondary: #F1F5F9;
   --secondary-foreground: #1E293B;
   
@@ -24,32 +118,271 @@
   --accent: #EEF2FF;
   --accent-foreground: #635BDB;
   
+  /* Statuses */
   --destructive: #EF4444;
   --destructive-foreground: #FFFFFF;
-  --destructive-light: #FEF2F2;
+  --destructive-soft: #FEF2F2;
+  --destructive-border: #FECDD3;
+  --destructive-text: #B91C1C;
   
   --success: #10B981;
   --success-foreground: #FFFFFF;
-  --success-light: #ECFDF5;
+  --success-soft: #ECFDF5;
+  --success-border: #A7F3D0;
+  --success-text: #047857;
   
   --warning: #F59E0B;
   --warning-foreground: #FFFFFF;
-  --warning-light: #FFFBEB;
+  --warning-soft: #FFFBEB;
+  --warning-border: #FDE68A;
+  --warning-text: #B45309;
+
+  --info: #3B82F6;
+  --info-foreground: #FFFFFF;
+  --info-soft: #EFF6FF;
+  --info-border: #BFDBFE;
+  --info-text: #1D4ED8;
   
+  /* Borders & Inputs */
   --border: #E2E8F0;
   --input: #E2E8F0;
   --ring: #635BDB;
   
   --radius: 0.75rem; /* 12px */
-  --sidebar-bg: #FFFFFF;
-  --sidebar-border: #E2E8F0;
+
+  /* Sidebar Tokens (Medium Lavender in Light Mode) */
+  --sidebar-bg: #D9D5F5;
+  --sidebar-border: #C6C1EC;
+  --sidebar-text: #2A2E55;
+  --sidebar-icon: #4A4F7D;
+  --sidebar-section: #4F5380;
+  --sidebar-hover: rgba(255, 255, 255, 0.6);
+  --sidebar-active-bg: #FFFFFF;
+  --sidebar-active-text: #635BDB;
+  --sidebar-accent-bar: #635BDB;
+  --sidebar-badge-bg: #FFFFFF;
+  --sidebar-badge-text: #635BDB;
+  --sidebar-badge-active-bg: #635BDB;
+  --sidebar-badge-active-text: #FFFFFF;
+  --sidebar-profile-bg: #FFFFFF;
+  --sidebar-profile-border: #C6C1EC;
   --sidebar-width: 250px;
   --sidebar-collapsed-width: 68px;
+
+  /* Chart Tokens */
+  --chart-1: #635BDB;
+  --chart-2: #3B82F6;
+  --chart-3: #10B981;
+  --chart-4: #F59E0B;
+  --chart-5: #EC4899;
+  --chart-6: #8B5CF6;
+  --chart-grid: #E2E8F0;
+  --chart-tooltip-bg: #FFFFFF;
+  --chart-tooltip-border: #E2E8F0;
+  --chart-tooltip-text: #1E293B;
+
+  /* Tooltip */
+  --tooltip-bg: #1E293B;
+  --tooltip-foreground: #FFFFFF;
+
+  /* Overlay */
+  --overlay: rgba(15, 23, 42, 0.4);
+
+  /* Automation Editor & Canvas Tokens */
+  --canvas-bg: #FFFFFF;
+  --canvas-dots: #CBD5E1;
+  --canvas-node-bg: #FFFFFF;
+  --canvas-node-border: #E2E8F0;
+  --canvas-node-text: #1E293B;
+  --canvas-node-subtitle: #64748B;
+  --canvas-node-toolbar-bg: #FFFFFF;
+  --canvas-node-toolbar-border: #E2E8F0;
+  --canvas-edge-default: #94A3B8;
+  --canvas-edge-true: #10B981;
+  --canvas-edge-false: #EF4444;
+
+  /* Shadows */
+  --shadow-card: 0 1px 3px 0 rgb(0 0 0 / 0.05), 0 1px 2px -1px rgb(0 0 0 / 0.05);
+  --shadow-dropdown: 0 10px 15px -3px rgb(0 0 0 / 0.08), 0 4px 6px -4px rgb(0 0 0 / 0.04);
+  --shadow-popover: 0 4px 6px -1px rgb(0 0 0 / 0.1), 0 2px 4px -2px rgb(0 0 0 / 0.1);
 
   /* Table density */
   --table-py: 0.75rem;
   --table-px: 1rem;
   --table-font-size: 0.875rem;
+
+  /* Avatar & Placeholder Palettes */
+  --palette-0-bg: #EEF2FF;
+  --palette-0-text: #4F46E5;
+  --palette-0-border: #C7D2FE;
+  --palette-1-bg: #F0FDF4;
+  --palette-1-text: #16A34A;
+  --palette-1-border: #BBF7D0;
+  --palette-2-bg: #FFF7ED;
+  --palette-2-text: #C2410C;
+  --palette-2-border: #FED7AA;
+  --palette-3-bg: #EFF6FF;
+  --palette-3-text: #2563EB;
+  --palette-3-border: #BFDBFE;
+  --palette-4-bg: #FAF5FF;
+  --palette-4-text: #9333EA;
+  --palette-4-border: #E9D5FF;
+  --palette-5-bg: #FFF1F2;
+  --palette-5-text: #E11D48;
+  --palette-5-border: #FECDD3;
+  --palette-6-bg: #ECFEFF;
+  --palette-6-text: #0891B2;
+  --palette-6-border: #A5F3FC;
+  --palette-7-bg: #FEFCE8;
+  --palette-7-text: #CA8A04;
+  --palette-7-border: #FEF08A;
+}
+
+.dark {
+  color-scheme: dark;
+
+  /* Base & Surfaces */
+  --background: #0F1117;
+  --foreground: #E6E8EF;
+  
+  --card: #161A23;
+  --card-foreground: #E6E8EF;
+  
+  --popover: #161A23;
+  --popover-foreground: #E6E8EF;
+  
+  /* Primary & Brand */
+  --primary: #7C74F0;
+  --primary-foreground: #FFFFFF;
+  --primary-hover: #6A62DC;
+  --primary-soft: rgba(124, 116, 240, 0.15);
+  
+  /* Secondary & Muted */
+  --secondary: #1C2130;
+  --secondary-foreground: #E6E8EF;
+  
+  --muted: #1C2130;
+  --muted-foreground: #9AA3B5;
+  
+  --accent: rgba(124, 116, 240, 0.15);
+  --accent-foreground: #7C74F0;
+  
+  /* Statuses with ~15% soft backgrounds */
+  --destructive: #F87171;
+  --destructive-foreground: #FFFFFF;
+  --destructive-soft: rgba(248, 113, 113, 0.15);
+  --destructive-border: rgba(248, 113, 113, 0.3);
+  --destructive-text: #FCA5A5;
+  
+  --success: #34D399;
+  --success-foreground: #FFFFFF;
+  --success-soft: rgba(52, 211, 153, 0.15);
+  --success-border: rgba(52, 211, 153, 0.3);
+  --success-text: #6EE7B7;
+  
+  --warning: #FBBF24;
+  --warning-foreground: #FFFFFF;
+  --warning-soft: rgba(251, 191, 36, 0.15);
+  --warning-border: rgba(251, 191, 36, 0.3);
+  --warning-text: #FCD34D;
+
+  --info: #60A5FA;
+  --info-foreground: #FFFFFF;
+  --info-soft: rgba(96, 165, 250, 0.15);
+  --info-border: rgba(96, 165, 250, 0.3);
+  --info-text: #93C5FD;
+  
+  /* Borders & Inputs */
+  --border: #262B38;
+  --input: #262B38;
+  --ring: #7C74F0;
+
+  /* Sidebar Tokens (Dark Mode) */
+  --sidebar-bg: #14172A;
+  --sidebar-border: #262B45;
+  --sidebar-text: #C9CEE8;
+  --sidebar-icon: #8F96C0;
+  --sidebar-section: #8A90B8;
+  --sidebar-hover: #1B1F36;
+  --sidebar-active-bg: #1F2340;
+  --sidebar-active-text: #A9A3FF;
+  --sidebar-accent-bar: #7C74F0;
+  --sidebar-badge-bg: #262B45;
+  --sidebar-badge-text: #C9CEE8;
+  --sidebar-badge-active-bg: #7C74F0;
+  --sidebar-badge-active-text: #FFFFFF;
+  --sidebar-profile-bg: #1F2340;
+  --sidebar-profile-border: #262B45;
+  --sidebar-width: 250px;
+  --sidebar-collapsed-width: 68px;
+
+  /* Chart Tokens */
+  --chart-1: #8B84F5;
+  --chart-2: #60A5FA;
+  --chart-3: #34D399;
+  --chart-4: #FBBF24;
+  --chart-5: #F472B6;
+  --chart-6: #94A3B8;
+  --chart-grid: #262B38;
+  --chart-tooltip-bg: #161A23;
+  --chart-tooltip-border: #262B38;
+  --chart-tooltip-text: #E6E8EF;
+
+  /* Tooltip */
+  --tooltip-bg: #161A23;
+  --tooltip-foreground: #FFFFFF;
+
+  /* Overlay */
+  --overlay: rgba(0, 0, 0, 0.65);
+
+  /* Automation Editor & Canvas Tokens */
+  --canvas-bg: #0B0D13;
+  --canvas-dots: #262B38;
+  --canvas-node-bg: #161A23;
+  --canvas-node-border: #262B38;
+  --canvas-node-text: #E6E8EF;
+  --canvas-node-subtitle: #9AA3B5;
+  --canvas-node-toolbar-bg: #161A23;
+  --canvas-node-toolbar-border: #262B38;
+  --canvas-edge-default: #475569;
+  --canvas-edge-true: #34D399;
+  --canvas-edge-false: #F87171;
+
+  /* Shadows */
+  --shadow-card: 0 1px 3px 0 rgb(0 0 0 / 0.3), 0 1px 2px -1px rgb(0 0 0 / 0.3);
+  --shadow-dropdown: 0 10px 15px -3px rgb(0 0 0 / 0.5), 0 4px 6px -4px rgb(0 0 0 / 0.3);
+  --shadow-popover: 0 4px 6px -1px rgb(0 0 0 / 0.4), 0 2px 4px -2px rgb(0 0 0 / 0.3);
+
+  /* Table density */
+  --table-py: 0.75rem;
+  --table-px: 1rem;
+  --table-font-size: 0.875rem;
+
+  /* Avatar & Placeholder Palettes */
+  --palette-0-bg: rgba(99, 91, 219, 0.2);
+  --palette-0-text: #A5B4FC;
+  --palette-0-border: rgba(99, 91, 219, 0.35);
+  --palette-1-bg: rgba(16, 185, 129, 0.2);
+  --palette-1-text: #6EE7B7;
+  --palette-1-border: rgba(16, 185, 129, 0.35);
+  --palette-2-bg: rgba(249, 115, 22, 0.2);
+  --palette-2-text: #FDBA74;
+  --palette-2-border: rgba(249, 115, 22, 0.35);
+  --palette-3-bg: rgba(59, 130, 246, 0.2);
+  --palette-3-text: #93C5FD;
+  --palette-3-border: rgba(59, 130, 246, 0.35);
+  --palette-4-bg: rgba(168, 85, 247, 0.2);
+  --palette-4-text: #D8B4FE;
+  --palette-4-border: rgba(168, 85, 247, 0.35);
+  --palette-5-bg: rgba(244, 63, 94, 0.2);
+  --palette-5-text: #FDA4AF;
+  --palette-5-border: rgba(244, 63, 94, 0.35);
+  --palette-6-bg: rgba(6, 182, 212, 0.2);
+  --palette-6-text: #67E8F9;
+  --palette-6-border: rgba(6, 182, 212, 0.35);
+  --palette-7-bg: rgba(234, 179, 8, 0.2);
+  --palette-7-text: #FDE047;
+  --palette-7-border: rgba(234, 179, 8, 0.35);
 }
 
 [data-density="compact"] {
@@ -80,11 +413,11 @@ body {
   background: transparent;
 }
 ::-webkit-scrollbar-thumb {
-  background: #CBD5E1;
+  background: var(--border);
   border-radius: 9999px;
 }
 ::-webkit-scrollbar-thumb:hover {
-  background: #94A3B8;
+  background: var(--muted-foreground);
 }
 
 /* Transitions */
@@ -92,14 +425,157 @@ body {
   transition: width 0.2s cubic-bezier(0.4, 0, 0.2, 1), transform 0.2s cubic-bezier(0.4, 0, 0.2, 1);
 }
 
-/* Force clean white background and smooth 60fps hardware acceleration for React Flow */
+/* Hardware-Accelerated Radix Sheet / Slide-Over Drawer Transitions */
+@keyframes sheet-overlay-fade-in {
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
+}
+
+@keyframes sheet-overlay-fade-out {
+  from {
+    opacity: 1;
+  }
+  to {
+    opacity: 0;
+  }
+}
+
+@keyframes sheet-slide-in-right {
+  from {
+    transform: translate3d(100%, 0, 0);
+  }
+  to {
+    transform: translate3d(0, 0, 0);
+  }
+}
+
+@keyframes sheet-slide-out-right {
+  from {
+    transform: translate3d(0, 0, 0);
+  }
+  to {
+    transform: translate3d(100%, 0, 0);
+  }
+}
+
+@keyframes sheet-slide-in-left {
+  from {
+    transform: translate3d(-100%, 0, 0);
+  }
+  to {
+    transform: translate3d(0, 0, 0);
+  }
+}
+
+@keyframes sheet-slide-out-left {
+  from {
+    transform: translate3d(0, 0, 0);
+  }
+  to {
+    transform: translate3d(-100%, 0, 0);
+  }
+}
+
+@keyframes sheet-slide-in-top {
+  from {
+    transform: translate3d(0, -100%, 0);
+  }
+  to {
+    transform: translate3d(0, 0, 0);
+  }
+}
+
+@keyframes sheet-slide-out-top {
+  from {
+    transform: translate3d(0, 0, 0);
+  }
+  to {
+    transform: translate3d(0, -100%, 0);
+  }
+}
+
+@keyframes sheet-slide-in-bottom {
+  from {
+    transform: translate3d(0, 100%, 0);
+  }
+  to {
+    transform: translate3d(0, 0, 0);
+  }
+}
+
+@keyframes sheet-slide-out-bottom {
+  from {
+    transform: translate3d(0, 0, 0);
+  }
+  to {
+    transform: translate3d(0, 100%, 0);
+  }
+}
+
+/* Sheet Overlay */
+.sheet-overlay[data-state="open"] {
+  animation: sheet-overlay-fade-in 180ms cubic-bezier(0.16, 1, 0.3, 1) forwards;
+  will-change: opacity;
+}
+
+.sheet-overlay[data-state="closed"] {
+  animation: sheet-overlay-fade-out 140ms cubic-bezier(0.16, 1, 0.3, 1) forwards;
+  will-change: opacity;
+}
+
+/* Sheet Drawers with GPU Compositor Layer */
+.sheet-drawer-right[data-state="open"] {
+  animation: sheet-slide-in-right 220ms cubic-bezier(0.16, 1, 0.3, 1) forwards;
+  will-change: transform;
+}
+
+.sheet-drawer-right[data-state="closed"] {
+  animation: sheet-slide-out-right 160ms cubic-bezier(0.16, 1, 0.3, 1) forwards;
+  will-change: transform;
+}
+
+.sheet-drawer-left[data-state="open"] {
+  animation: sheet-slide-in-left 220ms cubic-bezier(0.16, 1, 0.3, 1) forwards;
+  will-change: transform;
+}
+
+.sheet-drawer-left[data-state="closed"] {
+  animation: sheet-slide-out-left 160ms cubic-bezier(0.16, 1, 0.3, 1) forwards;
+  will-change: transform;
+}
+
+.sheet-drawer-top[data-state="open"] {
+  animation: sheet-slide-in-top 220ms cubic-bezier(0.16, 1, 0.3, 1) forwards;
+  will-change: transform;
+}
+
+.sheet-drawer-top[data-state="closed"] {
+  animation: sheet-slide-out-top 160ms cubic-bezier(0.16, 1, 0.3, 1) forwards;
+  will-change: transform;
+}
+
+.sheet-drawer-bottom[data-state="open"] {
+  animation: sheet-slide-in-bottom 220ms cubic-bezier(0.16, 1, 0.3, 1) forwards;
+  will-change: transform;
+}
+
+.sheet-drawer-bottom[data-state="closed"] {
+  animation: sheet-slide-out-bottom 160ms cubic-bezier(0.16, 1, 0.3, 1) forwards;
+  will-change: transform;
+}
+
+/* Clean theme-aware background for React Flow */
 .react-flow,
 .react-flow__pane,
 .react-flow__background {
-  background-color: #FFFFFF !important;
-  --xy-background-color: #FFFFFF !important;
-  --xy-background-color-default: #FFFFFF !important;
-  --xy-background-pattern-dots-color-default: #CBD5E1 !important;
+  background-color: var(--canvas-bg) !important;
+  --xy-background-color: var(--canvas-bg) !important;
+  --xy-background-color-default: var(--canvas-bg) !important;
+  --xy-background-pattern-dots-color-default: var(--canvas-dots) !important;
 }
 
 .react-flow__node {
@@ -109,4 +585,49 @@ body {
 
 .react-flow__node:active {
   cursor: grabbing;
+}
+
+/* Smooth View Transition for theme switching */
+::view-transition-old(root),
+::view-transition-new(root) {
+  animation-duration: 0.3s;
+  animation-timing-function: cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+::view-transition-old(root) {
+  z-index: 1;
+}
+
+::view-transition-new(root) {
+  z-index: 2;
+}
+
+.dark::view-transition-old(root) {
+  z-index: 2;
+}
+
+.dark::view-transition-new(root) {
+  z-index: 1;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  ::view-transition-group(root),
+  ::view-transition-old(root),
+  ::view-transition-new(root) {
+    animation: none !important;
+  }
+}
+
+/* Smooth CSS fallback for theme switching when View Transitions are unavailable */
+html.theme-transitioning,
+html.theme-transitioning *,
+html.theme-transitioning *::before,
+html.theme-transitioning *::after {
+  transition: background-color 0.3s cubic-bezier(0.4, 0, 0.2, 1),
+              border-color 0.3s cubic-bezier(0.4, 0, 0.2, 1),
+              color 0.3s cubic-bezier(0.4, 0, 0.2, 1),
+              fill 0.3s cubic-bezier(0.4, 0, 0.2, 1),
+              stroke 0.3s cubic-bezier(0.4, 0, 0.2, 1),
+              box-shadow 0.3s cubic-bezier(0.4, 0, 0.2, 1) !important;
+  transition-delay: 0s !important;
 }

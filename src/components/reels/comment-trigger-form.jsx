@@ -183,10 +183,10 @@ export function CommentTriggerForm({ reel, onSaved }) {
   return (
     <form onSubmit={handleSubmit(onSubmit)} className="space-y-6">
       {/* Active Status Banner */}
-      <div className="flex items-center justify-between p-3.5 rounded-[10px] border border-[#E2E8F0] bg-white">
+      <div className="flex items-center justify-between p-3.5 rounded-[10px] border border-border bg-card">
         <div className="space-y-0.5">
-          <label className="text-xs font-bold text-[#1E293B]">Trigger Status</label>
-          <p className="text-[11px] text-[#64748B]">
+          <label className="text-xs font-bold text-foreground">Trigger Status</label>
+          <p className="text-[11px] text-muted-foreground">
             {status === "active"
               ? "Automation is active and actively sending DMs on comments."
               : "Automation is paused. Comments will be recorded as Skipped."}
@@ -200,13 +200,13 @@ export function CommentTriggerForm({ reel, onSaved }) {
             onClick={() => setValue("status", status === "active" ? "inactive" : "active", { shouldDirty: true })}
             className={`h-8 px-3 text-xs font-semibold rounded-full ${
               status === "active"
-                ? "bg-emerald-50 text-emerald-700 border-emerald-300 hover:bg-emerald-100"
-                : "bg-slate-100 text-[#64748B] border-slate-300 hover:bg-slate-200"
+                ? "bg-success-soft text-success border-success/30 hover:bg-success-soft/80"
+                : "bg-muted text-muted-foreground border-border hover:bg-muted/80"
             }`}
           >
             <span
               className={`h-2 w-2 rounded-full mr-1.5 ${
-                status === "active" ? "bg-emerald-500 animate-pulse" : "bg-slate-400"
+                status === "active" ? "bg-success animate-pulse" : "bg-muted-foreground"
               }`}
             />
             {status === "active" ? "Active" : "Paused"}
@@ -215,30 +215,30 @@ export function CommentTriggerForm({ reel, onSaved }) {
       </div>
 
       {/* Trigger Keywords & Matching */}
-      <div className="p-4 rounded-[12px] border border-[#E2E8F0] bg-white space-y-4 shadow-2xs">
+      <div className="p-4 rounded-[12px] border border-border bg-card space-y-4 shadow-2xs">
         <div className="flex items-center justify-between">
           <div className="space-y-0.5">
-            <h4 className="text-xs font-bold text-[#1E293B] flex items-center gap-1.5">
-              <Zap className="h-3.5 w-3.5 text-[#635BDB]" />
+            <h4 className="text-xs font-bold text-foreground flex items-center gap-1.5">
+              <Zap className="h-3.5 w-3.5 text-primary" />
               <span>Comment Trigger Keywords</span>
             </h4>
-            <p className="text-[11px] text-[#64748B]">
+            <p className="text-[11px] text-muted-foreground">
               Keywords followers must comment to receive the automated direct message.
             </p>
           </div>
-          <span className="text-[10px] font-semibold text-[#635BDB] bg-[#EEF2FF] px-2 py-0.5 rounded-full">
+          <span className="text-[10px] font-semibold text-primary bg-primary/10 px-2 py-0.5 rounded-full">
             Case-insensitive
           </span>
         </div>
 
         {/* Match Type Selection */}
         <div className="space-y-1.5">
-          <label className="text-xs font-semibold text-[#1E293B]">Match Type</label>
+          <label className="text-xs font-semibold text-foreground">Match Type</label>
           <Select
             value={matchType}
             onValueChange={(val) => setValue("matchType", val, { shouldDirty: true })}
           >
-            <SelectTrigger className="h-9 text-xs bg-[#F8FAFC]">
+            <SelectTrigger className="h-9 text-xs bg-background">
               <SelectValue />
             </SelectTrigger>
             <SelectContent>
@@ -258,20 +258,20 @@ export function CommentTriggerForm({ reel, onSaved }) {
         {/* Keywords Chips Input (hidden if matchType is 'any') */}
         {matchType !== "any" ? (
           <div className="space-y-2">
-            <label className="text-xs font-semibold text-[#1E293B]">
+            <label className="text-xs font-semibold text-foreground">
               Keywords (Press Enter or comma to add)
             </label>
-            <div className="min-h-[42px] p-1.5 rounded-[8px] border border-[#E2E8F0] bg-[#F8FAFC] flex flex-wrap items-center gap-1.5 focus-within:border-[#635BDB] focus-within:ring-1 focus-within:ring-[#635BDB] transition-all">
+            <div className="min-h-[42px] p-1.5 rounded-[8px] border border-border bg-background flex flex-wrap items-center gap-1.5 focus-within:border-primary focus-within:ring-1 focus-within:ring-primary transition-all">
               {keywords.map((kw) => (
                 <span
                   key={kw}
-                  className="inline-flex items-center gap-1 px-2.5 py-1 rounded-[6px] text-xs font-bold bg-[#635BDB] text-white shadow-2xs animate-in fade-in"
+                  className="inline-flex items-center gap-1 px-2.5 py-1 rounded-[6px] text-xs font-bold bg-primary text-primary-foreground shadow-2xs animate-in fade-in"
                 >
                   <span>{kw}</span>
                   <button
                     type="button"
                     onClick={() => removeKeyword(kw)}
-                    className="hover:bg-white/20 rounded-full p-0.5"
+                    className="hover:bg-primary-foreground/20 rounded-full p-0.5"
                     title="Remove keyword"
                   >
                     <X className="h-3 w-3" />
@@ -285,35 +285,35 @@ export function CommentTriggerForm({ reel, onSaved }) {
                 onChange={(e) => setKeywordInput(e.target.value)}
                 onKeyDown={handleKeywordKeyDown}
                 onBlur={() => addKeyword(keywordInput)}
-                className="flex-1 min-w-[120px] bg-transparent text-xs text-[#1E293B] outline-none px-2 py-1 placeholder:text-[#94A3B8]"
+                className="flex-1 min-w-[120px] bg-transparent text-xs text-foreground outline-none px-2 py-1 placeholder:text-muted-foreground"
               />
             </div>
             {keywords.length === 0 && (
-              <p className="text-[11px] text-red-500 flex items-center gap-1">
+              <p className="text-[11px] text-destructive flex items-center gap-1">
                 <AlertTriangle className="h-3 w-3" />
                 Please enter at least one keyword for this trigger.
               </p>
             )}
-            <p className="text-[10px] text-[#94A3B8]">
+            <p className="text-[10px] text-muted-foreground">
               Tip: Emojis and punctuation in user comments are automatically stripped during evaluation.
             </p>
           </div>
         ) : (
-          <div className="p-3 bg-amber-50 rounded-[8px] border border-amber-200 text-amber-800 text-xs">
+          <div className="p-3 bg-warning-soft rounded-[8px] border border-warning/30 text-warning text-xs">
             ⚡ &quot;Any comment&quot; mode is active. Every comment posted on this Reel will trigger an automated DM.
           </div>
         )}
       </div>
 
       {/* DM Message Text & Placeholders */}
-      <div className="p-4 rounded-[12px] border border-[#E2E8F0] bg-white space-y-3.5 shadow-2xs">
+      <div className="p-4 rounded-[12px] border border-border bg-card space-y-3.5 shadow-2xs">
         <div className="flex items-center justify-between">
           <div className="space-y-0.5">
-            <h4 className="text-xs font-bold text-[#1E293B] flex items-center gap-1.5">
-              <MessageSquare className="h-3.5 w-3.5 text-[#635BDB]" />
+            <h4 className="text-xs font-bold text-foreground flex items-center gap-1.5">
+              <MessageSquare className="h-3.5 w-3.5 text-primary" />
               <span>Direct Message (DM) Content</span>
             </h4>
-            <p className="text-[11px] text-[#64748B]">
+            <p className="text-[11px] text-muted-foreground">
               Personalized Instagram DM sent to the user immediately upon comment trigger.
             </p>
           </div>
@@ -321,7 +321,7 @@ export function CommentTriggerForm({ reel, onSaved }) {
 
         {/* Variable Insertion Chips */}
         <div className="flex items-center gap-1.5 flex-wrap">
-          <span className="text-[11px] font-medium text-[#64748B]">Insert variable:</span>
+          <span className="text-[11px] font-medium text-muted-foreground">Insert variable:</span>
           {[
             { label: "@username", value: "{{username}}" },
             { label: "Product Name", value: "{{product_name}}" },
@@ -332,7 +332,7 @@ export function CommentTriggerForm({ reel, onSaved }) {
               key={item.value}
               type="button"
               onClick={() => insertVariable(item.value)}
-              className="px-2 py-0.5 rounded-[4px] text-[11px] font-semibold bg-[#EEF2FF] text-[#635BDB] hover:bg-[#E0E7FF] border border-[#C7D2FE]/60 transition-colors"
+              className="px-2 py-0.5 rounded-[4px] text-[11px] font-semibold bg-primary/10 text-primary hover:bg-primary/20 border border-primary/20 transition-colors"
             >
               + {item.label}
             </button>
@@ -349,21 +349,21 @@ export function CommentTriggerForm({ reel, onSaved }) {
             className="text-xs leading-relaxed"
           />
           {errors.messageTemplate && (
-            <p className="text-[11px] text-red-500">{errors.messageTemplate.message}</p>
+            <p className="text-[11px] text-destructive">{errors.messageTemplate.message}</p>
           )}
         </div>
 
         {/* Warning if {{product_url}} is missing */}
         {!hasProductUrlPlaceholder && (
-          <div className="p-3 bg-amber-50 rounded-[8px] border border-amber-200 flex items-start gap-2 text-amber-800 text-xs">
-            <AlertTriangle className="h-4 w-4 shrink-0 text-amber-600 mt-0.5" />
+          <div className="p-3 bg-warning-soft rounded-[8px] border border-warning/30 flex items-start gap-2 text-warning text-xs">
+            <AlertTriangle className="h-4 w-4 shrink-0 text-warning mt-0.5" />
             <div>
               <span className="font-semibold block">Missing Product Link!</span>
               <span>Your DM doesn&apos;t include the product link token. Tap </span>
               <button
                 type="button"
                 onClick={() => insertVariable("{{product_url}}")}
-                className="underline font-bold text-amber-900"
+                className="underline font-bold text-warning"
               >
                 + Product URL
               </button>
@@ -374,9 +374,9 @@ export function CommentTriggerForm({ reel, onSaved }) {
       </div>
 
       {/* Link to Send Configuration */}
-      <div className="p-4 rounded-[12px] border border-[#E2E8F0] bg-white space-y-3.5 shadow-2xs">
-        <h4 className="text-xs font-bold text-[#1E293B] flex items-center gap-1.5">
-          <Link2 className="h-3.5 w-3.5 text-[#635BDB]" />
+      <div className="p-4 rounded-[12px] border border-border bg-card space-y-3.5 shadow-2xs">
+        <h4 className="text-xs font-bold text-foreground flex items-center gap-1.5">
+          <Link2 className="h-3.5 w-3.5 text-primary" />
           <span>Destination Store Link</span>
         </h4>
 
@@ -384,8 +384,8 @@ export function CommentTriggerForm({ reel, onSaved }) {
           <label
             className={`p-3 rounded-[8px] border cursor-pointer text-xs flex flex-col justify-between transition-all ${
               linkType === "product"
-                ? "border-[#635BDB] bg-[#EEF2FF]/40 text-[#1E293B]"
-                : "border-[#E2E8F0] bg-white text-[#64748B]"
+                ? "border-primary bg-primary/10 text-foreground"
+                : "border-border bg-card text-muted-foreground"
             }`}
           >
             <div className="flex items-center gap-2">
@@ -394,13 +394,13 @@ export function CommentTriggerForm({ reel, onSaved }) {
                 value="product"
                 checked={linkType === "product"}
                 onChange={() => setValue("linkType", "product", { shouldDirty: true })}
-                className="text-[#635BDB]"
+                className="text-primary"
               />
-              <span className="font-semibold text-xs text-[#1E293B]">
+              <span className="font-semibold text-xs text-foreground">
                 Use Associated Product URL
               </span>
             </div>
-            <p className="text-[10px] text-[#64748B] mt-1 truncate">
+            <p className="text-[10px] text-muted-foreground mt-1 truncate">
               {reel.product?.productUrl || "https://urbanstyle.in/products/..."}
             </p>
           </label>
@@ -408,8 +408,8 @@ export function CommentTriggerForm({ reel, onSaved }) {
           <label
             className={`p-3 rounded-[8px] border cursor-pointer text-xs flex flex-col justify-between transition-all ${
               linkType === "custom"
-                ? "border-[#635BDB] bg-[#EEF2FF]/40 text-[#1E293B]"
-                : "border-[#E2E8F0] bg-white text-[#64748B]"
+                ? "border-primary bg-primary/10 text-foreground"
+                : "border-border bg-card text-muted-foreground"
             }`}
           >
             <div className="flex items-center gap-2">
@@ -418,11 +418,11 @@ export function CommentTriggerForm({ reel, onSaved }) {
                 value="custom"
                 checked={linkType === "custom"}
                 onChange={() => setValue("linkType", "custom", { shouldDirty: true })}
-                className="text-[#635BDB]"
+                className="text-primary"
               />
-              <span className="font-semibold text-xs text-[#1E293B]">Custom URL / Landing Page</span>
+              <span className="font-semibold text-xs text-foreground">Custom URL / Landing Page</span>
             </div>
-            <p className="text-[10px] text-[#64748B] mt-1">
+            <p className="text-[10px] text-muted-foreground mt-1">
               Specify custom campaign UTM or bundle link
             </p>
           </label>
@@ -436,26 +436,26 @@ export function CommentTriggerForm({ reel, onSaved }) {
               className="text-xs"
             />
             {errors.customUrl && (
-              <p className="text-[11px] text-red-500">{errors.customUrl.message}</p>
+              <p className="text-[11px] text-destructive">{errors.customUrl.message}</p>
             )}
           </div>
         )}
       </div>
 
       {/* Advanced Rules: Public Reply & Send Once */}
-      <div className="p-4 rounded-[12px] border border-[#E2E8F0] bg-white space-y-4 shadow-2xs">
-        <h4 className="text-xs font-bold text-[#1E293B] flex items-center gap-1.5">
-          <Sparkles className="h-3.5 w-3.5 text-[#635BDB]" />
+      <div className="p-4 rounded-[12px] border border-border bg-card space-y-4 shadow-2xs">
+        <h4 className="text-xs font-bold text-foreground flex items-center gap-1.5">
+          <Sparkles className="h-3.5 w-3.5 text-primary" />
           <span>Fulfillment Behavior & Public Replies</span>
         </h4>
 
         {/* Send only once per user */}
         <div className="flex items-start justify-between gap-3 pt-1">
           <div className="space-y-0.5">
-            <label className="text-xs font-semibold text-[#1E293B] block">
+            <label className="text-xs font-semibold text-foreground block">
               Send only once per follower
             </label>
-            <p className="text-[11px] text-[#64748B]">
+            <p className="text-[11px] text-muted-foreground">
               Prevents duplicate DMs if the follower comments the trigger multiple times.
             </p>
           </div>
@@ -463,18 +463,18 @@ export function CommentTriggerForm({ reel, onSaved }) {
             type="checkbox"
             checked={sendOncePerUser}
             onChange={(e) => setValue("sendOncePerUser", e.target.checked, { shouldDirty: true })}
-            className="h-4 w-4 rounded text-[#635BDB] focus:ring-[#635BDB] cursor-pointer mt-1"
+            className="h-4 w-4 rounded accent-primary cursor-pointer mt-1"
           />
         </div>
 
-        <div className="border-t border-[#F1F5F9] pt-3">
+        <div className="border-t border-border pt-3">
           {/* Public Comment Reply Toggle */}
           <div className="flex items-start justify-between gap-3">
             <div className="space-y-0.5">
-              <label className="text-xs font-semibold text-[#1E293B] block">
+              <label className="text-xs font-semibold text-foreground block">
                 Public Reply to Comment
               </label>
-              <p className="text-[11px] text-[#64748B]">
+              <p className="text-[11px] text-muted-foreground">
                 Automatically reply under the commenter&apos;s post (e.g. &quot;Check your DMs! 📩&quot;).
               </p>
             </div>
@@ -484,24 +484,24 @@ export function CommentTriggerForm({ reel, onSaved }) {
               onChange={(e) =>
                 setValue("publicReplyEnabled", e.target.checked, { shouldDirty: true })
               }
-              className="h-4 w-4 rounded text-[#635BDB] focus:ring-[#635BDB] cursor-pointer mt-1"
+              className="h-4 w-4 rounded accent-primary cursor-pointer mt-1"
             />
           </div>
 
           {publicReplyEnabled && (
-            <div className="mt-3 p-3 bg-[#F8FAFC] rounded-[8px] border border-[#E2E8F0] space-y-2">
-              <span className="text-[11px] font-semibold text-[#1E293B] block">
+            <div className="mt-3 p-3 bg-muted/40 rounded-[8px] border border-border space-y-2">
+              <span className="text-[11px] font-semibold text-foreground block">
                 Reply Variations (Randomly rotated):
               </span>
               <div className="space-y-1.5">
                 {publicReplies.map((reply, i) => (
-                  <div key={i} className="flex items-center justify-between text-xs bg-white px-2.5 py-1.5 rounded border border-[#E2E8F0]">
-                    <span className="text-[#1E293B]">{reply}</span>
+                  <div key={i} className="flex items-center justify-between text-xs bg-card px-2.5 py-1.5 rounded border border-border">
+                    <span className="text-foreground">{reply}</span>
                     {publicReplies.length > 1 && (
                       <button
                         type="button"
                         onClick={() => setPublicReplies(publicReplies.filter((_, idx) => idx !== i))}
-                        className="text-[#94A3B8] hover:text-red-500"
+                        className="text-muted-foreground hover:text-destructive"
                       >
                         <X className="h-3 w-3" />
                       </button>
@@ -514,7 +514,7 @@ export function CommentTriggerForm({ reel, onSaved }) {
                   value={newReplyInput}
                   onChange={(e) => setNewReplyInput(e.target.value)}
                   placeholder="Add custom reply variation..."
-                  className="h-7 text-xs bg-white"
+                  className="h-7 text-xs bg-background"
                   onKeyDown={(e) => {
                     if (e.key === "Enter") {
                       e.preventDefault();
@@ -535,7 +535,7 @@ export function CommentTriggerForm({ reel, onSaved }) {
                       setNewReplyInput("");
                     }
                   }}
-                  className="h-7 px-2.5 text-xs text-[#635BDB]"
+                  className="h-7 px-2.5 text-xs text-primary"
                 >
                   Add
                 </Button>
@@ -546,10 +546,10 @@ export function CommentTriggerForm({ reel, onSaved }) {
       </div>
 
       {/* Live Phone DM Preview */}
-      <div className="p-4 rounded-[12px] border border-[#E2E8F0] bg-white space-y-3 shadow-2xs">
+      <div className="p-4 rounded-[12px] border border-border bg-card space-y-3 shadow-2xs">
         <div className="flex items-center justify-between">
-          <h4 className="text-xs font-bold text-[#1E293B]">Live Follower DM Experience</h4>
-          <span className="text-[10px] text-[#64748B]">Simulated Live Preview</span>
+          <h4 className="text-xs font-bold text-foreground">Live Follower DM Experience</h4>
+          <span className="text-[10px] text-muted-foreground">Simulated Live Preview</span>
         </div>
         <div className="py-2">
           <MessagePreview
@@ -562,14 +562,14 @@ export function CommentTriggerForm({ reel, onSaved }) {
       </div>
 
       {/* Save Button */}
-      <div className="sticky bottom-0 bg-white/95 backdrop-blur-xs py-3 border-t border-[#E2E8F0] flex items-center justify-between">
-        <span className="text-[11px] text-[#64748B]">
+      <div className="sticky bottom-0 bg-background/95 backdrop-blur-xs py-3 border-t border-border flex items-center justify-between">
+        <span className="text-[11px] text-muted-foreground">
           Syncs automatically with Automations engine.
         </span>
         <Button
           type="submit"
           disabled={updateTriggerMutation.isPending}
-          className="bg-[#635BDB] hover:bg-[#5349C9] text-white text-xs gap-1.5 font-semibold px-5"
+          className="bg-primary hover:bg-primary/90 text-primary-foreground text-xs gap-1.5 font-semibold px-5"
         >
           <Save className="h-3.5 w-3.5" />
           <span>{updateTriggerMutation.isPending ? "Saving..." : "Save Trigger Configuration"}</span>

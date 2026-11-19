@@ -108,4 +108,45 @@ export const tagsService = {
       message: `Segment "${newSegment.name}" created`,
     };
   },
+
+  async getSegmentCustomers(segmentId) {
+    await delay(25);
+    const seg = db.state.segments.find((s) => s.id === segmentId);
+    if (!seg) {
+      return { success: false, data: [], segment: null, message: "Segment not found" };
+    }
+
+    const matching = db.state.customers
+      .filter((customer) => {
+        return seg.conditions.every((cond) => {
+          const val = customer[cond.field];
+          if (cond.operator === "equals") return val === cond.value;
+          if (cond.operator === "not_equals") return val !== cond.value;
+          if (cond.operator === "greater_than") return Number(val || 0) > Number(cond.value);
+          if (cond.operator === "contains") {
+            if (Array.isArray(val)) return val.includes(cond.value);
+            return String(val || "").toLowerCase().includes(String(cond.value).toLowerCase());
+          }
+          return true;
+        });
+      })
+      .map((c) => {
+        const sourceReel = db.state.reels.find((r) => r.id === c.sourceReelId);
+        const tagObjects = (c.tags || [])
+          .map((tId) => db.state.tags.find((t) => t.id === tId))
+          .filter(Boolean);
+        return {
+          ...c,
+          sourceReel,
+          tagObjects,
+        };
+      });
+
+    return {
+      success: true,
+      data: matching,
+      segment: seg,
+      message: "Segment contacts retrieved",
+    };
+  },
 };

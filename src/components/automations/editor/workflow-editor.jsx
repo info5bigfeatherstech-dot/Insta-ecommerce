@@ -247,7 +247,7 @@ function WorkflowEditorInner({ initialAutomation, isCreate = false, onSaveNew })
   };
 
   return (
-    <div className="flex flex-col h-full w-full bg-white overflow-hidden">
+    <div className="flex flex-col h-full w-full bg-background text-foreground overflow-hidden">
       {/* Top Bar Navigation & Actions */}
       <TopBar
         automation={automation}

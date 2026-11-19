@@ -26,14 +26,14 @@ export function DetailPageHeader({
   };
 
   return (
-    <div className="space-y-4 pb-2 border-b border-[#E2E8F0]">
+    <div className="space-y-4 pb-2 border-b border-border">
       {/* Top Bar: Back Button */}
       <div className="flex items-center justify-between">
         <Button
           variant="ghost"
           size="sm"
           onClick={handleBack}
-          className="h-8 px-2.5 -ml-2.5 text-xs text-[#64748B] hover:text-[#1E293B] hover:bg-[#F1F5F9] font-semibold gap-1.5 transition-colors"
+          className="h-8 px-2.5 -ml-2.5 text-xs text-muted-foreground hover:text-foreground hover:bg-muted font-semibold gap-1.5 transition-colors"
         >
           <ArrowLeft className="h-4 w-4" />
           <span>{backLabel}</span>
@@ -47,13 +47,13 @@ export function DetailPageHeader({
       <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3">
         <div className="space-y-1">
           <div className="flex items-center gap-3 flex-wrap">
-            <h1 className="text-xl sm:text-2xl font-bold tracking-tight text-[#1E293B]">
+            <h1 className="text-xl sm:text-2xl font-bold tracking-tight text-foreground">
               {title}
             </h1>
             {badge && <div>{badge}</div>}
           </div>
           {subtitle && (
-            <p className="text-xs sm:text-sm text-[#64748B]">
+            <p className="text-xs sm:text-sm text-muted-foreground">
               {subtitle}
             </p>
           )}

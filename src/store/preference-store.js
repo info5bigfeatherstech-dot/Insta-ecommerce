@@ -3,7 +3,6 @@ import { create } from "zustand";
 const PREF_STORAGE_KEY = "instacommerce_preferences";
 
 const defaultPreferences = {
-  theme: "light",
   tableDensity: "normal", // 'compact' | 'normal' | 'comfortable'
   language: "en",
   currency: "INR",
@@ -22,7 +21,10 @@ function loadStoredPreferences() {
   try {
     const raw = localStorage.getItem(PREF_STORAGE_KEY);
     if (!raw) return defaultPreferences;
-    return { ...defaultPreferences, ...JSON.parse(raw) };
+    const parsed = JSON.parse(raw);
+    // Remove legacy theme key if present to ensure single source of truth in next-themes
+    delete parsed.theme;
+    return { ...defaultPreferences, ...parsed };
   } catch {
     return defaultPreferences;
   }
@@ -52,7 +54,8 @@ export const usePreferenceStore = create((set, get) => ({
 
   updatePreferences: (newPrefs) => {
     set((state) => {
-      const updated = { ...state, ...newPrefs };
+      const { theme, ...prefsWithoutTheme } = newPrefs;
+      const updated = { ...state, ...prefsWithoutTheme };
       if (typeof document !== "undefined" && newPrefs.tableDensity) {
         document.documentElement.setAttribute("data-density", newPrefs.tableDensity);
       }

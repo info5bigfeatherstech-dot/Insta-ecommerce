@@ -36,6 +36,10 @@ const productSchema = z.object({
   status: z.enum(["active", "inactive"]),
 });
 
+function generateRandomSku() {
+  return `SKU-${Math.floor(1000 + Math.random() * 9000)}`;
+}
+
 export function ProductFormDialog({
   open,
   onOpenChange,
@@ -84,7 +88,7 @@ export function ProductFormDialog({
     } else {
       reset({
         name: "",
-        sku: `SKU-${Math.floor(1000 + Math.random() * 9000)}`,
+        sku: generateRandomSku(),
         categoryId: categories[0]?.id || "cat_1",
         price: 999,
         compareAtPrice: 1299,
@@ -116,21 +120,21 @@ export function ProductFormDialog({
         <form onSubmit={handleSubmit(onFormSubmit)} className="space-y-4 pt-2">
           {/* Name */}
           <div className="space-y-1">
-            <label className="text-xs font-semibold text-[#1E293B]">Product Name *</label>
+            <label className="text-xs font-semibold text-foreground">Product Name *</label>
             <Input {...register("name")} placeholder="e.g. Nike Pegasus 40 Running Shoes" />
-            {errors.name && <p className="text-[11px] text-red-500">{errors.name.message}</p>}
+            {errors.name && <p className="text-[11px] text-destructive">{errors.name.message}</p>}
           </div>
 
           {/* SKU & Category */}
           <div className="grid grid-cols-2 gap-3">
             <div className="space-y-1">
-              <label className="text-xs font-semibold text-[#1E293B]">SKU Code *</label>
+              <label className="text-xs font-semibold text-foreground">SKU Code *</label>
               <Input {...register("sku")} placeholder="NK-RUN-PEG40" />
-              {errors.sku && <p className="text-[11px] text-red-500">{errors.sku.message}</p>}
+              {errors.sku && <p className="text-[11px] text-destructive">{errors.sku.message}</p>}
             </div>
 
             <div className="space-y-1">
-              <label className="text-xs font-semibold text-[#1E293B]">Category *</label>
+              <label className="text-xs font-semibold text-foreground">Category *</label>
               <Select
                 value={watch("categoryId")}
                 onValueChange={(val) => setValue("categoryId", val)}
@@ -147,7 +151,7 @@ export function ProductFormDialog({
                 </SelectContent>
               </Select>
               {errors.categoryId && (
-                <p className="text-[11px] text-red-500">{errors.categoryId.message}</p>
+                <p className="text-[11px] text-destructive">{errors.categoryId.message}</p>
               )}
             </div>
           </div>
@@ -155,48 +159,48 @@ export function ProductFormDialog({
           {/* Price, Compare Price, Stock */}
           <div className="grid grid-cols-3 gap-3">
             <div className="space-y-1">
-              <label className="text-xs font-semibold text-[#1E293B]">Price (₹) *</label>
+              <label className="text-xs font-semibold text-foreground">Price (₹) *</label>
               <Input type="number" {...register("price")} placeholder="1499" />
-              {errors.price && <p className="text-[11px] text-red-500">{errors.price.message}</p>}
+              {errors.price && <p className="text-[11px] text-destructive">{errors.price.message}</p>}
             </div>
 
             <div className="space-y-1">
-              <label className="text-xs font-semibold text-[#1E293B]">Compare At (₹)</label>
+              <label className="text-xs font-semibold text-foreground">Compare At (₹)</label>
               <Input type="number" {...register("compareAtPrice")} placeholder="1999" />
             </div>
 
             <div className="space-y-1">
-              <label className="text-xs font-semibold text-[#1E293B]">Stock Qty *</label>
+              <label className="text-xs font-semibold text-foreground">Stock Qty *</label>
               <Input type="number" {...register("stock")} placeholder="45" />
-              {errors.stock && <p className="text-[11px] text-red-500">{errors.stock.message}</p>}
+              {errors.stock && <p className="text-[11px] text-destructive">{errors.stock.message}</p>}
             </div>
           </div>
 
           {/* Description */}
           <div className="space-y-1">
-            <label className="text-xs font-semibold text-[#1E293B]">Description *</label>
+            <label className="text-xs font-semibold text-foreground">Description *</label>
             <Textarea
               {...register("description")}
               placeholder="Highlight product features, materials, and sizing..."
               rows={3}
             />
             {errors.description && (
-              <p className="text-[11px] text-red-500">{errors.description.message}</p>
+              <p className="text-[11px] text-destructive">{errors.description.message}</p>
             )}
           </div>
 
           {/* Product URL */}
           <div className="space-y-1">
-            <label className="text-xs font-semibold text-[#1E293B]">Store URL *</label>
+            <label className="text-xs font-semibold text-foreground">Store URL *</label>
             <Input {...register("productUrl")} placeholder="https://urbanstyle.in/products/..." />
             {errors.productUrl && (
-              <p className="text-[11px] text-red-500">{errors.productUrl.message}</p>
+              <p className="text-[11px] text-destructive">{errors.productUrl.message}</p>
             )}
           </div>
 
           {/* Status */}
           <div className="space-y-1">
-            <label className="text-xs font-semibold text-[#1E293B]">Status</label>
+            <label className="text-xs font-semibold text-foreground">Status</label>
             <Select
               value={watch("status")}
               onValueChange={(val) => setValue("status", val)}
@@ -211,7 +215,7 @@ export function ProductFormDialog({
             </Select>
           </div>
 
-          <DialogFooter className="mt-4 pt-3 border-t border-[#E2E8F0]">
+          <DialogFooter className="mt-4 pt-3 border-t border-border">
             <Button
               type="button"
               variant="outline"
