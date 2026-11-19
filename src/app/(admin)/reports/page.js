@@ -47,7 +47,7 @@ export default function ReportsPage() {
   const activeDef = REPORT_DEFINITIONS.find((r) => r.id === selectedReport) || REPORT_DEFINITIONS[0];
 
   return (
-    <div className="space-y-6">
+    <div className="space-y-6 ">
       <PageHeader
         title="Custom Reports & Auditing"
         description="Comprehensive audit exports covering marketing funnels, delivery performance, and revenue attribution."

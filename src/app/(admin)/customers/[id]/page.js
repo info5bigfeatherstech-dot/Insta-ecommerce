@@ -4,10 +4,16 @@ import * as React from "react";
 import { Suspense } from "react";
 import Link from "next/link";
 import { useParams, useRouter } from "next/navigation";
-import { useCustomer, useAddTagToCustomer, useRemoveTagFromCustomer } from "@/hooks/use-customers";
+import {
+  useCustomer,
+  useAddTagToCustomer,
+  useRemoveTagFromCustomer,
+  useUpdateCustomer,
+} from "@/hooks/use-customers";
 import { DetailPageHeader } from "@/components/shared/detail-page-header";
 import { StatusBadge } from "@/components/shared/status-badge";
 import { LoadingState } from "@/components/shared/loading-state";
+import { EditCustomerDialog } from "@/components/customers/edit-customer-dialog";
 import { Avatar, AvatarFallback } from "@/components/ui/avatar";
 import { Card, CardHeader, CardTitle, CardDescription, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
@@ -42,6 +48,8 @@ import {
   Clock,
   Zap,
   Film,
+  Edit2,
+  MapPin,
 } from "lucide-react";
 import { db } from "@/data/db";
 
@@ -53,12 +61,32 @@ function CustomerProfileContent() {
   const { data: customer, isLoading } = useCustomer(id);
   const addTagMutation = useAddTagToCustomer();
   const removeTagMutation = useRemoveTagFromCustomer();
+  const updateCustomerMutation = useUpdateCustomer();
+
+  const [editOpen, setEditOpen] = React.useState(false);
 
   const allTags = db.state.tags;
 
   if (isLoading || !customer) {
     return <LoadingState text="Loading customer dossier and interaction history..." />;
   }
+
+  const handleSaveCustomer = async (formData) => {
+    await updateCustomerMutation.mutateAsync({
+      id: customer.id,
+      data: {
+        name: formData.name,
+        username: formData.username,
+        email: formData.email,
+        phone: formData.phone,
+        street: formData.street,
+        city: formData.city,
+        state: formData.state,
+        postalCode: formData.postalCode,
+        country: formData.country,
+      },
+    });
+  };
 
   const palette = getAvatarColor(customer.name);
   const initials = getInitials(customer.name);
@@ -77,6 +105,15 @@ function CustomerProfileContent() {
         badge={<StatusBadge status={customer.status} />}
         actions={
           <div className="flex items-center gap-2">
+            <Button
+              variant="outline"
+              size="sm"
+              onClick={() => setEditOpen(true)}
+              className="text-xs gap-1.5 font-semibold text-[#1E293B] hover:text-[#635BDB]"
+            >
+              <Edit2 className="h-3.5 w-3.5" />
+              <span>Edit Details & Address</span>
+            </Button>
             <Button asChild variant="outline" size="sm" className="text-xs gap-1.5">
               <Link href={`/inbox?user=${customer.username}`}>
                 <MessageSquare className="h-3.5 w-3.5 text-[#635BDB]" />
@@ -169,19 +206,30 @@ function CustomerProfileContent() {
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
         {/* Profile Info & Instagram Details */}
         <Card className="space-y-4 p-5">
-          <div className="flex items-center gap-3 pb-3 border-b border-[#E2E8F0]">
-            <Avatar className="h-12 w-12 border border-[#E2E8F0]">
-              <AvatarFallback
-                style={{ backgroundColor: palette.bg, color: palette.text }}
-                className="font-bold text-sm"
-              >
-                {initials}
-              </AvatarFallback>
-            </Avatar>
-            <div>
-              <h3 className="text-sm font-bold text-[#1E293B]">{customer.name}</h3>
-              <p className="text-xs text-[#64748B]">{customer.city || "India"}</p>
+          <div className="flex items-center justify-between pb-3 border-b border-[#E2E8F0]">
+            <div className="flex items-center gap-3">
+              <Avatar className="h-12 w-12 border border-[#E2E8F0]">
+                <AvatarFallback
+                  style={{ backgroundColor: palette.bg, color: palette.text }}
+                  className="font-bold text-sm"
+                >
+                  {initials}
+                </AvatarFallback>
+              </Avatar>
+              <div>
+                <h3 className="text-sm font-bold text-[#1E293B]">{customer.name}</h3>
+                <p className="text-xs text-[#64748B]">{customer.address?.city || customer.city || "India"}</p>
+              </div>
             </div>
+            <Button
+              variant="ghost"
+              size="sm"
+              onClick={() => setEditOpen(true)}
+              className="h-7 px-2 text-xs text-[#635BDB] hover:bg-[#EEF2FF] gap-1 font-semibold"
+            >
+              <Edit2 className="h-3 w-3" />
+              <span>Edit</span>
+            </Button>
           </div>
 
           <div className="space-y-2.5 text-xs">
@@ -207,6 +255,25 @@ function CustomerProfileContent() {
                 <span>Phone</span>
               </span>
               <span className="font-medium text-[#1E293B]">{customer.phone || "—"}</span>
+            </div>
+
+            {/* Person Physical Address */}
+            <div className="flex items-start justify-between py-1 border-t border-[#F1F5F9]">
+              <span className="text-[#64748B] flex items-center gap-1.5 shrink-0 pt-0.5">
+                <MapPin className="h-3.5 w-3.5 text-[#635BDB]" />
+                <span>Address</span>
+              </span>
+              <div className="text-right space-y-0.5">
+                <span className="font-medium text-[#1E293B] block">
+                  {customer.address?.street || "Flat 402, Green Acres Residency"}
+                </span>
+                <span className="text-[11px] text-[#64748B] block">
+                  {customer.address?.city || customer.city || "Mumbai"}, {customer.address?.state || "Maharashtra"} - {customer.address?.postalCode || "400050"}
+                </span>
+                <span className="text-[10px] text-[#94A3B8] block">
+                  {customer.address?.country || "India"}
+                </span>
+              </div>
             </div>
 
             <div className="flex items-center justify-between py-1 border-t border-[#F1F5F9]">
@@ -501,6 +568,25 @@ function CustomerProfileContent() {
           </div>
         </CardContent>
       </Card>
+
+      {/* Edit Customer Profile & Address Dialog */}
+      <EditCustomerDialog
+        open={editOpen}
+        onOpenChange={setEditOpen}
+        initialData={{
+          name: customer.name,
+          username: customer.username,
+          email: customer.email,
+          phone: customer.phone,
+          street: customer.address?.street,
+          city: customer.address?.city || customer.city,
+          state: customer.address?.state,
+          postalCode: customer.address?.postalCode,
+          country: customer.address?.country || "India",
+        }}
+        onSave={handleSaveCustomer}
+        isLoading={updateCustomerMutation.isPending}
+      />
     </div>
   );
 }

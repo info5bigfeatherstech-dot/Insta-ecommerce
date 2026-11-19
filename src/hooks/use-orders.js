@@ -38,3 +38,36 @@ export function useUpdateOrderStatus() {
     },
   });
 }
+
+export function useUpdateOrderCustomer() {
+  const queryClient = useQueryClient();
+  return useMutation({
+    mutationFn: ({ orderId, customerData }) =>
+      ordersService.updateOrderCustomerDetails(orderId, customerData),
+    onSuccess: (res) => {
+      toast.success(res.message);
+      queryClient.invalidateQueries({ queryKey: orderKeys.all });
+      queryClient.invalidateQueries({ queryKey: ["customers"] });
+      queryClient.invalidateQueries({ queryKey: ["dashboard"] });
+    },
+    onError: (err) => {
+      toast.error(err.message || "Failed to update customer details");
+    },
+  });
+}
+
+export function useUpdateOrderItems() {
+  const queryClient = useQueryClient();
+  return useMutation({
+    mutationFn: ({ orderId, items }) => ordersService.updateOrderItems(orderId, items),
+    onSuccess: (res) => {
+      toast.success(res.message);
+      queryClient.invalidateQueries({ queryKey: orderKeys.all });
+      queryClient.invalidateQueries({ queryKey: ["dashboard"] });
+      queryClient.invalidateQueries({ queryKey: ["products"] });
+    },
+    onError: (err) => {
+      toast.error(err.message || "Failed to update order items");
+    },
+  });
+}

@@ -48,3 +48,19 @@ export function useRemoveTagFromCustomer() {
     onError: (err) => toast.error(err.message || "Failed to remove tag"),
   });
 }
+
+export function useUpdateCustomer() {
+  const queryClient = useQueryClient();
+  return useMutation({
+    mutationFn: ({ id, data }) => customersService.updateCustomer(id, data),
+    onSuccess: (res) => {
+      toast.success(res.message);
+      queryClient.invalidateQueries({ queryKey: customerKeys.all });
+      queryClient.invalidateQueries({ queryKey: ["orders"] });
+      queryClient.invalidateQueries({ queryKey: ["dashboard"] });
+    },
+    onError: (err) => {
+      toast.error(err.message || "Failed to update customer details");
+    },
+  });
+}

@@ -168,10 +168,26 @@ export const customersService = {
       },
     ];
 
+    const latestOrder = orders[0];
+    const address = customer.address || (latestOrder?.shippingAddress ? {
+      street: latestOrder.shippingAddress.street,
+      city: latestOrder.shippingAddress.city,
+      state: latestOrder.shippingAddress.state,
+      postalCode: latestOrder.shippingAddress.postalCode,
+      country: latestOrder.shippingAddress.country || "India",
+    } : {
+      street: "Flat 402, Green Acres Residency",
+      city: customer.city || "Mumbai",
+      state: "Maharashtra",
+      postalCode: "400050",
+      country: "India",
+    });
+
     return {
       success: true,
       data: {
         ...customer,
+        address,
         sourceReel,
         tagObjects,
         products,
@@ -216,6 +232,65 @@ export const customersService = {
       success: true,
       data: customer,
       message: "Tag removed successfully",
+    };
+  },
+
+  async updateCustomer(id, data) {
+    await delay(350);
+    const index = db.state.customers.findIndex((c) => c.id === id);
+    if (index === -1) {
+      return { success: false, data: null, message: "Customer not found" };
+    }
+
+    const current = db.state.customers[index];
+    const updatedAddress = {
+      ...(current.address || {}),
+      ...(data.address || {}),
+      ...(data.street ? { street: data.street } : {}),
+      ...(data.city ? { city: data.city } : {}),
+      ...(data.state ? { state: data.state } : {}),
+      ...(data.postalCode ? { postalCode: data.postalCode } : {}),
+      ...(data.country ? { country: data.country } : {}),
+    };
+
+    const updated = {
+      ...current,
+      ...(data.name ? { name: data.name } : {}),
+      ...(data.username ? { username: data.username.startsWith("@") ? data.username : `@${data.username}` } : {}),
+      ...(data.email !== undefined ? { email: data.email } : {}),
+      ...(data.phone !== undefined ? { phone: data.phone } : {}),
+      ...(data.city ? { city: data.city } : (updatedAddress.city ? { city: updatedAddress.city } : {})),
+      address: updatedAddress,
+    };
+
+    db.state.customers[index] = updated;
+
+    // Sync across associated orders
+    db.state.orders.forEach((ord) => {
+      if (ord.customerId === id) {
+        if (data.name) ord.customerName = data.name;
+        if (data.username) ord.instagramUsername = updated.username;
+        if (data.email) ord.customerEmail = data.email;
+        if (data.phone) ord.customerPhone = data.phone;
+        ord.shippingAddress = {
+          ...(ord.shippingAddress || {}),
+          name: data.name || ord.shippingAddress?.name,
+          street: updatedAddress.street || ord.shippingAddress?.street,
+          city: updatedAddress.city || ord.shippingAddress?.city,
+          state: updatedAddress.state || ord.shippingAddress?.state,
+          postalCode: updatedAddress.postalCode || ord.shippingAddress?.postalCode,
+          country: updatedAddress.country || ord.shippingAddress?.country || "India",
+          phone: data.phone || ord.shippingAddress?.phone,
+        };
+      }
+    });
+
+    db.persist();
+
+    return {
+      success: true,
+      data: updated,
+      message: "Customer details and address updated successfully",
     };
   },
 };
